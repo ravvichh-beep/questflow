@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хроники Судьбы</title>
+<meta name="theme-color" content="#c9a84c">
+<meta name="description" content="RPG-менеджер задач — прокачивайся, выполняя квесты">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="QuestFlow">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0a0e1a;
+  --navy2:#0f1525;
+  --navy3:#141c2e;
+  --navy4:#1a2438;
+  --blue-mid:#1e3a5f;
+  --blue-bright:#2d5a8e;
+  --sapphire:#3b82c4;
+  --sky:#6aaddf;
+  --gold:#c9a84c;
+  --gold-light:#e8c97a;
+  --gold-dim:#7a6130;
+  --gold-dark:#3d2f10;
+  --silver:#9ab0c8;
+  --silver-dim:#4a6480;
+  --text-prim:#e8dfc8;
+  --text-sec:#8aa4c0;
+  --text-dim:#3d5470;
+  --border-dim:rgba(58,130,196,0.15);
+  --border-mid:rgba(58,130,196,0.3);
+  --border-gold:rgba(201,168,76,0.3);
+  --red:#c0392b;
+  --green:#27ae60;
+  --purple:#8e44ad;
+}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--navy);color:var(--text-prim);min-height:100vh;overflow-x:hidden;}
+
+/* ===== LAYOUT ===== */
+.app{display:grid;grid-template-columns:72px 1fr;grid-template-rows:auto 1fr;min-height:100vh;}
+.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--navy2);border-bottom:1px solid var(--border-mid);position:sticky;top:0;z-index:50;}
+.logo{font-family:'Uncial Antiqua',serif;font-size:20px;color:var(--gold);letter-spacing:2px;}
+.logo span{color:var(--silver);}
+.topbar-center{display:flex;align-items:center;gap:20px;}
+.xp-wrap{display:flex;align-items:center;gap:8px;}
+.xp-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--text-dim);}
+.xp-bar{width:160px;height:5px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--blue-mid),var(--sapphire));border-radius:3px;transition:width 0.5s;}
+.gold-display{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);display:flex;align-items:center;gap:5px;}
+.level-pill{font-family:'Cinzel',serif;font-size:11px;font-weight:600;background:var(--blue-mid);border:1px solid var(--border-mid);color:var(--sky);padding:3px 10px;border-radius:2px;letter-spacing:1px;}
+
+/* ===== ICON NAV ===== */
+.sidenav{background:var(--navy2);border-right:1px solid var(--border-dim);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px;}
+.nav-icon{width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;color:var(--text-dim);font-size:20px;transition:all 0.15s;position:relative;border:1px solid transparent;}
+.nav-icon:hover{color:var(--silver);background:rgba(255,255,255,0.04);}
+.nav-icon.active{color:var(--gold);background:rgba(201,168,76,0.08);border-color:var(--border-gold);}
+.nav-icon .nav-tip{position:absolute;left:56px;background:var(--navy3);border:1px solid var(--border-mid);color:var(--text-prim);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;padding:5px 10px;border-radius:3px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.15s;}
+.nav-icon:hover .nav-tip{opacity:1;}
+.nav-sep{width:32px;height:1px;background:var(--border-dim);margin:6px 0;}
+
+/* ===== MAIN ===== */
+.main{overflow-y:auto;height:calc(100vh - 56px);}
+.view{display:none;min-height:100%;}
+.view.active{display:block;}
+
+/* ===== HERO BANNER ===== */
+.hero-banner{position:relative;height:260px;overflow:hidden;display:flex;align-items:flex-end;}
+.banner-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0a1428 0%,#0e2040 40%,#162d54 70%,#0a1428 100%);}
+.banner-bg::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82c4' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.banner-castle{position:absolute;right:0;top:0;bottom:0;width:55%;background:linear-gradient(to left,rgba(21,45,80,0.9) 0%,transparent 100%);display:flex;align-items:center;justify-content:flex-end;padding-right:40px;}
+.castle-svg{opacity:0.25;}
+.banner-content{position:relative;padding:28px 32px;flex:1;}
+.class-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--sky);background:rgba(58,130,196,0.15);border:1px solid var(--border-mid);padding:4px 12px;border-radius:2px;margin-bottom:12px;}
+.hero-name-big{font-family:'Cinzel',serif;font-size:32px;font-weight:700;color:var(--text-prim);line-height:1.1;margin-bottom:6px;}
+.hero-title{font-family:'IM Fell English',serif;font-size:16px;font-style:italic;color:var(--gold);margin-bottom:16px;}
+.hero-stats-row{display:flex;gap:24px;}
+.hstat{text-align:center;}
+.hstat-icon{font-size:18px;margin-bottom:2px;}
+.hstat-val{font-family:'Cinzel',serif;font-size:18px;font-weight:600;color:var(--text-prim);}
+.hstat-lbl{font-size:11px;color:var(--text-dim);letter-spacing:1px;}
+
+/* ===== AVATAR ===== */
+.avatar-frame{position:absolute;right:32px;bottom:0;width:180px;height:220px;}
+.avatar-svg{width:100%;height:100%;}
+
+/* ===== CONTENT AREA ===== */
+.content{padding:28px 32px;max-width:1000px;}
+.section-hdr{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.section-hdr::after{content:'';flex:1;height:1px;background:var(--border-dim);}
+
+/* ===== QUEST CARDS ===== */
+.quest-main{background:var(--navy2);border:1px solid var(--border-mid);border-radius:4px;overflow:hidden;margin-bottom:24px;position:relative;}
+.quest-main-img{height:160px;background:linear-gradient(to bottom,rgba(14,32,64,0) 0%,var(--navy2) 100%),linear-gradient(135deg,#0d2040 0%,#1a3a6e 50%,#0a1e40 100%);position:relative;display:flex;align-items:flex-end;padding:20px 24px;}
+.quest-main-img .dungeon-art{position:absolute;inset:0;opacity:0.4;}
+.quest-chain-tag{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--sky);background:rgba(58,130,196,0.15);border:1px solid var(--border-mid);padding:3px 8px;border-radius:2px;margin-bottom:8px;display:inline-block;}
+.quest-main-title{font-family:'Cinzel',serif;font-size:20px;font-weight:600;color:var(--gold);line-height:1.2;}
+.quest-main-body{padding:20px 24px;}
+.quest-lore{font-family:'IM Fell English',serif;font-size:15px;font-style:italic;color:var(--text-sec);line-height:1.8;margin-bottom:16px;border-left:2px solid var(--border-gold);padding-left:14px;}
+.quest-tags{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.qtag{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;display:flex;align-items:center;gap:5px;color:var(--text-sec);background:var(--navy3);border:1px solid var(--border-dim);padding:5px 10px;border-radius:2px;}
+.qtag.gold{color:var(--gold);border-color:var(--border-gold);}
+.qtag.danger{color:#e74c3c;border-color:rgba(231,76,60,0.3);}
+.quest-actions{display:flex;gap:10px;align-items:center;}
+.next-hint{margin-top:14px;padding:10px 14px;background:rgba(58,130,196,0.05);border:1px solid var(--border-dim);border-radius:2px;font-size:13px;color:var(--text-dim);display:flex;align-items:center;gap:8px;}
+.next-hint strong{color:var(--text-sec);font-style:italic;}
+
+/* SIDE QUESTS */
+.side-quests{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+.sq{background:var(--navy2);border:1px solid var(--border-dim);border-radius:4px;padding:16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color 0.15s;}
+.sq::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--sapphire);opacity:0.5;}
+.sq:hover{border-color:var(--border-mid);}
+.sq-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--sky);margin-bottom:6px;}
+.sq-title{font-family:'Cinzel',serif;font-size:13px;color:var(--text-prim);margin-bottom:5px;}
+.sq-desc{font-size:13px;color:var(--text-dim);font-style:italic;}
+.sq-meta{display:flex;gap:8px;margin-top:10px;align-items:center;}
+
+/* ADD QUEST */
+.add-btn{width:100%;background:transparent;border:1px dashed var(--border-dim);border-radius:4px;padding:14px;color:var(--text-dim);font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:28px;}
+.add-btn:hover{border-color:var(--border-mid);color:var(--sky);}
+
+/* ===== BUTTONS ===== */
+.btn{font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border:1px solid;}
+.btn-gold{background:var(--gold);color:#0a0e1a;border-color:var(--gold);}
+.btn-gold:hover{background:var(--gold-light);}
+.btn-outline{background:transparent;color:var(--text-sec);border-color:var(--border-mid);}
+.btn-outline:hover{color:var(--text-prim);border-color:var(--border-mid);}
+.btn-blue{background:rgba(58,130,196,0.15);color:var(--sky);border-color:var(--border-mid);}
+.btn-blue:hover{background:rgba(58,130,196,0.25);}
+.btn-red{background:rgba(192,57,43,0.15);color:#e74c3c;border-color:rgba(192,57,43,0.3);}
+.btn-red:hover{background:rgba(192,57,43,0.25);}
+
+/* ===== CHARACTER VIEW ===== */
+.char-grid{display:grid;grid-template-columns:280px 1fr;gap:24px;}
+.char-portrait{background:var(--navy2);border:1px solid var(--border-mid);border-radius:4px;padding:24px;text-align:center;position:relative;}
+.portrait-art{width:160px;height:200px;margin:0 auto 16px;position:relative;}
+.char-name{font-family:'Cinzel',serif;font-size:18px;font-weight:600;color:var(--text-prim);margin-bottom:4px;}
+.char-class{font-family:'IM Fell English',serif;font-style:italic;color:var(--gold);font-size:14px;margin-bottom:16px;}
+.stat-bars{display:flex;flex-direction:column;gap:10px;text-align:left;}
+.stat-row{display:flex;align-items:center;gap:10px;}
+.stat-name{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:var(--text-dim);width:80px;flex-shrink:0;}
+.stat-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;}
+.stat-bar-fill{height:100%;border-radius:3px;transition:width 0.4s;}
+.stat-val{font-family:'Cinzel',serif;font-size:11px;color:var(--text-sec);width:40px;text-align:right;}
+
+/* EQUIPMENT */
+.equipment-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.equip-slot{background:var(--navy3);border:1px solid var(--border-dim);border-radius:4px;padding:14px;cursor:pointer;transition:border-color 0.15s;}
+.equip-slot:hover{border-color:var(--border-mid);}
+.equip-slot-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;}
+.equip-item{display:flex;align-items:center;gap:10px;}
+.equip-icon{width:36px;height:36px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.equip-icon.rare{background:rgba(142,68,173,0.2);border:1px solid rgba(142,68,173,0.4);}
+.equip-icon.common{background:rgba(58,130,196,0.15);border:1px solid var(--border-dim);}
+.equip-icon.legendary{background:rgba(201,168,76,0.15);border:1px solid var(--border-gold);}
+.equip-name{font-family:'Cinzel',serif;font-size:12px;color:var(--text-prim);}
+.equip-bonus{font-size:11px;color:var(--green);}
+.equip-empty{font-size:12px;color:var(--text-dim);font-style:italic;}
+
+/* SHOP */
+.shop-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px;}
+.shop-item{background:var(--navy3);border:1px solid var(--border-dim);border-radius:4px;padding:14px;text-align:center;cursor:pointer;transition:all 0.15s;}
+.shop-item:hover{border-color:var(--border-mid);background:var(--navy4);}
+.shop-item-icon{font-size:28px;margin-bottom:8px;}
+.shop-item-name{font-family:'Cinzel',serif;font-size:12px;color:var(--text-prim);margin-bottom:4px;}
+.shop-item-bonus{font-size:11px;color:var(--green);margin-bottom:8px;}
+.shop-item-price{font-family:'Cinzel',serif;font-size:12px;color:var(--gold);display:flex;align-items:center;justify-content:center;gap:4px;}
+
+/* ===== DUNGEON VIEW ===== */
+.dungeon-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;min-height:calc(100vh - 56px);padding:28px 32px;}
+.dungeon-arena{background:var(--navy2);border:1px solid var(--border-mid);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;}
+.dungeon-scene{flex:1;min-height:300px;position:relative;background:linear-gradient(to bottom,#060d1a 0%,#0a1728 40%,#0f2040 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.dungeon-floor{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to top,#0a1020 0%,transparent 100%);}
+.dungeon-pillars{position:absolute;inset:0;pointer-events:none;}
+.battle-log{padding:16px;border-top:1px solid var(--border-dim);max-height:160px;overflow-y:auto;font-size:13px;font-family:'IM Fell English',serif;font-style:italic;}
+.log-line{padding:3px 0;color:var(--text-sec);}
+.log-line.dmg{color:#e74c3c;}
+.log-line.heal{color:var(--green);}
+.log-line.gold-line{color:var(--gold);}
+.log-line.sys{color:var(--sky);}
+
+.dungeon-panel{display:flex;flex-direction:column;gap:14px;}
+.panel-card{background:var(--navy2);border:1px solid var(--border-dim);border-radius:4px;padding:16px;}
+.panel-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--text-dim);margin-bottom:12px;}
+
+/* HP/MP bars */
+.hp-bar-wrap{margin-bottom:8px;}
+.bar-label-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.bar-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:var(--text-dim);}
+.bar-val{font-family:'Cinzel',serif;font-size:11px;color:var(--text-sec);}
+.hp-bar{height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;}
+.hp-fill{height:100%;background:linear-gradient(90deg,#c0392b,#e74c3c);border-radius:4px;transition:width 0.3s;}
+.mp-fill{height:100%;background:linear-gradient(90deg,var(--blue-mid),var(--sapphire));border-radius:4px;transition:width 0.3s;}
+
+/* Enemy card */
+.enemy-info{text-align:center;padding:16px;}
+.enemy-name{font-family:'Cinzel',serif;font-size:16px;color:var(--text-prim);margin-bottom:4px;}
+.enemy-type{font-size:12px;color:var(--text-dim);font-style:italic;margin-bottom:12px;}
+.enemy-hp-bar{height:10px;background:rgba(255,255,255,0.05);border-radius:5px;overflow:hidden;margin-bottom:8px;}
+.enemy-hp-fill{height:100%;background:linear-gradient(90deg,#8b0000,#c0392b);border-radius:5px;transition:width 0.3s;}
+
+/* Action buttons */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.action-btn{background:var(--navy3);border:1px solid var(--border-dim);border-radius:3px;padding:12px 8px;cursor:pointer;transition:all 0.15s;text-align:center;}
+.action-btn:hover:not(:disabled){background:var(--navy4);border-color:var(--border-mid);}
+.action-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.action-name{font-family:'Cinzel',serif;font-size:11px;color:var(--text-prim);margin-bottom:2px;}
+.action-desc{font-size:10px;color:var(--text-dim);}
+
+/* Enemy SVG art in dungeon */
+.enemy-art{position:relative;z-index:2;}
+.hero-art-dungeon{position:absolute;left:60px;bottom:40px;z-index:2;}
+
+/* ===== PROJECTS VIEW ===== */
+.project-card{background:var(--navy2);border:1px solid var(--border-dim);border-radius:4px;padding:20px;margin-bottom:12px;}
+.project-name{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:4px;}
+.project-desc{font-size:14px;color:var(--text-dim);font-style:italic;margin-bottom:14px;}
+.progress-bar{height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue-mid),var(--sapphire));border-radius:2px;}
+.progress-label{font-family:'Cinzel',serif;font-size:10px;color:var(--text-dim);margin-top:6px;}
+
+/* ===== JOURNAL VIEW ===== */
+.journal-item{background:var(--navy2);border:1px solid var(--border-dim);border-radius:4px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+.jcheck{width:28px;height:28px;border-radius:50%;background:rgba(39,174,96,0.12);border:1px solid rgba(39,174,96,0.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:var(--green);}
+.jtitle{flex:1;font-size:15px;color:var(--text-sec);font-style:italic;}
+.jxp{font-family:'Cinzel',serif;font-size:11px;color:var(--sapphire);}
+.jgold{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);}
+.jdate{font-size:11px;color:var(--text-dim);}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--navy2);border:1px solid var(--border-mid);border-radius:4px;padding:28px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--sapphire),transparent);}
+.modal-title{font-family:'Cinzel',serif;font-size:17px;font-weight:600;color:var(--gold);margin-bottom:22px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:7px;}
+.form-input{width:100%;background:var(--navy3);border:1px solid var(--border-dim);border-radius:2px;padding:9px 13px;font-family:'Crimson Pro',serif;font-size:15px;color:var(--text-prim);outline:none;transition:border-color 0.15s;}
+.form-input:focus{border-color:var(--border-mid);}
+.form-input::placeholder{color:var(--text-dim);}
+textarea.form-input{resize:vertical;min-height:70px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-select{width:100%;background:var(--navy3);border:1px solid var(--border-dim);border-radius:2px;padding:9px 13px;font-family:'Cinzel',serif;font-size:11px;color:var(--text-prim);outline:none;appearance:none;}
+.star-row{display:flex;gap:5px;}
+.star{font-size:22px;cursor:pointer;color:var(--text-dim);transition:color 0.1s;}
+.star.on{color:var(--gold);}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;}
+.modal-close:hover{color:var(--text-prim);}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+
+/* CLASS PICKER */
+.class-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.class-opt{background:var(--navy3);border:2px solid var(--border-dim);border-radius:4px;padding:14px;cursor:pointer;transition:all 0.15s;text-align:center;}
+.class-opt:hover{border-color:var(--border-mid);}
+.class-opt.selected{border-color:var(--sapphire);background:rgba(58,130,196,0.1);}
+.class-icon{font-size:28px;margin-bottom:6px;}
+.class-name{font-family:'Cinzel',serif;font-size:13px;color:var(--text-prim);margin-bottom:3px;}
+.class-desc{font-size:11px;color:var(--text-dim);}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy2);border:1px solid var(--border-gold);border-radius:4px;padding:14px 20px;font-family:'IM Fell English',serif;font-style:italic;font-size:14px;color:var(--gold);z-index:999;transform:translateY(20px);opacity:0;transition:all 0.3s;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* scrollbar */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--navy);}
+::-webkit-scrollbar-thumb{background:var(--blue-mid);border-radius:2px;}
+
+/* ===== RESPONSIVE stars ===== */
+.stars-gold{color:var(--gold);}
+.stars-dim{color:var(--text-dim);}
+
+/* ===== Notification badge ===== */
+.badge{position:absolute;top:6px;right:6px;width:16px;height:16px;background:var(--red);border-radius:50%;font-size:9px;font-family:'Cinzel',serif;display:flex;align-items:center;justify-content:center;color:white;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">Хроники <span>Судьбы</span></div>
+  <div class="topbar-center">
+    <div class="level-pill" id="top-level">УР. 12</div>
+    <div class="xp-wrap">
+      <span class="xp-label">ОП</span>
+      <div class="xp-bar"><div class="xp-fill" id="top-xp" style="width:67%"></div></div>
+      <span style="font-size:11px;color:var(--text-dim);" id="top-xp-label">6700/10000</span>
+    </div>
+    <div class="gold-display"><span>🪙</span><span id="top-gold">2450</span></div>
+  </div>
+  <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--text-dim);letter-spacing:1px;">ХРОНИКИ СУДЬБЫ v1.0</div>
+</div>
+
+<div class="app">
+<!-- SIDENAV -->
+<div class="sidenav">
+  <div class="nav-icon active" onclick="switchView('quests',this)" title="">
+    <i class="ti ti-sword"></i>
+    <span class="nav-tip">Квесты</span>
+  </div>
+  <div class="nav-icon" onclick="switchView('projects',this)">
+    <i class="ti ti-map"></i>
+    <span class="nav-tip">Проекты</span>
+  </div>
+  <div class="nav-icon" onclick="switchView('journal',this)">
+    <i class="ti ti-book-2"></i>
+    <span class="nav-tip">Журнал</span>
+  </div>
+  <div class="nav-sep"></div>
+  <div class="nav-icon" onclick="switchView('character',this)">
+    <i class="ti ti-shield"></i>
+    <span class="nav-tip">Персонаж</span>
+  </div>
+  <div class="nav-icon" onclick="switchView('dungeon',this)" style="position:relative;">
+    <i class="ti ti-axe"></i>
+    <span class="nav-tip">Подземелье</span>
+    <span class="badge">!</span>
+  </div>
+  <div class="nav-sep"></div>
+  <div class="nav-icon" onclick="openAddModal()">
+    <i class="ti ti-plus"></i>
+    <span class="nav-tip">Новый квест</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ===== VIEW: QUESTS ===== -->
+<div class="view active" id="view-quests">
+  <div class="hero-banner">
+    <div class="banner-bg">
+      <!-- Castle SVG background -->
+      <svg class="castle-svg" style="position:absolute;right:0;top:0;width:50%;height:100%;opacity:0.15" viewBox="0 0 400 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="150" y="80" width="100" height="180" fill="#3b82c4"/>
+        <rect x="130" y="60" width="30" height="30" fill="#3b82c4"/>
+        <rect x="240" y="60" width="30" height="30" fill="#3b82c4"/>
+        <rect x="170" y="40" width="60" height="40" fill="#3b82c4"/>
+        <rect x="160" y="20" width="15" height="25" fill="#3b82c4"/>
+        <rect x="185" y="20" width="15" height="25" fill="#3b82c4"/>
+        <rect x="210" y="20" width="15" height="25" fill="#3b82c4"/>
+        <rect x="60" y="120" width="70" height="140" fill="#3b82c4" opacity="0.7"/>
+        <rect x="270" y="120" width="70" height="140" fill="#3b82c4" opacity="0.7"/>
+        <rect x="180" y="160" width="40" height="100" fill="#1a3a6e"/>
+        <rect x="170" y="100" width="25" height="30" rx="12" fill="#1a3a6e"/>
+        <rect x="205" y="100" width="25" height="30" rx="12" fill="#1a3a6e"/>
+        <line x1="0" y1="260" x2="400" y2="260" stroke="#3b82c4" stroke-width="2"/>
+        <line x1="0" y1="240" x2="50" y2="240" stroke="#3b82c4" stroke-width="1" opacity="0.5"/>
+        <line x1="350" y1="240" x2="400" y2="240" stroke="#3b82c4" stroke-width="1" opacity="0.5"/>
+        <!-- Stars -->
+        <circle cx="50" cy="30" r="1.5" fill="#e8dfc8" opacity="0.7"/>
+        <circle cx="320" cy="15" r="1" fill="#e8dfc8" opacity="0.5"/>
+        <circle cx="370" cy="50" r="1.5" fill="#e8dfc8" opacity="0.6"/>
+        <circle cx="20" cy="70" r="1" fill="#e8dfc8" opacity="0.4"/>
+        <circle cx="90" cy="25" r="1" fill="#e8dfc8" opacity="0.5"/>
+        <circle cx="340" cy="80" r="1" fill="#e8dfc8" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="banner-content">
+      <div class="class-badge" id="banner-class-badge"><i class="ti ti-wand"></i> <span id="banner-class-name">Хранитель Знаний</span></div>
+      <div class="hero-name-big" id="banner-hero-name">Арагорн</div>
+      <div class="hero-title" id="banner-hero-title">«Тот, кто идёт сквозь тьму»</div>
+      <div class="hero-stats-row">
+        <div class="hstat">
+          <div class="hstat-icon">❤️</div>
+          <div class="hstat-val" id="banner-hp">240</div>
+          <div class="hstat-lbl">ЗДОРОВЬЕ</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-icon">⚔️</div>
+          <div class="hstat-val" id="banner-dmg">48</div>
+          <div class="hstat-lbl">УРОН</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-icon">🛡️</div>
+          <div class="hstat-val" id="banner-def">32</div>
+          <div class="hstat-lbl">ЗАЩИТА</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-icon">⚡</div>
+          <div class="hstat-val" id="banner-stam">75</div>
+          <div class="hstat-lbl">ВЫНОСЛ.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Avatar -->
+    <div class="avatar-frame">
+      <svg class="avatar-svg" viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg" id="hero-avatar-svg">
+        <!-- Base hero figure - Keeper class -->
+        <defs>
+          <linearGradient id="robeGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1a3a6e"/>
+            <stop offset="100%" stop-color="#0a1e40"/>
+          </linearGradient>
+          <linearGradient id="glowGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3b82c4" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#3b82c4" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- Glow under feet -->
+        <ellipse cx="90" cy="205" rx="55" ry="8" fill="url(#glowGrad)"/>
+        <!-- Robe body -->
+        <path d="M55 120 L40 210 L140 210 L125 120 Z" fill="url(#robeGrad)" stroke="#3b82c4" stroke-width="1" stroke-opacity="0.4"/>
+        <!-- Robe trim -->
+        <path d="M40 210 L140 210" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.6"/>
+        <path d="M55 120 L40 210" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.3"/>
+        <path d="M125 120 L140 210" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.3"/>
+        <!-- Belt -->
+        <rect x="60" y="148" width="60" height="8" rx="2" fill="#c9a84c" opacity="0.7"/>
+        <rect x="85" y="145" width="10" height="14" rx="2" fill="#c9a84c" opacity="0.9"/>
+        <!-- Chest armor -->
+        <path d="M65 90 L65 148 L115 148 L115 90 Z" fill="#1e3a5f" stroke="#3b82c4" stroke-width="0.5" stroke-opacity="0.5"/>
+        <!-- Armor details -->
+        <path d="M75 100 L75 140 M90 95 L90 140 M105 100 L105 140" stroke="#3b82c4" stroke-width="0.5" stroke-opacity="0.3"/>
+        <path d="M65 115 L115 115" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.4"/>
+        <!-- Cape -->
+        <path d="M65 95 L30 185 L55 185 L65 140 Z" fill="#0e2040" opacity="0.8"/>
+        <path d="M115 95 L150 185 L125 185 L115 140 Z" fill="#0e2040" opacity="0.8"/>
+        <!-- Shoulders -->
+        <path d="M55 90 L65 100 L65 115 L50 110 Z" fill="#2d5a8e" stroke="#3b82c4" stroke-width="0.5"/>
+        <path d="M125 90 L115 100 L115 115 L130 110 Z" fill="#2d5a8e" stroke="#3b82c4" stroke-width="0.5"/>
+        <!-- Shoulder gems -->
+        <circle cx="57" cy="95" r="4" fill="#c9a84c" opacity="0.8"/>
+        <circle cx="123" cy="95" r="4" fill="#c9a84c" opacity="0.8"/>
+        <!-- Arms -->
+        <path d="M65 100 L45 155 L55 158 L68 115 Z" fill="#1a3a6e" stroke="#3b82c4" stroke-width="0.3" stroke-opacity="0.4"/>
+        <path d="M115 100 L135 155 L125 158 L112 115 Z" fill="#1a3a6e" stroke="#3b82c4" stroke-width="0.3" stroke-opacity="0.4"/>
+        <!-- Staff -->
+        <line x1="148" y1="50" x2="138" y2="210" stroke="#4a6480" stroke-width="3"/>
+        <line x1="148" y1="50" x2="138" y2="210" stroke="#8aa4c0" stroke-width="1" stroke-opacity="0.4"/>
+        <!-- Staff gem -->
+        <circle cx="148" cy="46" r="10" fill="#0a1020" stroke="#3b82c4" stroke-width="1"/>
+        <circle cx="148" cy="46" r="6" fill="#3b82c4" opacity="0.6"/>
+        <circle cx="148" cy="46" r="3" fill="#6aaddf" opacity="0.9"/>
+        <!-- Staff glow -->
+        <circle cx="148" cy="46" r="14" fill="#3b82c4" opacity="0.08"/>
+        <!-- Neck -->
+        <rect x="83" y="72" width="14" height="20" rx="4" fill="#c8a882"/>
+        <!-- Head -->
+        <ellipse cx="90" cy="58" rx="20" ry="22" fill="#c8a882"/>
+        <!-- Hood -->
+        <path d="M68 52 Q90 25 112 52 L108 70 Q90 45 72 70 Z" fill="#1a3a6e" opacity="0.9"/>
+        <path d="M68 52 Q90 25 112 52" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.5"/>
+        <!-- Face details -->
+        <ellipse cx="82" cy="58" rx="3" ry="2.5" fill="#2d4a6e" opacity="0.8"/>
+        <ellipse cx="98" cy="58" rx="3" ry="2.5" fill="#2d4a6e" opacity="0.8"/>
+        <!-- Eye glow -->
+        <ellipse cx="82" cy="58" rx="1.5" ry="1.2" fill="#3b82c4" opacity="0.6"/>
+        <ellipse cx="98" cy="58" rx="1.5" ry="1.2" fill="#3b82c4" opacity="0.6"/>
+        <!-- Rune on chest -->
+        <text x="90" y="135" text-anchor="middle" font-size="14" fill="#3b82c4" opacity="0.5" font-family="serif">✦</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="section-hdr">Главный квест</div>
+    <div class="quest-main">
+      <div class="quest-main-img">
+        <!-- Dungeon scene in quest header -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.35" viewBox="0 0 700 160" preserveAspectRatio="xMidYMid slice">
+          <rect width="700" height="160" fill="#060d1a"/>
+          <!-- Stone walls -->
+          <rect x="0" y="0" width="700" height="160" fill="url(#stonePattern)" opacity="0.3"/>
+          <!-- Torches -->
+          <line x1="80" y1="20" x2="80" y2="80" stroke="#5a4020" stroke-width="4"/>
+          <ellipse cx="80" cy="16" rx="6" ry="10" fill="#e67e22" opacity="0.8"/>
+          <ellipse cx="80" cy="16" rx="3" ry="6" fill="#f1c40f" opacity="0.9"/>
+          <line x1="600" y1="20" x2="600" y2="80" stroke="#5a4020" stroke-width="4"/>
+          <ellipse cx="600" cy="16" rx="6" ry="10" fill="#e67e22" opacity="0.8"/>
+          <ellipse cx="600" cy="16" rx="3" ry="6" fill="#f1c40f" opacity="0.9"/>
+          <!-- Arched doorway -->
+          <path d="M290 160 L290 60 Q350 20 410 60 L410 160" fill="#040810" stroke="#1e3a5f" stroke-width="2"/>
+          <!-- Floor tiles -->
+          <rect x="0" y="130" width="700" height="30" fill="#0a1020"/>
+          <line x1="0" y1="130" x2="700" y2="130" stroke="#1e3a5f" stroke-width="1"/>
+          <line x1="100" y1="130" x2="100" y2="160" stroke="#1e3a5f" stroke-width="0.5"/>
+          <line x1="200" y1="130" x2="200" y2="160" stroke="#1e3a5f" stroke-width="0.5"/>
+          <line x1="300" y1="130" x2="300" y2="160" stroke="#1e3a5f" stroke-width="0.5"/>
+          <line x1="400" y1="130" x2="400" y2="160" stroke="#1e3a5f" stroke-width="0.5"/>
+          <line x1="500" y1="130" x2="500" y2="160" stroke="#1e3a5f" stroke-width="0.5"/>
+          <line x1="600" y1="130" x2="600" y2="160" stroke="#1e3a5f" stroke-width="0.5"/>
+        </svg>
+        <div style="position:relative;">
+          <div class="quest-chain-tag">⛓ Первый шаг к захвату мира · Глава 1/30</div>
+          <div class="quest-main-title">Тайны Древнего Наречия</div>
+        </div>
+      </div>
+      <div class="quest-main-body">
+        <div class="quest-lore">Во мраке невежества скрыт великий язык северных земель. Дерзкий Хранитель, открой страницы древнего манускрипта и постигни первые руны чужеземного наречия. Лишь тот, кто познал основы, способен двигаться дальше по пути мирового господства.</div>
+        <div class="quest-tags">
+          <div class="qtag gold">⭐ ★★★☆☆ Сложность 3</div>
+          <div class="qtag danger">⏰ Дедлайн: 15 мая</div>
+          <div class="qtag">📚 Учёба</div>
+          <div class="qtag gold">🪙 +300 зол.</div>
+          <div class="qtag" style="color:var(--sapphire)">✨ +450 ОП</div>
+        </div>
+        <div class="quest-actions">
+          <button class="btn btn-gold" onclick="completeMainQuest()">✓ Квест выполнен</button>
+          <button class="btn btn-outline">⏸ Отложить</button>
+          <button class="btn btn-blue" onclick="rollDice()">🎲 Бросить кости</button>
+        </div>
+        <div class="next-hint">→ Следующее: <strong>«Голоса Из Прошлого»</strong> — Разбери главу 2</div>
+      </div>
+    </div>
+
+    <div class="section-hdr">Побочные квесты</div>
+    <div class="side-quests">
+      <div class="sq" onclick="completeSideQuest(this,'Письмо Из Тумана')">
+        <div class="sq-label">⚔ ПОБОЧНЫЙ · РАБОТА</div>
+        <div class="sq-title">Письмо Из Тумана</div>
+        <div class="sq-desc">Ответить на письмо Андреасу насчёт встречи во вторник</div>
+        <div class="sq-meta">
+          <span style="font-family:'Cinzel',serif;font-size:10px;color:var(--gold);">🪙 +100</span>
+          <span style="font-size:10px;color:var(--text-dim);">★☆☆☆☆ · Сегодня</span>
+        </div>
+      </div>
+      <div class="sq" onclick="completeSideQuest(this,'Ритуал Воина')">
+        <div class="sq-label">⚔ ПОБОЧНЫЙ · ЗДОРОВЬЕ</div>
+        <div class="sq-title">Ритуал Воина</div>
+        <div class="sq-desc">Утренняя тренировка — 30 минут без оправданий и промедлений</div>
+        <div class="sq-meta">
+          <span style="font-family:'Cinzel',serif;font-size:10px;color:var(--gold);">🪙 +150</span>
+          <span style="font-size:10px;color:var(--text-dim);">★★☆☆☆ · Сегодня</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="add-btn" onclick="openAddModal()"><i class="ti ti-plus"></i> Принять новый квест</button>
+  </div>
+</div>
+
+<!-- ===== VIEW: PROJECTS ===== -->
+<div class="view" id="view-projects">
+  <div class="content">
+    <div class="section-hdr">Цепочки квестов</div>
+    <div class="project-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--sky);margin-bottom:5px;">УЧЁБА · 30 КВЕСТОВ</div>
+          <div class="project-name">Первый шаг к захвату мира</div>
+        </div>
+        <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--text-dim);">1/30</div>
+      </div>
+      <div class="project-desc">Покорение немецкого языка — от первой руны до полного владения</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:3.3%"></div></div>
+      <div class="progress-label">3.3% завершено</div>
+    </div>
+    <div class="project-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--sky);margin-bottom:5px;">РАБОТА · 8 КВЕСТОВ</div>
+          <div class="project-name">Операция «Новый Рубеж»</div>
+        </div>
+        <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--text-dim);">4/8</div>
+      </div>
+      <div class="project-desc">Запустить новый проект до конца квартала — время не ждёт</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+      <div class="progress-label">50% завершено</div>
+    </div>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="showToast('Создание нового проекта — скоро!')"><i class="ti ti-plus"></i> Новый проект</button>
+  </div>
+</div>
+
+<!-- ===== VIEW: JOURNAL ===== -->
+<div class="view" id="view-journal">
+  <div class="content">
+    <div class="section-hdr">Хроники побед</div>
+    <div id="journal-list">
+      <div class="journal-item">
+        <div class="jcheck">✓</div>
+        <div class="jtitle">«Кузница Кода» — Настроить рабочее окружение</div>
+        <div class="jxp">+200 ОП</div>
+        <div class="jgold">🪙 200</div>
+        <div class="jdate">10 мая</div>
+      </div>
+      <div class="journal-item">
+        <div class="jcheck">✓</div>
+        <div class="jtitle">«Зов Морфея» — Нормализовать режим сна</div>
+        <div class="jxp">+150 ОП</div>
+        <div class="jgold">🪙 150</div>
+        <div class="jdate">3 мая</div>
+      </div>
+      <div class="journal-item">
+        <div class="jcheck">✓</div>
+        <div class="jtitle">«Пепел и Пламя» — Разобрать завалы на столе</div>
+        <div class="jxp">+100 ОП</div>
+        <div class="jgold">🪙 100</div>
+        <div class="jdate">1 мая</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VIEW: CHARACTER ===== -->
+<div class="view" id="view-character">
+  <div class="content">
+    <div class="section-hdr">Профиль героя</div>
+    <div class="char-grid">
+      <div>
+        <div class="char-portrait" style="margin-bottom:14px;">
+          <div class="portrait-art">
+            <svg viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+              <defs>
+                <linearGradient id="portraitGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#1a3a6e"/>
+                  <stop offset="100%" stop-color="#0a1e40"/>
+                </linearGradient>
+              </defs>
+              <ellipse cx="80" cy="185" rx="50" ry="8" fill="#3b82c4" opacity="0.1"/>
+              <path d="M40 110 L25 195 L135 195 L120 110 Z" fill="url(#portraitGrad)" stroke="#3b82c4" stroke-width="1" stroke-opacity="0.4"/>
+              <rect x="55" y="135" width="50" height="7" rx="2" fill="#c9a84c" opacity="0.7"/>
+              <rect x="75" y="132" width="10" height="13" rx="2" fill="#c9a84c" opacity="0.9"/>
+              <path d="M60 85 L60 135 L100 135 L100 85 Z" fill="#1e3a5f" stroke="#3b82c4" stroke-width="0.5" stroke-opacity="0.5"/>
+              <path d="M40 80 L20 170 L45 170 L55 125 Z" fill="#0e2040" opacity="0.9"/>
+              <path d="M120 80 L140 170 L115 170 L105 125 Z" fill="#0e2040" opacity="0.9"/>
+              <path d="M50 80 L58 90 L58 108 L42 103 Z" fill="#2d5a8e" stroke="#3b82c4" stroke-width="0.5"/>
+              <path d="M110 80 L102 90 L102 108 L118 103 Z" fill="#2d5a8e" stroke="#3b82c4" stroke-width="0.5"/>
+              <circle cx="52" cy="84" r="4" fill="#c9a84c" opacity="0.8"/>
+              <circle cx="108" cy="84" r="4" fill="#c9a84c" opacity="0.8"/>
+              <path d="M58 90 L35 145 L48 148 L62 108 Z" fill="#1a3a6e" stroke="#3b82c4" stroke-width="0.3" stroke-opacity="0.4"/>
+              <path d="M102 90 L125 145 L112 148 L98 108 Z" fill="#1a3a6e" stroke="#3b82c4" stroke-width="0.3" stroke-opacity="0.4"/>
+              <!-- Staff -->
+              <line x1="138" y1="38" x2="126" y2="195" stroke="#4a6480" stroke-width="3"/>
+              <circle cx="138" cy="34" r="9" fill="#0a1020" stroke="#3b82c4" stroke-width="1"/>
+              <circle cx="138" cy="34" r="5" fill="#3b82c4" opacity="0.6"/>
+              <circle cx="138" cy="34" r="2.5" fill="#6aaddf" opacity="0.9"/>
+              <circle cx="138" cy="34" r="13" fill="#3b82c4" opacity="0.06"/>
+              <rect x="74" y="63" width="12" height="18" rx="4" fill="#c8a882"/>
+              <ellipse cx="80" cy="50" rx="18" ry="20" fill="#c8a882"/>
+              <path d="M60 45 Q80 20 100 45 L97 62 Q80 40 63 62 Z" fill="#1a3a6e" opacity="0.9"/>
+              <path d="M60 45 Q80 20 100 45" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.5"/>
+              <ellipse cx="73" cy="50" rx="2.5" ry="2" fill="#3b82c4" opacity="0.8"/>
+              <ellipse cx="87" cy="50" rx="2.5" ry="2" fill="#3b82c4" opacity="0.8"/>
+              <text x="80" y="122" text-anchor="middle" font-size="12" fill="#3b82c4" opacity="0.5" font-family="serif">✦</text>
+            </svg>
+          </div>
+          <div class="char-name" id="char-name">Арагорн</div>
+          <div class="char-class" id="char-class-label">Хранитель Знаний</div>
+          <div style="margin:12px 0;padding:10px;background:var(--navy3);border-radius:3px;border:1px solid var(--border-dim);">
+            <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">ОПЫТ</div>
+            <div style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;margin-bottom:4px;">
+              <div style="height:100%;width:67%;background:linear-gradient(90deg,var(--blue-mid),var(--sapphire));border-radius:3px;"></div>
+            </div>
+            <div style="font-family:'Cinzel',serif;font-size:10px;color:var(--text-dim);">6700 / 10000 ОП</div>
+          </div>
+          <div class="stat-bars">
+            <div class="stat-row">
+              <div class="stat-name">ЗДОРОВЬЕ</div>
+              <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-hp" style="width:80%;background:linear-gradient(90deg,#8b0000,#c0392b)"></div></div>
+              <div class="stat-val" id="stat-hp-val">240</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-name">УРОН</div>
+              <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-dmg" style="width:60%;background:linear-gradient(90deg,#7d3c98,#8e44ad)"></div></div>
+              <div class="stat-val" id="stat-dmg-val">48</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-name">ЗАЩИТА</div>
+              <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-def" style="width:50%;background:linear-gradient(90deg,var(--blue-mid),var(--sapphire))"></div></div>
+              <div class="stat-val" id="stat-def-val">32</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-name">ВЫНОСЛ.</div>
+              <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-stam" style="width:75%;background:linear-gradient(90deg,#1a5e20,#27ae60)"></div></div>
+              <div class="stat-val" id="stat-stam-val">75</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding:10px;background:var(--navy3);border:1px solid var(--border-gold);border-radius:3px;text-align:center;">
+            <div style="font-family:'Cinzel',serif;font-size:10px;color:var(--text-dim);margin-bottom:4px;">КАЗНА</div>
+            <div style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);" id="char-gold">🪙 2450</div>
+          </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="panel-card" style="background:var(--navy2);border:1px solid var(--border-dim);border-radius:4px;padding:16px;">
+          <div class="panel-title">ДОСТИЖЕНИЯ</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="background:var(--navy3);border:1px solid var(--border-gold);border-radius:3px;padding:10px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">🏆</span>
+              <div><div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold);">Первый шаг</div><div style="font-size:10px;color:var(--text-dim);">Выполнен 1 квест</div></div>
+            </div>
+            <div style="background:var(--navy3);border:1px solid var(--border-gold);border-radius:3px;padding:10px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">⚡</span>
+              <div><div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold);">Ветеран</div><div style="font-size:10px;color:var(--text-dim);">10 квестов</div></div>
+            </div>
+            <div style="background:var(--navy3);border:1px solid var(--border-dim);border-radius:3px;padding:10px;display:flex;align-items:center;gap:8px;opacity:0.4;">
+              <span style="font-size:20px;">🌟</span>
+              <div><div style="font-family:'Cinzel',serif;font-size:11px;color:var(--text-dim);">Легенда</div><div style="font-size:10px;color:var(--text-dim);">50 квестов</div></div>
+            </div>
+            <div style="background:var(--navy3);border:1px solid var(--border-dim);border-radius:3px;padding:10px;display:flex;align-items:center;gap:8px;opacity:0.4;">
+              <span style="font-size:20px;">🐉</span>
+              <div><div style="font-family:'Cinzel',serif;font-size:11px;color:var(--text-dim);">Драконоборец</div><div style="font-size:10px;color:var(--text-dim);">Победи дракона</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Equipment + Shop -->
+      <div>
+        <div class="section-hdr">Снаряжение</div>
+        <div class="equipment-grid" style="margin-bottom:24px;">
+          <div class="equip-slot">
+            <div class="equip-slot-label">ОРУЖИЕ</div>
+            <div class="equip-item">
+              <div class="equip-icon rare">🪄</div>
+              <div><div class="equip-name">Посох Синего Рассвета</div><div class="equip-bonus">+15 Урон, +10 Интеллект</div></div>
+            </div>
+          </div>
+          <div class="equip-slot">
+            <div class="equip-slot-label">БРОНЯ</div>
+            <div class="equip-item">
+              <div class="equip-icon common">🛡️</div>
+              <div><div class="equip-name">Мантия Искателя</div><div class="equip-bonus">+20 Защита</div></div>
+            </div>
+          </div>
+          <div class="equip-slot">
+            <div class="equip-slot-label">ШЛЕМ</div>
+            <div class="equip-item">
+              <div class="equip-icon legendary">👑</div>
+              <div><div class="equip-name">Корона Мудреца</div><div class="equip-bonus">+30 Здоровье, +5 Выносл.</div></div>
+            </div>
+          </div>
+          <div class="equip-slot" onclick="showToast('Пусто — купи в лавке снаряжения!')">
+            <div class="equip-slot-label">КОЛЬЦО</div>
+            <div class="equip-item">
+              <div class="equip-icon common" style="opacity:0.3;">💍</div>
+              <div class="equip-empty">Пусто — экипируй предмет</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-hdr">Лавка снаряжения</div>
+        <div class="shop-grid">
+          <div class="shop-item" onclick="buyItem('Кинжал Теней','🗡️',500,'Урон +20')">
+            <div class="shop-item-icon">🗡️</div>
+            <div class="shop-item-name">Кинжал Теней</div>
+            <div class="shop-item-bonus">Урон +20</div>
+            <div class="shop-item-price">🪙 500</div>
+          </div>
+          <div class="shop-item" onclick="buyItem('Доспех Драконьей Чешуи','🐉',800,'Защита +40')">
+            <div class="shop-item-icon">🐉</div>
+            <div class="shop-item-name">Чешуя Дракона</div>
+            <div class="shop-item-bonus">Защита +40</div>
+            <div class="shop-item-price">🪙 800</div>
+          </div>
+          <div class="shop-item" onclick="buyItem('Эликсир Силы','⚗️',200,'Выносл. +15')">
+            <div class="shop-item-icon">⚗️</div>
+            <div class="shop-item-name">Эликсир Силы</div>
+            <div class="shop-item-bonus">Выносл. +15</div>
+            <div class="shop-item-price">🪙 200</div>
+          </div>
+          <div class="shop-item" onclick="buyItem('Кольцо Стихий','💎',650,'Урон +10, Защ. +10')">
+            <div class="shop-item-icon">💎</div>
+            <div class="shop-item-name">Кольцо Стихий</div>
+            <div class="shop-item-bonus">Урон +10, Защ. +10</div>
+            <div class="shop-item-price">🪙 650</div>
+          </div>
+          <div class="shop-item" onclick="buyItem('Щит Рассвета','🛡️',400,'Здоровье +50')">
+            <div class="shop-item-icon">🛡️</div>
+            <div class="shop-item-name">Щит Рассвета</div>
+            <div class="shop-item-bonus">Здоровье +50</div>
+            <div class="shop-item-price">🪙 400</div>
+          </div>
+          <div class="shop-item" onclick="buyItem('Мантия Ночи','🌑',600,'Выносл. +25, Урон +5')">
+            <div class="shop-item-icon">🌑</div>
+            <div class="shop-item-name">Мантия Ночи</div>
+            <div class="shop-item-bonus">Выносл. +25, Урон +5</div>
+            <div class="shop-item-price">🪙 600</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VIEW: DUNGEON ===== -->
+<div class="view" id="view-dungeon">
+  <div class="dungeon-layout">
+    <!-- Arena -->
+    <div class="dungeon-arena">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border-dim);display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:2px;color:var(--gold);">⚔ ПОДЗЕМЕЛЬЕ СУДЬБЫ</div>
+        <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--text-dim);" id="dungeon-floor-label">Этаж 3 · Подземелье Теней</div>
+      </div>
+
+      <div class="dungeon-scene" id="dungeon-scene">
+        <!-- Background -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 680 320" preserveAspectRatio="xMidYMid slice">
+          <!-- Dark stone background -->
+          <rect width="680" height="320" fill="#040810"/>
+          <!-- Stone wall tiles -->
+          <g opacity="0.3">
+            <rect x="0" y="0" width="680" height="10" fill="#0a1428" stroke="#1a2e50" stroke-width="0.5"/>
+            <rect x="0" y="30" width="680" height="10" fill="#0a1428" stroke="#1a2e50" stroke-width="0.5"/>
+            <rect x="0" y="60" width="680" height="10" fill="#0a1428" stroke="#1a2e50" stroke-width="0.5"/>
+            <rect x="0" y="90" width="680" height="10" fill="#0a1428" stroke="#1a2e50" stroke-width="0.5"/>
+            <rect x="0" y="120" width="680" height="10" fill="#0a1428" stroke="#1a2e50" stroke-width="0.5"/>
+            <rect x="0" y="150" width="680" height="10" fill="#0a1428" stroke="#1a2e50" stroke-width="0.5"/>
+          </g>
+          <!-- Floor -->
+          <rect x="0" y="245" width="680" height="75" fill="#060d18"/>
+          <line x1="0" y1="245" x2="680" y2="245" stroke="#1a2e50" stroke-width="1.5"/>
+          <g stroke="#0a1428" stroke-width="0.5" opacity="0.6">
+            <line x1="68" y1="245" x2="68" y2="320"/>
+            <line x1="136" y1="245" x2="136" y2="320"/>
+            <line x1="204" y1="245" x2="204" y2="320"/>
+            <line x1="272" y1="245" x2="272" y2="320"/>
+            <line x1="340" y1="245" x2="340" y2="320"/>
+            <line x1="408" y1="245" x2="408" y2="320"/>
+            <line x1="476" y1="245" x2="476" y2="320"/>
+            <line x1="544" y1="245" x2="544" y2="320"/>
+            <line x1="612" y1="245" x2="612" y2="320"/>
+            <line x1="0" y1="280" x2="680" y2="280"/>
+          </g>
+          <!-- Torches left -->
+          <rect x="40" y="60" width="6" height="50" fill="#5a4020"/>
+          <ellipse cx="43" cy="58" rx="8" ry="12" fill="#e67e22" opacity="0.6"/>
+          <ellipse cx="43" cy="56" rx="4" ry="7" fill="#f1c40f" opacity="0.8"/>
+          <ellipse cx="43" cy="58" rx="20" ry="18" fill="#e67e22" opacity="0.06"/>
+          <!-- Torches right -->
+          <rect x="634" y="60" width="6" height="50" fill="#5a4020"/>
+          <ellipse cx="637" cy="58" rx="8" ry="12" fill="#e67e22" opacity="0.6"/>
+          <ellipse cx="637" cy="56" rx="4" ry="7" fill="#f1c40f" opacity="0.8"/>
+          <ellipse cx="637" cy="58" rx="20" ry="18" fill="#e67e22" opacity="0.06"/>
+          <!-- Archway -->
+          <path d="M280 320 L280 180 Q340 130 400 180 L400 320" fill="#020609" stroke="#0f1e38" stroke-width="2"/>
+          <!-- Cobwebs -->
+          <g stroke="#3a5070" stroke-width="0.5" opacity="0.25">
+            <line x1="0" y1="0" x2="40" y2="40"/><line x1="20" y1="0" x2="40" y2="30"/><line x1="0" y1="20" x2="40" y2="40"/>
+            <line x1="680" y1="0" x2="640" y2="40"/><line x1="660" y1="0" x2="640" y2="30"/><line x1="680" y1="20" x2="640" y2="40"/>
+          </g>
+        </svg>
+
+        <!-- Hero on left -->
+        <div class="hero-art-dungeon">
+          <svg width="80" height="130" viewBox="0 0 80 130" fill="none">
+            <ellipse cx="40" cy="125" rx="25" ry="4" fill="#3b82c4" opacity="0.1"/>
+            <path d="M25 60 L18 120 L62 120 L55 60 Z" fill="#1a3a6e" stroke="#3b82c4" stroke-width="0.5" stroke-opacity="0.5"/>
+            <path d="M30 58 L30 85 L50 85 L50 58 Z" fill="#1e3a5f" stroke="#3b82c4" stroke-width="0.5" stroke-opacity="0.4"/>
+            <path d="M30 58 L15 100 L25 102 L33 70 Z" fill="#0e2040" opacity="0.9"/>
+            <path d="M50 58 L65 100 L55 102 L47 70 Z" fill="#0e2040" opacity="0.9"/>
+            <!-- Staff glow -->
+            <line x1="68" y1="20" x2="62" y2="120" stroke="#4a6480" stroke-width="2"/>
+            <circle cx="68" cy="17" r="6" fill="#3b82c4" opacity="0.5"/>
+            <circle cx="68" cy="17" r="3" fill="#6aaddf" opacity="0.9"/>
+            <ellipse cx="40" cy="42" rx="12" ry="14" fill="#c8a882"/>
+            <path d="M27 38 Q40 20 53 38 L51 50 Q40 32 29 50 Z" fill="#1a3a6e" opacity="0.9"/>
+            <ellipse cx="35" cy="42" rx="2" ry="1.5" fill="#3b82c4" opacity="0.8"/>
+            <ellipse cx="45" cy="42" rx="2" ry="1.5" fill="#3b82c4" opacity="0.8"/>
+          </svg>
+        </div>
+
+        <!-- Enemy on right (dynamic) -->
+        <div id="enemy-art" style="position:absolute;right:80px;bottom:40px;z-index:2;">
+          <!-- Black Knight default -->
+          <svg id="enemy-svg" width="100" height="150" viewBox="0 0 100 150" fill="none">
+            <ellipse cx="50" cy="146" rx="30" ry="5" fill="#8b0000" opacity="0.15"/>
+            <!-- Dark armor body -->
+            <path d="M30 70 L20 140 L80 140 L70 70 Z" fill="#1a0a0a" stroke="#8b0000" stroke-width="1"/>
+            <path d="M35 68 L35 105 L65 105 L65 68 Z" fill="#2a1010" stroke="#8b0000" stroke-width="0.5"/>
+            <path d="M20 68 L10 130 L25 132 L32 85 Z" fill="#150808" stroke="#8b0000" stroke-width="0.3"/>
+            <path d="M80 68 L90 130 L75 132 L68 85 Z" fill="#150808" stroke="#8b0000" stroke-width="0.3"/>
+            <!-- Helmet -->
+            <ellipse cx="50" cy="50" rx="18" ry="20" fill="#1a0a0a" stroke="#8b0000" stroke-width="1"/>
+            <rect x="38" y="44" width="24" height="6" rx="1" fill="#0a0000"/>
+            <rect x="44" y="44" width="12" height="4" fill="#8b0000" opacity="0.5"/>
+            <!-- Glowing red eyes -->
+            <ellipse cx="43" cy="48" rx="3" ry="2" fill="#c0392b" opacity="0.9"/>
+            <ellipse cx="57" cy="48" rx="3" ry="2" fill="#c0392b" opacity="0.9"/>
+            <ellipse cx="43" cy="48" rx="1.5" ry="1" fill="#e74c3c"/>
+            <ellipse cx="57" cy="48" rx="1.5" ry="1" fill="#e74c3c"/>
+            <!-- Sword -->
+            <rect x="82" y="30" width="4" height="80" rx="1" fill="#3a3a3a" stroke="#8b0000" stroke-width="0.5"/>
+            <rect x="78" y="65" width="12" height="4" rx="1" fill="#5a2020"/>
+            <!-- Shoulder plates -->
+            <path d="M30 65 L20 75 L20 90 L32 87 Z" fill="#2a1010" stroke="#8b0000" stroke-width="0.5"/>
+            <path d="M70 65 L80 75 L80 90 L68 87 Z" fill="#2a1010" stroke="#8b0000" stroke-width="0.5"/>
+            <!-- Chest rune -->
+            <text x="50" y="92" text-anchor="middle" font-size="14" fill="#8b0000" opacity="0.6" font-family="serif">☠</text>
+          </svg>
+        </div>
+
+        <!-- VS text -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;color:rgba(201,168,76,0.3);">⚔ VS ⚔</div>
+
+        <!-- Hit effect -->
+        <div id="hit-effect" style="position:absolute;inset:0;background:rgba(231,76,60,0);transition:background 0.1s;pointer-events:none;"></div>
+        <div id="hero-hit-effect" style="position:absolute;inset:0;background:rgba(58,130,196,0);transition:background 0.1s;pointer-events:none;"></div>
+      </div>
+
+      <!-- Battle log -->
+      <div class="battle-log" id="battle-log">
+        <div class="log-line sys">⚔ Ты входишь в Подземелье Теней... Тьма сгущается.</div>
+        <div class="log-line sys">👁 Перед тобой появляется Чёрный Рыцарь!</div>
+      </div>
+    </div>
+
+    <!-- Right panel -->
+    <div class="dungeon-panel">
+      <!-- Hero status -->
+      <div class="panel-card">
+        <div class="panel-title">ГЕРОЙ</div>
+        <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--text-prim);margin-bottom:10px;" id="d-hero-name">Арагорн</div>
+        <div class="hp-bar-wrap">
+          <div class="bar-label-row">
+            <div class="bar-label">ЗДОРОВЬЕ</div>
+            <div class="bar-val" id="d-hp-val">240 / 240</div>
+          </div>
+          <div class="hp-bar"><div class="hp-fill" id="d-hp-bar" style="width:100%"></div></div>
+        </div>
+        <div class="hp-bar-wrap" style="margin-top:8px;">
+          <div class="bar-label-row">
+            <div class="bar-label">МАНА</div>
+            <div class="bar-val" id="d-mp-val">80 / 80</div>
+          </div>
+          <div class="hp-bar"><div class="mp-fill" id="d-mp-bar" style="width:100%"></div></div>
+        </div>
+      </div>
+
+      <!-- Enemy status -->
+      <div class="panel-card">
+        <div class="panel-title">ВРАГ</div>
+        <div class="enemy-info" style="padding:0;">
+          <div class="enemy-name" id="enemy-name">Чёрный Рыцарь</div>
+          <div class="enemy-type" id="enemy-type">Нежить · Элита</div>
+          <div class="enemy-hp-bar">
+            <div class="enemy-hp-fill" id="enemy-hp-bar" style="width:100%"></div>
+          </div>
+          <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--text-dim);" id="enemy-hp-val">350 / 350</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="panel-card">
+        <div class="panel-title">ДЕЙСТВИЯ</div>
+        <div class="action-grid">
+          <div class="action-btn" id="btn-attack" onclick="doAction('attack')">
+            <div class="action-name">⚔ Удар</div>
+            <div class="action-desc">Базовая атака</div>
+          </div>
+          <div class="action-btn" id="btn-spell" onclick="doAction('spell')">
+            <div class="action-name">✨ Заклятие</div>
+            <div class="action-desc">-20 маны</div>
+          </div>
+          <div class="action-btn" id="btn-potion" onclick="doAction('potion')">
+            <div class="action-name">⚗️ Зелье</div>
+            <div class="action-desc">+60 здоровья</div>
+          </div>
+          <div class="action-btn" id="btn-flee" onclick="doAction('flee')">
+            <div class="action-name">💨 Бежать</div>
+            <div class="action-desc">50% шанс</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next enemy -->
+      <div class="panel-card" style="border-color:var(--border-gold);">
+        <div class="panel-title">ДАЛЕЕ В ПОДЗЕМЕЛЬЕ</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-sec);">
+            <span>🦁</span><span>Мантикора</span><span style="margin-left:auto;font-size:10px;color:var(--text-dim);">Зверь</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-sec);">
+            <span>🦅</span><span>Грифон</span><span style="margin-left:auto;font-size:10px;color:var(--text-dim);">Мифический</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-sec);">
+            <span>📦</span><span>Мимик</span><span style="margin-left:auto;font-size:10px;color:var(--text-dim);">Ловушка</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
+</div><!-- end app -->
+
+<!-- ADD QUEST MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-modal')"><i class="ti ti-x"></i></button>
+    <div class="modal-title">⚔ Принять новый квест</div>
+    <div class="form-group">
+      <label class="form-label">Название задачи</label>
+      <input class="form-input" type="text" placeholder="Что нужно сделать?" id="q-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Описание</label>
+      <textarea class="form-input" placeholder="Подробности..." id="q-desc"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Категория</label>
+        <select class="form-select" id="q-cat">
+          <option value="work">⚔ Работа</option>
+          <option value="study">📚 Учёба</option>
+          <option value="health">🌿 Здоровье</option>
+          <option value="hobby">🎨 Хобби</option>
+          <option value="life">🌍 Жизнь</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Проект</label>
+        <select class="form-select" id="q-project">
+          <option value="">— одиночный —</option>
+          <option value="german">Первый шаг к захвату мира</option>
+          <option value="work">Операция «Новый Рубеж»</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Сложность</label>
+        <div class="star-row" id="diff-stars">
+          <span class="star on" onclick="setStars('diff',1)">★</span>
+          <span class="star on" onclick="setStars('diff',2)">★</span>
+          <span class="star on" onclick="setStars('diff',3)">★</span>
+          <span class="star" onclick="setStars('diff',4)">★</span>
+          <span class="star" onclick="setStars('diff',5)">★</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Важность</label>
+        <div class="star-row" id="imp-stars">
+          <span class="star on" onclick="setStars('imp',1)">★</span>
+          <span class="star on" onclick="setStars('imp',2)">★</span>
+          <span class="star on" onclick="setStars('imp',3)">★</span>
+          <span class="star on" onclick="setStars('imp',4)">★</span>
+          <span class="star" onclick="setStars('imp',5)">★</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Дедлайн (необязательно)</label>
+      <input class="form-input" type="date" id="q-deadline" style="color-scheme:dark;">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-gold" onclick="submitQuest()">Принять квест</button>
+      <button class="btn btn-outline" onclick="closeModal('add-modal')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+var state = {
+  gold: 2450,
+  xp: 6700,
+  xpMax: 10000,
+  level: 12,
+  hp: 240, hpMax: 240,
+  mp: 80, mpMax: 80,
+  dmg: 48, def: 32, stam: 75,
+  heroName: 'Арагорн',
+  heroClass: 'Хранитель Знаний',
+  starRatings: {diff: 3, imp: 4},
+  // Dungeon
+  enemyHP: 350, enemyMaxHP: 350,
+  currentHeroHP: 240, currentHeroMP: 80,
+  enemies: [
+    {name:'Чёрный Рыцарь', type:'Нежить · Элита', hp:350, dmg:35, xp:200, gold:150, icon:'☠'},
+    {name:'Мантикора', type:'Зверь · Редкий', hp:280, dmg:45, xp:250, gold:200, icon:'🦁'},
+    {name:'Грифон', type:'Мифический · Босс', hp:500, dmg:55, xp:400, gold:300, icon:'🦅'},
+    {name:'Мимик', type:'Ловушка · Хитрый', hp:200, dmg:60, xp:180, gold:350, icon:'📦'},
+  ],
+  currentEnemyIdx: 0,
+  battleActive: true,
+  potions: 3,
+};
+
+// ===== NAVIGATION =====
+function switchView(name, el) {
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-icon').forEach(function(n){n.classList.remove('active');});
+  if(el) el.classList.add('active');
+}
+
+// ===== UI UPDATES =====
+function updateTopBar() {
+  document.getElementById('top-level').textContent = 'УР. ' + state.level;
+  document.getElementById('top-xp').style.width = Math.round(state.xp / state.xpMax * 100) + '%';
+  document.getElementById('top-xp-label').textContent = state.xp + '/' + state.xpMax;
+  document.getElementById('top-gold').textContent = state.gold;
+  document.getElementById('char-gold').textContent = '🪙 ' + state.gold;
+  // Banner stats
+  document.getElementById('banner-hp').textContent = state.hpMax;
+  document.getElementById('banner-dmg').textContent = state.dmg;
+  document.getElementById('banner-def').textContent = state.def;
+  document.getElementById('banner-stam').textContent = state.stam;
+  // Char stats
+  document.getElementById('stat-hp-val').textContent = state.hpMax;
+  document.getElementById('stat-dmg-val').textContent = state.dmg;
+  document.getElementById('stat-def-val').textContent = state.def;
+  document.getElementById('stat-stam-val').textContent = state.stam;
+  document.getElementById('stat-hp').style.width = Math.min(100, Math.round(state.hpMax/3)) + '%';
+  document.getElementById('stat-dmg').style.width = Math.min(100, Math.round(state.dmg/0.8)) + '%';
+  document.getElementById('stat-def').style.width = Math.min(100, Math.round(state.def)) + '%';
+  document.getElementById('stat-stam').style.width = Math.min(100, state.stam) + '%';
+}
+
+function gainGold(amount) {
+  state.gold += amount;
+  updateTopBar();
+}
+function gainXP(amount) {
+  state.xp += amount;
+  if(state.xp >= state.xpMax) {
+    state.xp -= state.xpMax;
+    state.level++;
+    state.xpMax = Math.round(state.xpMax * 1.3);
+    state.hpMax += 30; state.dmg += 5; state.def += 3; state.stam += 5;
+    state.currentHeroHP = state.hpMax;
+    updateDungeonHero();
+    showToast('✨ Уровень повышен! Теперь ты ' + state.level + '-го уровня! Характеристики улучшены.');
+  }
+  updateTopBar();
+}
+
+// ===== QUEST COMPLETE =====
+function completeMainQuest() {
+  var xp = 450, gold = 300;
+  gainXP(xp); gainGold(gold);
+  addJournalEntry('«Тайны Древнего Наречия»', xp, gold, 'сегодня');
+  showToast('Квест выполнен! +' + xp + ' ОП, +🪙' + gold);
+}
+function completeSideQuest(el, name) {
+  var xp = 100 + Math.round(Math.random()*100);
+  var gold = 50 + Math.round(Math.random()*100);
+  gainXP(xp); gainGold(gold);
+  addJournalEntry('«' + name + '»', xp, gold, 'сегодня');
+  el.style.opacity = '0.4';
+  el.style.pointerEvents = 'none';
+  el.querySelector('.sq-title').style.textDecoration = 'line-through';
+  showToast('Побочный квест выполнен! +' + xp + ' ОП, +🪙' + gold);
+}
+function addJournalEntry(title, xp, gold, date) {
+  var list = document.getElementById('journal-list');
+  var el = document.createElement('div');
+  el.className = 'journal-item';
+  el.innerHTML = '<div class="jcheck">✓</div><div class="jtitle">' + title + '</div><div class="jxp">+' + xp + ' ОП</div><div class="jgold">🪙 ' + gold + '</div><div class="jdate">' + date + '</div>';
+  list.insertBefore(el, list.firstChild);
+}
+function rollDice() {
+  var titles = ['Тени Прошлого', 'Рассвет Неизвестного', 'Клинок Судьбы', 'Шёпот Ветра'];
+  var t = titles[Math.floor(Math.random()*titles.length)];
+  showToast('🎲 Судьба выбрала: «' + t + '»');
+}
+
+// ===== MODAL =====
+function openAddModal() { document.getElementById('add-modal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function setStars(type, val) {
+  state.starRatings[type] = val;
+  var cont = document.getElementById(type+'-stars');
+  cont.querySelectorAll('.star').forEach(function(s,i){s.classList.toggle('on', i < val);});
+}
+function submitQuest() {
+  var name = document.getElementById('q-name').value.trim();
+  if(!name){showToast('Введи название квеста!');return;}
+  showToast('⚔ Квест «' + name + '» добавлен в журнал!');
+  closeModal('add-modal');
+  document.getElementById('q-name').value='';
+  document.getElementById('q-desc').value='';
+}
+
+// ===== SHOP =====
+function buyItem(name, icon, price, bonus) {
+  if(state.gold < price){showToast('Недостаточно золота! Нужно 🪙' + price);return;}
+  state.gold -= price;
+  updateTopBar();
+  showToast('✅ Куплено: ' + icon + ' ' + name + ' (' + bonus + ')');
+}
+
+// ===== DUNGEON =====
+function getCurrentEnemy() { return state.enemies[state.currentEnemyIdx]; }
+
+function updateDungeonHero() {
+  var hpPct = Math.max(0, Math.round(state.currentHeroHP / state.hpMax * 100));
+  var mpPct = Math.max(0, Math.round(state.currentHeroMP / state.mpMax * 100));
+  document.getElementById('d-hp-val').textContent = state.currentHeroHP + ' / ' + state.hpMax;
+  document.getElementById('d-hp-bar').style.width = hpPct + '%';
+  document.getElementById('d-mp-val').textContent = state.currentHeroMP + ' / ' + state.mpMax;
+  document.getElementById('d-mp-bar').style.width = mpPct + '%';
+}
+
+function updateDungeonEnemy() {
+  var e = getCurrentEnemy();
+  var pct = Math.max(0, Math.round(state.enemyHP / state.enemyMaxHP * 100));
+  document.getElementById('enemy-name').textContent = e.name;
+  document.getElementById('enemy-type').textContent = e.type;
+  document.getElementById('enemy-hp-bar').style.width = pct + '%';
+  document.getElementById('enemy-hp-val').textContent = state.enemyHP + ' / ' + state.enemyMaxHP;
+}
+
+function addLog(msg, cls) {
+  var log = document.getElementById('battle-log');
+  var line = document.createElement('div');
+  line.className = 'log-line ' + (cls||'');
+  line.textContent = msg;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+function flashHit(side) {
+  var el = document.getElementById(side === 'enemy' ? 'hit-effect' : 'hero-hit-effect');
+  var col = side === 'enemy' ? 'rgba(231,76,60,0.25)' : 'rgba(58,130,196,0.25)';
+  el.style.background = col;
+  setTimeout(function(){el.style.background = 'rgba(0,0,0,0)';}, 150);
+}
+
+function setBtnsDisabled(dis) {
+  ['btn-attack','btn-spell','btn-potion','btn-flee'].forEach(function(id){
+    document.getElementById(id).disabled = dis;
+  });
+}
+
+function enemyAttack() {
+  if(!state.battleActive) return;
+  var e = getCurrentEnemy();
+  var dmg = Math.max(1, e.dmg - state.def/3 + Math.round((Math.random()-0.5)*10));
+  state.currentHeroHP = Math.max(0, state.currentHeroHP - dmg);
+  flashHit('hero');
+  addLog('💀 ' + e.name + ' наносит ' + dmg + ' урона!', 'dmg');
+  updateDungeonHero();
+  if(state.currentHeroHP <= 0) {
+    state.battleActive = false;
+    setBtnsDisabled(true);
+    addLog('☠ Ты пал в бою... Но легенды о тебе не угаснут.', 'dmg');
+    setTimeout(function(){
+      if(confirm('Герой пал. Возродиться (полное восстановление)?')) {
+        state.currentHeroHP = state.hpMax; state.currentHeroMP = state.mpMax;
+        state.currentEnemyIdx = 0; spawnEnemy(); state.battleActive = true;
+        setBtnsDisabled(false); addLog('✨ Ты возрождён силой звёзд!','sys');
+        updateDungeonHero();
+      }
+    }, 500);
+  }
+}
+
+function doAction(type) {
+  if(!state.battleActive) return;
+  setBtnsDisabled(true);
+  var e = getCurrentEnemy();
+  var heroDmg = 0;
+
+  if(type === 'attack') {
+    heroDmg = state.dmg + Math.round((Math.random()-0.3)*20);
+    state.enemyHP = Math.max(0, state.enemyHP - heroDmg);
+    flashHit('enemy');
+    addLog('⚔ Ты атакуешь ' + e.name + ' и наносишь ' + heroDmg + ' урона!');
+  } else if(type === 'spell') {
+    if(state.currentHeroMP < 20){addLog('❌ Недостаточно маны!');setBtnsDisabled(false);return;}
+    heroDmg = Math.round(state.dmg * 2 + Math.random()*30);
+    state.enemyHP = Math.max(0, state.enemyHP - heroDmg);
+    state.currentHeroMP = Math.max(0, state.currentHeroMP - 20);
+    flashHit('enemy');
+    addLog('✨ Ты читаешь заклятие! ' + heroDmg + ' урона магией!', 'sys');
+    updateDungeonHero();
+  } else if(type === 'potion') {
+    if(state.potions <= 0){addLog('❌ Зелий больше нет!');setBtnsDisabled(false);return;}
+    state.potions--;
+    var heal = 60;
+    state.currentHeroHP = Math.min(state.hpMax, state.currentHeroHP + heal);
+    addLog('⚗️ Ты выпиваешь зелье и восстанавливаешь ' + heal + ' здоровья!', 'heal');
+    updateDungeonHero(); setBtnsDisabled(false); return;
+  } else if(type === 'flee') {
+    if(Math.random() > 0.5) {
+      addLog('💨 Ты успешно бежишь с поля боя!', 'sys');
+      setBtnsDisabled(false); return;
+    } else {
+      addLog('💨 Сбежать не удалось!', 'dmg');
+      setTimeout(function(){enemyAttack(); setBtnsDisabled(false);}, 600);
+      return;
+    }
+  }
+
+  updateDungeonEnemy();
+
+  if(state.enemyHP <= 0) {
+    addLog('🏆 ' + e.name + ' повержен! +' + e.xp + ' ОП, +🪙' + e.gold, 'gold-line');
+    gainXP(e.xp); gainGold(e.gold);
+    state.currentEnemyIdx = (state.currentEnemyIdx + 1) % state.enemies.length;
+    setTimeout(function(){spawnEnemy(); setBtnsDisabled(false);}, 1200);
+  } else {
+    setTimeout(function(){enemyAttack(); setBtnsDisabled(false);}, 700);
+  }
+}
+
+function spawnEnemy() {
+  var e = state.enemies[state.currentEnemyIdx];
+  state.enemyHP = e.hp; state.enemyMaxHP = e.hp;
+  addLog('👁 Появляется: ' + e.name + '!', 'sys');
+  updateDungeonEnemy();
+  // Update enemy SVG
+  var svgs = {
+    'Чёрный Рыцарь': knightSVG,
+    'Мантикора': manticoraSVG,
+    'Грифон': griffinSVG,
+    'Мимик': mimicSVG,
+  };
+  var svgFn = svgs[e.name] || knightSVG;
+  document.getElementById('enemy-svg').outerHTML = svgFn();
+}
+
+function knightSVG() {
+  return '<svg id="enemy-svg" width="100" height="150" viewBox="0 0 100 150" fill="none"><ellipse cx="50" cy="146" rx="30" ry="5" fill="#8b0000" opacity="0.15"/><path d="M30 70 L20 140 L80 140 L70 70 Z" fill="#1a0a0a" stroke="#8b0000" stroke-width="1"/><path d="M35 68 L35 105 L65 105 L65 68 Z" fill="#2a1010" stroke="#8b0000" stroke-width="0.5"/><path d="M20 68 L10 130 L25 132 L32 85 Z" fill="#150808"/><path d="M80 68 L90 130 L75 132 L68 85 Z" fill="#150808"/><ellipse cx="50" cy="50" rx="18" ry="20" fill="#1a0a0a" stroke="#8b0000" stroke-width="1"/><rect x="38" y="44" width="24" height="6" rx="1" fill="#0a0000"/><ellipse cx="43" cy="48" rx="3" ry="2" fill="#c0392b" opacity="0.9"/><ellipse cx="57" cy="48" rx="3" ry="2" fill="#c0392b" opacity="0.9"/><ellipse cx="43" cy="48" rx="1.5" ry="1" fill="#e74c3c"/><ellipse cx="57" cy="48" rx="1.5" ry="1" fill="#e74c3c"/><rect x="82" y="30" width="4" height="80" rx="1" fill="#3a3a3a" stroke="#8b0000" stroke-width="0.5"/><rect x="78" y="65" width="12" height="4" rx="1" fill="#5a2020"/><path d="M30 65 L20 75 L20 90 L32 87 Z" fill="#2a1010" stroke="#8b0000" stroke-width="0.5"/><path d="M70 65 L80 75 L80 90 L68 87 Z" fill="#2a1010" stroke="#8b0000" stroke-width="0.5"/><text x="50" y="92" text-anchor="middle" font-size="14" fill="#8b0000" opacity="0.6" font-family="serif">☠</text></svg>';
+}
+function manticoraSVG() {
+  return '<svg id="enemy-svg" width="120" height="140" viewBox="0 0 120 140" fill="none"><ellipse cx="60" cy="136" rx="35" ry="5" fill="#8b4500" opacity="0.15"/><path d="M20 90 Q60 50 100 90 L95 130 L25 130 Z" fill="#7d3c1a" stroke="#c0392b" stroke-width="1"/><path d="M20 90 L5 70 L20 75 Z" fill="#5a2a10"/><path d="M100 90 L115 70 L100 75 Z" fill="#5a2a10"/><ellipse cx="60" cy="68" rx="22" ry="20" fill="#7d3c1a" stroke="#c0392b" stroke-width="1"/><ellipse cx="50" cy="63" rx="3.5" ry="3" fill="#e74c3c" opacity="0.8"/><ellipse cx="70" cy="63" rx="3.5" ry="3" fill="#e74c3c" opacity="0.8"/><path d="M50 72 Q60 80 70 72" stroke="#c0392b" stroke-width="1.5" fill="none"/><path d="M85 50 Q105 20 100 10 Q90 30 80 45" fill="#5a2a10" stroke="#7d3c1a" stroke-width="0.5"/><path d="M35 50 Q15 20 20 10 Q30 30 40 45" fill="#5a2a10" stroke="#7d3c1a" stroke-width="0.5"/><path d="M60 130 Q75 110 90 130" fill="#7d3c1a" stroke="#c0392b" stroke-width="1.5"/><path d="M90 60 Q115 40 110 55 Q105 48 95 65" fill="#7d3c1a"/></svg>';
+}
+function griffinSVG() {
+  return '<svg id="enemy-svg" width="130" height="150" viewBox="0 0 130 150" fill="none"><ellipse cx="65" cy="146" rx="38" ry="5" fill="#8b7000" opacity="0.15"/><path d="M30 90 Q65 55 100 90 L95 135 L35 135 Z" fill="#8b7318" stroke="#c9a84c" stroke-width="1"/><path d="M5 70 Q30 50 40 80 L25 95 Z" fill="#c9a84c" stroke="#8b7318" stroke-width="0.5"/><path d="M125 70 Q100 50 90 80 L105 95 Z" fill="#c9a84c" stroke="#8b7318" stroke-width="0.5"/><path d="M5 70 Q-5 40 10 35 Q15 55 20 65 Z" fill="#c9a84c" opacity="0.8"/><path d="M125 70 Q135 40 120 35 Q115 55 110 65 Z" fill="#c9a84c" opacity="0.8"/><ellipse cx="65" cy="65" rx="24" ry="22" fill="#c9a84c" stroke="#8b7318" stroke-width="1"/><path d="M55 55 Q65 42 75 55 L72 62 Q65 52 58 62 Z" fill="#8b7318"/><ellipse cx="55" cy="62" rx="4" ry="3.5" fill="#2c3e50"/><ellipse cx="75" cy="62" rx="4" ry="3.5" fill="#2c3e50"/><ellipse cx="55" cy="62" rx="2" ry="1.5" fill="#f39c12" opacity="0.8"/><ellipse cx="75" cy="62" rx="2" ry="1.5" fill="#f39c12" opacity="0.8"/><path d="M57 73 L65 78 L73 73" stroke="#8b7318" stroke-width="1.5" fill="none"/><path d="M65 135 Q80 115 95 130" fill="#8b7318" stroke="#c9a84c" stroke-width="1.5"/></svg>';
+}
+function mimicSVG() {
+  return '<svg id="enemy-svg" width="110" height="130" viewBox="0 0 110 130" fill="none"><ellipse cx="55" cy="126" rx="35" ry="5" fill="#5a3a0a" opacity="0.2"/><rect x="15" y="60" width="80" height="60" rx="4" fill="#5a3a0a" stroke="#c9a84c" stroke-width="1.5"/><rect x="15" y="40" width="80" height="25" rx="4" fill="#6b4a15" stroke="#c9a84c" stroke-width="1"/><rect x="18" y="43" width="74" height="8" fill="#5a3a0a" stroke="#c9a84c" stroke-width="0.5"/><rect x="48" y="35" width="14" height="14" rx="2" fill="#c9a84c"/><rect x="51" y="38" width="8" height="8" rx="1" fill="#8b7318"/><path d="M25 85 Q55 70 85 85 Q85 105 55 110 Q25 105 25 85 Z" fill="#3a2005"/><g fill="#e8c97a" opacity="0.9"><rect x="28" y="88" width="6" height="10" rx="1"/><rect x="38" y="85" width="6" height="13" rx="1"/><rect x="48" y="84" width="6" height="14" rx="1"/><rect x="58" y="84" width="6" height="14" rx="1"/><rect x="68" y="85" width="6" height="13" rx="1"/><rect x="78" y="88" width="6" height="10" rx="1"/></g><ellipse cx="38" cy="73" rx="7" ry="7" fill="#3a2005"/><ellipse cx="72" cy="73" rx="7" ry="7" fill="#3a2005"/><ellipse cx="38" cy="73" rx="4" ry="4" fill="#e74c3c" opacity="0.8"/><ellipse cx="72" cy="73" rx="4" ry="4" fill="#e74c3c" opacity="0.8"/><ellipse cx="38" cy="73" rx="2" ry="2" fill="#c0392b"/><ellipse cx="72" cy="73" rx="2" ry="2" fill="#c0392b"/><path d="M15 58 Q55 30 95 58" stroke="#c9a84c" stroke-width="1" fill="none" stroke-dasharray="4 2"/><circle cx="25" cy="68" r="3" fill="#c9a84c" opacity="0.6"/><circle cx="85" cy="68" r="3" fill="#c9a84c" opacity="0.6"/></svg>';
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');}, 3500);
+}
+
+// ===== INIT =====
+updateTopBar();
+updateDungeonHero();
+updateDungeonEnemy();
+
+// ===== SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js')
+      .catch(function(err) { console.warn('SW registration failed:', err); });
+  });
+}
+</script>
+</body>
+</html>

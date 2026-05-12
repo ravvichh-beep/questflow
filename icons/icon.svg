@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#0a0e1a"/>
+  <!-- Crown -->
+  <path d="M100 340 L100 220 L160 280 L256 160 L352 280 L412 220 L412 340 Z"
+        fill="#c9a84c" stroke="#e8c97a" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Crown base -->
+  <rect x="90" y="330" width="332" height="52" rx="10"
+        fill="#c9a84c" stroke="#e8c97a" stroke-width="6"/>
+  <!-- Gems -->
+  <circle cx="256" cy="200" r="22" fill="#3b82c4" stroke="#e8c97a" stroke-width="4"/>
+  <circle cx="256" cy="200" r="12" fill="#6aaddf"/>
+  <circle cx="130" cy="274" r="14" fill="#8e44ad" stroke="#e8c97a" stroke-width="3"/>
+  <circle cx="382" cy="274" r="14" fill="#c0392b" stroke="#e8c97a" stroke-width="3"/>
+  <!-- Shine -->
+  <path d="M170 355 L342 355" stroke="#e8c97a" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+</svg>

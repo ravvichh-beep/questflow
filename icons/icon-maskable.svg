@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Full bleed background for maskable -->
+  <rect width="512" height="512" fill="#0a0e1a"/>
+  <!-- Crown (slightly smaller to fit safe zone) -->
+  <path d="M120 360 L120 250 L175 305 L256 185 L337 305 L392 250 L392 360 Z"
+        fill="#c9a84c" stroke="#e8c97a" stroke-width="8" stroke-linejoin="round"/>
+  <rect x="110" y="350" width="292" height="46" rx="10"
+        fill="#c9a84c" stroke="#e8c97a" stroke-width="6"/>
+  <circle cx="256" cy="218" r="20" fill="#3b82c4" stroke="#e8c97a" stroke-width="4"/>
+  <circle cx="256" cy="218" r="11" fill="#6aaddf"/>
+  <circle cx="145" cy="290" r="12" fill="#8e44ad" stroke="#e8c97a" stroke-width="3"/>
+  <circle cx="367" cy="290" r="12" fill="#c0392b" stroke="#e8c97a" stroke-width="3"/>
+  <path d="M175 372 L337 372" stroke="#e8c97a" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+</svg>
