@@ -511,26 +511,7 @@ textarea.form-input{resize:vertical;min-height:70px;}
     </div>
 
     <div class="section-hdr">Побочные квесты</div>
-    <div class="side-quests">
-      <div class="sq" onclick="completeSideQuest(this,'Письмо Из Тумана')">
-        <div class="sq-label">⚔ ПОБОЧНЫЙ · РАБОТА</div>
-        <div class="sq-title">Письмо Из Тумана</div>
-        <div class="sq-desc">Ответить на письмо Андреасу насчёт встречи во вторник</div>
-        <div class="sq-meta">
-          <span style="font-family:'Cinzel',serif;font-size:10px;color:var(--gold);">🪙 +100</span>
-          <span style="font-size:10px;color:var(--text-dim);">★☆☆☆☆ · Сегодня</span>
-        </div>
-      </div>
-      <div class="sq" onclick="completeSideQuest(this,'Ритуал Воина')">
-        <div class="sq-label">⚔ ПОБОЧНЫЙ · ЗДОРОВЬЕ</div>
-        <div class="sq-title">Ритуал Воина</div>
-        <div class="sq-desc">Утренняя тренировка — 30 минут без оправданий и промедлений</div>
-        <div class="sq-meta">
-          <span style="font-family:'Cinzel',serif;font-size:10px;color:var(--gold);">🪙 +150</span>
-          <span style="font-size:10px;color:var(--text-dim);">★★☆☆☆ · Сегодня</span>
-        </div>
-      </div>
-    </div>
+    <div class="side-quests" id="side-quests-container"></div>
 
     <button class="add-btn" onclick="openAddModal()"><i class="ti ti-plus"></i> Принять новый квест</button>
   </div>
@@ -1053,20 +1034,35 @@ textarea.form-input{resize:vertical;min-height:70px;}
 
 <script>
 // ===== STATE =====
-var state = {
-  gold: 2450,
-  xp: 6700,
-  xpMax: 10000,
-  level: 12,
-  hp: 240, hpMax: 240,
-  mp: 80, mpMax: 80,
-  dmg: 48, def: 32, stam: 75,
-  heroName: 'Арагорн',
-  heroClass: 'Хранитель Знаний',
+var DEFAULTS = {
+  gold: 2450, xp: 6700, xpMax: 10000, level: 12,
+  hpMax: 240, mpMax: 80, dmg: 48, def: 32, stam: 75,
+  heroName: 'Арагорн', heroClass: 'Хранитель Знаний',
   starRatings: {diff: 3, imp: 4},
-  // Dungeon
+  quests: [
+    {id:1, title:'Письмо Из Тумана', desc:'Ответить на письмо Андреасу насчёт встречи во вторник', cat:'work', label:'⚔ ПОБОЧНЫЙ · РАБОТА', xp:100, gold:100, diff:1, deadline:'Сегодня'},
+    {id:2, title:'Ритуал Воина', desc:'Утренняя тренировка — 30 минут без оправданий и промедлений', cat:'health', label:'🌿 ПОБОЧНЫЙ · ЗДОРОВЬЕ', xp:150, gold:150, diff:2, deadline:'Сегодня'}
+  ],
+  journal: [
+    {title:'«Кузница Кода» — Настроить рабочее окружение', xp:200, gold:200, date:'10 мая'},
+    {title:'«Зов Морфея» — Нормализовать режим сна', xp:150, gold:150, date:'3 мая'},
+    {title:'«Пепел и Пламя» — Разобрать завалы на столе', xp:100, gold:100, date:'1 мая'}
+  ]
+};
+
+var state = {
+  gold: DEFAULTS.gold,
+  xp: DEFAULTS.xp, xpMax: DEFAULTS.xpMax, level: DEFAULTS.level,
+  hp: DEFAULTS.hpMax, hpMax: DEFAULTS.hpMax,
+  mp: DEFAULTS.mpMax, mpMax: DEFAULTS.mpMax,
+  dmg: DEFAULTS.dmg, def: DEFAULTS.def, stam: DEFAULTS.stam,
+  heroName: DEFAULTS.heroName, heroClass: DEFAULTS.heroClass,
+  starRatings: {diff: 3, imp: 4},
+  quests: DEFAULTS.quests.map(function(q){return Object.assign({},q);}),
+  journal: DEFAULTS.journal.map(function(j){return Object.assign({},j);}),
+  // Dungeon (not persisted)
   enemyHP: 350, enemyMaxHP: 350,
-  currentHeroHP: 240, currentHeroMP: 80,
+  currentHeroHP: DEFAULTS.hpMax, currentHeroMP: DEFAULTS.mpMax,
   enemies: [
     {name:'Чёрный Рыцарь', type:'Нежить · Элита', hp:350, dmg:35, xp:200, gold:150, icon:'☠'},
     {name:'Мантикора', type:'Зверь · Редкий', hp:280, dmg:45, xp:250, gold:200, icon:'🦁'},
@@ -1077,6 +1073,101 @@ var state = {
   battleActive: true,
   potions: 3,
 };
+
+// ===== PERSIST =====
+var SAVE_KEY = 'questflow_v1';
+function saveState() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      gold: state.gold, xp: state.xp, xpMax: state.xpMax, level: state.level,
+      hpMax: state.hpMax, mpMax: state.mpMax,
+      dmg: state.dmg, def: state.def, stam: state.stam,
+      heroName: state.heroName, heroClass: state.heroClass,
+      quests: state.quests, journal: state.journal
+    }));
+  } catch(e) {}
+}
+function loadState() {
+  try {
+    var raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    var s = JSON.parse(raw);
+    ['gold','xp','xpMax','level','hpMax','mpMax','dmg','def','stam','heroName','heroClass','quests','journal'].forEach(function(k){
+      if (s[k] !== undefined) state[k] = s[k];
+    });
+    state.hp = state.hpMax;
+    state.mp = state.mpMax;
+    state.currentHeroHP = state.hpMax;
+    state.currentHeroMP = state.mpMax;
+  } catch(e) {}
+}
+
+// ===== HELPERS =====
+function todayStr() {
+  var d = new Date();
+  var months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+  return d.getDate() + ' ' + months[d.getMonth()];
+}
+
+// ===== RENDER QUESTS =====
+function renderQuests() {
+  var c = document.getElementById('side-quests-container');
+  c.innerHTML = '';
+  if (!state.quests.length) {
+    c.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:28px;color:var(--text-dim);font-style:italic;font-family:\'IM Fell English\',serif;border:1px dashed var(--border-dim);border-radius:4px;">Нет активных квестов. Прими новый!</div>';
+    return;
+  }
+  state.quests.forEach(function(q) {
+    var stars = '★'.repeat(q.diff) + '☆'.repeat(5 - q.diff);
+    var div = document.createElement('div');
+    div.className = 'sq';
+    div.style.cursor = 'default';
+    div.innerHTML =
+      '<button onclick="event.stopPropagation();deleteQuest(' + q.id + ')" title="Отменить" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:15px;line-height:1;padding:2px 4px;"></button>' +
+      '<div class="sq-label">' + q.label + '</div>' +
+      '<div class="sq-title">' + q.title + '</div>' +
+      '<div class="sq-desc">' + (q.desc || '') + '</div>' +
+      '<div class="sq-meta" style="justify-content:space-between;">' +
+        '<span style="font-family:\'Cinzel\',serif;font-size:10px;color:var(--gold);">🪙 +' + q.gold + ' · ✨ +' + q.xp + ' ОП</span>' +
+        '<span style="font-size:10px;color:var(--text-dim);">' + stars + ' · ' + (q.deadline || '—') + '</span>' +
+      '</div>' +
+      '<button onclick="completeSideQuestById(' + q.id + ')" class="btn btn-blue" style="margin-top:10px;font-size:10px;padding:6px 14px;width:100%;">✓ Выполнить квест</button>';
+    c.appendChild(div);
+  });
+}
+
+// ===== RENDER JOURNAL =====
+function renderJournal() {
+  var list = document.getElementById('journal-list');
+  list.innerHTML = '';
+  state.journal.forEach(function(entry) {
+    var el = document.createElement('div');
+    el.className = 'journal-item';
+    el.innerHTML = '<div class="jcheck">✓</div><div class="jtitle">' + entry.title + '</div><div class="jxp">+' + entry.xp + ' ОП</div><div class="jgold">🪙 ' + entry.gold + '</div><div class="jdate">' + entry.date + '</div>';
+    list.appendChild(el);
+  });
+}
+
+// ===== QUEST ACTIONS =====
+function completeSideQuestById(id) {
+  var idx = -1;
+  for (var i = 0; i < state.quests.length; i++) { if (state.quests[i].id === id) { idx = i; break; } }
+  if (idx === -1) return;
+  var q = state.quests[idx];
+  gainXP(q.xp); gainGold(q.gold);
+  state.journal.unshift({title: '«' + q.title + '»', xp: q.xp, gold: q.gold, date: todayStr()});
+  state.quests.splice(idx, 1);
+  renderQuests();
+  renderJournal();
+  saveState();
+  showToast('⚔ Квест выполнен! +' + q.xp + ' ОП, +🪙' + q.gold);
+}
+function deleteQuest(id) {
+  state.quests = state.quests.filter(function(q){ return q.id !== id; });
+  renderQuests();
+  saveState();
+  showToast('Квест отменён.');
+}
 
 // ===== NAVIGATION =====
 function switchView(name, el) {
@@ -1112,6 +1203,7 @@ function updateTopBar() {
 function gainGold(amount) {
   state.gold += amount;
   updateTopBar();
+  saveState();
 }
 function gainXP(amount) {
   state.xp += amount;
@@ -1125,31 +1217,17 @@ function gainXP(amount) {
     showToast('✨ Уровень повышен! Теперь ты ' + state.level + '-го уровня! Характеристики улучшены.');
   }
   updateTopBar();
+  saveState();
 }
 
 // ===== QUEST COMPLETE =====
 function completeMainQuest() {
   var xp = 450, gold = 300;
   gainXP(xp); gainGold(gold);
-  addJournalEntry('«Тайны Древнего Наречия»', xp, gold, 'сегодня');
-  showToast('Квест выполнен! +' + xp + ' ОП, +🪙' + gold);
-}
-function completeSideQuest(el, name) {
-  var xp = 100 + Math.round(Math.random()*100);
-  var gold = 50 + Math.round(Math.random()*100);
-  gainXP(xp); gainGold(gold);
-  addJournalEntry('«' + name + '»', xp, gold, 'сегодня');
-  el.style.opacity = '0.4';
-  el.style.pointerEvents = 'none';
-  el.querySelector('.sq-title').style.textDecoration = 'line-through';
-  showToast('Побочный квест выполнен! +' + xp + ' ОП, +🪙' + gold);
-}
-function addJournalEntry(title, xp, gold, date) {
-  var list = document.getElementById('journal-list');
-  var el = document.createElement('div');
-  el.className = 'journal-item';
-  el.innerHTML = '<div class="jcheck">✓</div><div class="jtitle">' + title + '</div><div class="jxp">+' + xp + ' ОП</div><div class="jgold">🪙 ' + gold + '</div><div class="jdate">' + date + '</div>';
-  list.insertBefore(el, list.firstChild);
+  state.journal.unshift({title:'«Тайны Древнего Наречия»', xp:xp, gold:gold, date:todayStr()});
+  renderJournal();
+  saveState();
+  showToast('⚔ Главный квест выполнен! +' + xp + ' ОП, +🪙' + gold);
 }
 function rollDice() {
   var titles = ['Тени Прошлого', 'Рассвет Неизвестного', 'Клинок Судьбы', 'Шёпот Ветра'];
@@ -1168,10 +1246,36 @@ function setStars(type, val) {
 function submitQuest() {
   var name = document.getElementById('q-name').value.trim();
   if(!name){showToast('Введи название квеста!');return;}
-  showToast('⚔ Квест «' + name + '» добавлен в журнал!');
+  var desc = document.getElementById('q-desc').value.trim();
+  var cat = document.getElementById('q-cat').value;
+  var diff = state.starRatings.diff || 3;
+  var deadlineRaw = document.getElementById('q-deadline').value;
+  var catLabels = {work:'⚔ ПОБОЧНЫЙ · РАБОТА', study:'📚 ПОБОЧНЫЙ · УЧЁБА', health:'🌿 ПОБОЧНЫЙ · ЗДОРОВЬЕ', hobby:'🎨 ПОБОЧНЫЙ · ХОББИ', life:'🌍 ПОБОЧНЫЙ · ЖИЗНЬ'};
+  var deadline = '';
+  if (deadlineRaw) {
+    var d = new Date(deadlineRaw);
+    var months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+    deadline = d.getDate() + ' ' + months[d.getMonth()];
+  } else { deadline = 'Скоро'; }
+  var quest = {
+    id: Date.now(),
+    title: name,
+    desc: desc || 'Выполни это задание',
+    cat: cat,
+    label: catLabels[cat] || '⚔ ПОБОЧНЫЙ',
+    xp: 50 + diff * 50,
+    gold: 40 + diff * 30,
+    diff: diff,
+    deadline: deadline
+  };
+  state.quests.push(quest);
+  renderQuests();
+  saveState();
+  showToast('⚔ Квест «' + name + '» принят!');
   closeModal('add-modal');
   document.getElementById('q-name').value='';
   document.getElementById('q-desc').value='';
+  document.getElementById('q-deadline').value='';
 }
 
 // ===== SHOP =====
@@ -1179,6 +1283,7 @@ function buyItem(name, icon, price, bonus) {
   if(state.gold < price){showToast('Недостаточно золота! Нужно 🪙' + price);return;}
   state.gold -= price;
   updateTopBar();
+  saveState();
   showToast('✅ Куплено: ' + icon + ' ' + name + ' (' + bonus + ')');
 }
 
@@ -1335,9 +1440,15 @@ function showToast(msg) {
 }
 
 // ===== INIT =====
+loadState();
 updateTopBar();
 updateDungeonHero();
 updateDungeonEnemy();
+renderQuests();
+renderJournal();
+// Sync hero name display
+document.getElementById('char-name').textContent = state.heroName;
+document.getElementById('char-class-label').textContent = state.heroClass;
 
 // ===== SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
