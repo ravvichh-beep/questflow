@@ -1,0 +1,15 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+.vscode/
+.idea/
+files/check_syntax.js
+.playwright-mcp/
+.netlify/
+
+# Приватные документы (стратегия, контекст для Claude Code)
+CLAUDE.md
+QUESTFLOW_ROADMAP.md

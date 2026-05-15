@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Фокус — QuestFlow</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#04090f;--bg2:#080f1a;
+  --gold:#d4a84a;--gold2:#f0d070;
+  --sap:#4088d8;--sky:#66b2f0;
+  --text:#ede4cc;--text2:#8aaccc;--text3:#3a5070;
+  --bd:rgba(30,70,140,.2);--bdm:rgba(40,90,160,.38);
+  --green:#28b060;--red2:#f04040;
+  --glass:rgba(8,15,26,.9);
+  --r:6px;
+  --ff-title:"Palatino Linotype","Book Antiqua",Palatino,serif;
+  --ff-body:Georgia,"Times New Roman",serif;
+}
+html,body{
+  width:360px;height:280px;overflow:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:var(--ff-body);user-select:none;
+}
+body{
+  display:flex;flex-direction:column;
+  background:radial-gradient(ellipse at 50% 0%,#0c1e3a,#04090f);
+  border:1px solid var(--bdm);
+}
+.f-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 12px;border-bottom:1px solid var(--bd);
+  background:rgba(8,15,26,.8);flex-shrink:0;
+}
+.f-logo{font-family:var(--ff-title);font-size:11px;color:var(--gold);letter-spacing:2px}
+.f-tabs{display:flex;gap:1px}
+.f-tab{
+  font-family:var(--ff-title);font-size:8px;letter-spacing:1px;
+  padding:3px 9px;cursor:pointer;color:var(--text3);
+  border:1px solid transparent;border-radius:4px;
+  transition:all .15s;text-transform:uppercase;
+}
+.f-tab.active{color:var(--gold);border-color:rgba(212,168,74,.3);background:rgba(212,168,74,.07)}
+.f-tab:hover:not(.active){color:var(--text2)}
+
+.f-body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.f-footer{
+  padding:4px 12px 5px;font-size:9px;color:var(--text3);
+  font-style:italic;letter-spacing:.5px;text-align:center;flex-shrink:0;
+}
+
+/* Квест */
+.f-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-style:italic;font-size:12px;color:var(--text3);gap:5px;text-align:center;
+}
+.f-cat{font-family:var(--ff-title);font-size:8px;letter-spacing:2px;color:var(--sky);text-transform:uppercase}
+.f-title{font-family:var(--ff-title);font-size:14px;color:var(--gold);line-height:1.25;letter-spacing:.3px;flex:1}
+.f-meta{display:flex;gap:7px;font-family:var(--ff-title);font-size:8px;color:var(--text3);flex-wrap:wrap}
+.f-meta .urgent{color:var(--red2)}
+.f-meta .ok{color:var(--green)}
+.f-actions{display:flex;gap:6px;flex-shrink:0}
+.f-btn{
+  flex:1;padding:7px;border-radius:var(--r);font-family:var(--ff-title);
+  font-size:8px;letter-spacing:1.5px;cursor:pointer;border:1px solid;
+  text-transform:uppercase;transition:all .15s;text-align:center;
+}
+.f-btn-done{background:linear-gradient(135deg,#c89030,#e8b040);color:#07101d;border-color:rgba(232,176,64,.6);font-weight:600}
+.f-btn-skip{background:rgba(255,255,255,.03);color:var(--text2);border-color:var(--bdm)}
+.f-btn-skip:hover{color:var(--text);background:rgba(255,255,255,.06)}
+
+/* Таймер */
+.t-body{flex:1;display:flex;flex-direction:column;gap:8px}
+.t-clock{
+  font-family:var(--ff-title);font-size:44px;
+  color:var(--text);letter-spacing:3px;text-align:center;
+  line-height:1;padding:8px 0;
+  text-shadow:0 0 20px rgba(64,136,216,.3);
+}
+.t-clock.urgent{color:var(--red2);text-shadow:0 0 16px rgba(240,64,64,.4);animation:pulse 1s ease-in-out infinite}
+.t-clock.done{color:var(--gold);text-shadow:0 0 20px rgba(212,168,74,.5)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.t-bar{height:4px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.t-fill{height:100%;background:linear-gradient(90deg,var(--sap),var(--sky));border-radius:3px;transition:width .5s linear;box-shadow:0 0 5px rgba(64,136,216,.4)}
+.t-label{font-family:var(--ff-title);font-size:8px;color:var(--text3);letter-spacing:1px;text-align:center}
+.t-streak{font-family:var(--ff-title);font-size:9px;color:#ff8040;text-align:center;letter-spacing:1px}
+.t-actions{display:flex;gap:6px}
+.t-btn{
+  flex:1;padding:8px;border-radius:var(--r);font-family:var(--ff-title);
+  font-size:8px;letter-spacing:1.5px;cursor:pointer;border:1px solid;
+  text-transform:uppercase;text-align:center;transition:all .15s;
+}
+.t-btn-start{background:linear-gradient(135deg,#1a3560,#244a8a);color:var(--sky);border-color:rgba(64,136,216,.4)}
+.t-btn-start:hover{background:linear-gradient(135deg,#244a8a,#3060b0)}
+.t-btn-stop{background:rgba(168,32,32,.1);color:var(--red2);border-color:rgba(168,32,32,.3)}
+.t-btn-stop:hover{background:rgba(168,32,32,.2)}
+.t-reward{font-family:var(--ff-title);font-size:8px;color:var(--text3);text-align:center;letter-spacing:.5px}
+</style>
+</head>
+<body>
+
+<div class="f-header">
+  <div class="f-logo">⚔ QuestFlow</div>
+  <div class="f-tabs">
+    <div class="f-tab active" id="tab-quest" onclick="showTab('quest')">Квест</div>
+    <div class="f-tab" id="tab-timer" onclick="showTab('timer')">Концентрация</div>
+  </div>
+</div>
+
+<div class="f-body" id="quest-pane"></div>
+<div class="f-body" id="timer-pane" style="display:none"></div>
+
+<div class="f-footer" id="footer"></div>
+
+<script>
+var SAVE_KEY = 'qf5';
+var CAT_ICONS  = {study:'📚',work:'⚔',health:'🌿',hobby:'🎨',life:'🌍'};
+var CAT_LABELS = {study:'Учёба',work:'Работа',health:'Здоровье',hobby:'Хобби',life:'Жизнь'};
+var BC_DURATION = 25 * 60;
+var _tab = 'quest';
+var _timerInterval = null;
+var _timerState = null; // {remaining, running}
+
+function getData() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || null; } catch(e) { return null; }
+}
+function saveData(data) {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function showTab(tab) {
+  _tab = tab;
+  document.getElementById('tab-quest').className = 'f-tab' + (tab==='quest'?' active':'');
+  document.getElementById('tab-timer').className = 'f-tab' + (tab==='timer'?' active':'');
+  document.getElementById('quest-pane').style.display = tab==='quest' ? 'flex' : 'none';
+  document.getElementById('timer-pane').style.display = tab==='timer' ? 'flex' : 'none';
+}
+
+function priority(q) {
+  var s = 0;
+  if (q.deadline) {
+    var days = Math.ceil((new Date(q.deadline) - new Date()) / 86400000);
+    if (days < 0) s += 10000;
+    else if (days === 0) s += 5000;
+    else if (days <= 1) s += 3000;
+    else if (days <= 3) s += 2000;
+    else if (days <= 7) s += 1000;
+    else s += Math.max(0, 500 - days * 10);
+  }
+  s += (q.importance || 3) * 200 + (q.difficulty || 3) * 50;
+  return s;
+}
+function isOverdue(q) {
+  if (!q.deadline) return false;
+  var d = new Date(q.deadline); d.setHours(23,59,59,0); return d < new Date();
+}
+function daysLabel(deadline) {
+  if (!deadline) return '';
+  var days = Math.ceil((new Date(deadline) - new Date()) / 86400000);
+  if (days < 0) return 'просрочен';
+  if (days === 0) return 'сегодня';
+  if (days === 1) return 'завтра';
+  return 'через ' + days + ' дн.';
+}
+
+function loadQuest() {
+  var pane = document.getElementById('quest-pane');
+  var footer = document.getElementById('footer');
+  var data = getData();
+  if (!data || !data.onboarded) {
+    pane.innerHTML = '<div class="f-empty"><div>📜</div>Открой QuestFlow<br>и начни путь</div>';
+    footer.textContent = '';
+    return;
+  }
+  var quests = (data.quests || []).filter(function(q){ return !q.done; })
+    .sort(function(a,b){ return priority(b) - priority(a); });
+  if (quests.length === 0) {
+    pane.innerHTML = '<div class="f-empty"><div>✦</div><span style="color:var(--gold)">Все квесты выполнены!</span></div>';
+    footer.textContent = '';
+    return;
+  }
+  var q = quests[0];
+  var overdue = isOverdue(q);
+  var dlabel = daysLabel(q.deadline);
+  pane.innerHTML = '<div class="f-cat">' + (CAT_ICONS[q.category]||'') + ' ' + (CAT_LABELS[q.category]||'') + '</div>'
+    + '<div class="f-title' + (overdue?' overdue':'') + '">' + (q.fantasyTitle||q.title) + '</div>'
+    + '<div class="f-meta">'
+    + (q.deadline ? '<span class="' + (overdue||dlabel==='сегодня'?'urgent':'ok') + '">⏰ ' + dlabel + '</span>' : '')
+    + '</div>'
+    + '<div class="f-actions">'
+    + '<div class="f-btn f-btn-done" onclick="completeQuest(\'' + q.id + '\')">✓ Выполнено</div>'
+    + '<div class="f-btn f-btn-skip" onclick="loadQuest()">→ Дальше</div>'
+    + '</div>';
+  footer.textContent = 'Активных: ' + quests.length + (data.hero ? ' · ' + data.hero.name : '');
+}
+
+function completeQuest(id) {
+  var data = getData(); if (!data) return;
+  var q = (data.quests||[]).find(function(q){ return q.id===id; }); if (!q) return;
+  q.done = true; q.completedAt = new Date().toISOString();
+  var xp = (q.difficulty||3)*(q.importance||3)*80;
+  var gold = (q.difficulty||3)*(q.importance||3)*60;
+  data.hero.xp = (data.hero.xp||0) + xp;
+  data.hero.gold = (data.hero.gold||0) + gold;
+  data.stats.totalDone = (data.stats.totalDone||0) + 1;
+  var today = new Date().toISOString().slice(0,10);
+  data.stats.daily[today] = (data.stats.daily[today]||0) + 1;
+  data.journal = data.journal||[];
+  data.journal.unshift({title:q.fantasyTitle||q.title,xp:xp,gold:gold,date:today});
+  saveData(data);
+  var pane = document.getElementById('quest-pane');
+  pane.innerHTML = '<div class="f-empty"><div style="font-size:24px">✦</div>'
+    + '<div style="color:var(--gold);font-family:var(--ff-title);font-size:11px;letter-spacing:1px">КВЕСТ ВЫПОЛНЕН</div>'
+    + '<div style="font-size:11px;color:var(--text2)"><span style="color:var(--sap)">+' + xp + ' ОП</span> · <span style="color:var(--gold)">🪙 +' + gold + '</span></div>'
+    + '</div>';
+  setTimeout(loadQuest, 1800);
+}
+
+// Таймер концентрации
+function renderTimer() {
+  var pane = document.getElementById('timer-pane');
+  var data = getData();
+  var streak = data ? (data.bcStreak||0) : 0;
+  var isFlow = streak >= 3;
+
+  if (!_timerState) {
+    // Не запущен
+    pane.innerHTML = '<div class="t-body">'
+      + '<div class="t-clock">25:00</div>'
+      + '<div class="t-bar"><div class="t-fill" style="width:0%"></div></div>'
+      + '<div class="t-label">Боевая Концентрация · 25 минут</div>'
+      + (streak > 0 ? '<div class="t-streak">🔥 Серия: ' + streak + (isFlow ? ' · Состояние Потока!' : '') + '</div>' : '')
+      + '<div class="t-actions">'
+      +   '<div class="t-btn t-btn-start" onclick="timerStart()">⚔ Начать</div>'
+      + '</div>'
+      + '<div class="t-reward">Награда: +' + (50*(isFlow?2:1)) + ' ОП · 🪙 +' + (20*(isFlow?2:1)) + '</div>'
+      + '</div>';
+    return;
+  }
+
+  var rem = _timerState.remaining;
+  var pct = Math.round((1 - rem / BC_DURATION) * 100);
+  var min = Math.floor(rem / 60);
+  var sec = rem % 60;
+  var timeStr = String(min).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  var urgent = rem <= 60;
+
+  if (rem <= 0) {
+    pane.innerHTML = '<div class="t-body">'
+      + '<div class="t-clock done">00:00</div>'
+      + '<div class="t-bar"><div class="t-fill" style="width:100%;background:linear-gradient(90deg,var(--gold3),var(--gold))"></div></div>'
+      + '<div class="t-label" style="color:var(--gold)">Завершено!</div>'
+      + '<div class="t-actions">'
+      +   '<div class="t-btn t-btn-start" onclick="timerReset()">▶ Ещё раз</div>'
+      + '</div>'
+      + '</div>';
+    return;
+  }
+
+  pane.innerHTML = '<div class="t-body">'
+    + '<div class="t-clock' + (urgent?' urgent':'') + '">' + timeStr + '</div>'
+    + '<div class="t-bar"><div class="t-fill" style="width:' + pct + '%;' + (isFlow?'background:linear-gradient(90deg,var(--gold3),var(--gold));box-shadow:0 0 6px rgba(212,168,74,.4)':'') + '"></div></div>'
+    + '<div class="t-label">' + pct + '% ' + (isFlow?'· ✨ Поток':'· Держись') + '</div>'
+    + (streak > 0 ? '<div class="t-streak">🔥 Серия: ' + streak + '</div>' : '')
+    + '<div class="t-actions">'
+    +   '<div class="t-btn t-btn-stop" onclick="timerStop()">✗ Прервать</div>'
+    + '</div>'
+    + '</div>';
+}
+
+function timerStart() {
+  if (_timerInterval) return;
+  _timerState = { remaining: BC_DURATION };
+  _timerInterval = setInterval(function() {
+    _timerState.remaining--;
+    renderTimer();
+    if (_timerState.remaining <= 0) {
+      clearInterval(_timerInterval);
+      _timerInterval = null;
+      timerComplete();
+    }
+  }, 1000);
+  renderTimer();
+}
+
+function timerComplete() {
+  var data = getData(); if (!data) return;
+  var streak = (data.bcStreak||0) + 1;
+  var isFlow = streak >= 3;
+  var xp = 50 * (isFlow ? 2 : 1);
+  var gold = 20 * (isFlow ? 2 : 1);
+  data.bcStreak = streak;
+  data.hero.xp   = (data.hero.xp  ||0) + xp;
+  data.hero.gold = (data.hero.gold ||0) + gold;
+  saveData(data);
+  renderTimer();
+}
+
+function timerStop() {
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+  var data = getData();
+  if (data) { data.bcStreak = 0; saveData(data); }
+  _timerState = null;
+  renderTimer();
+}
+
+function timerReset() {
+  _timerState = null;
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+  renderTimer();
+}
+
+loadQuest();
+renderTimer();
+setInterval(function() { if (_tab === 'quest') loadQuest(); }, 30000);
+</script>
+</body>
+</html>

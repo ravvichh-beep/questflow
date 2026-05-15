@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#1a1208"/>
+      <stop offset="60%" stop-color="#0c0805"/>
+      <stop offset="100%" stop-color="#000"/>
+    </radialGradient>
+    <linearGradient id="goldH" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f4d572"/>
+      <stop offset="40%" stop-color="#c8a84c"/>
+      <stop offset="70%" stop-color="#a08038"/>
+      <stop offset="100%" stop-color="#604020"/>
+    </linearGradient>
+    <linearGradient id="bladeG" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3a3024"/>
+      <stop offset="50%" stop-color="#e8d090"/>
+      <stop offset="100%" stop-color="#3a3024"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Фон на всю иконку (для maskable) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Свечение -->
+  <circle cx="256" cy="256" r="100" fill="#604020" opacity="0.3"/>
+
+  <!-- Меч (уменьшенный для safe zone) -->
+  <g transform="translate(256, 256) scale(0.65)">
+    <path d="M 0 -180 L -10 -150 L -10 80 L 0 100 L 10 80 L 10 -150 Z" fill="url(#bladeG)" stroke="#1a1408" stroke-width="1"/>
+    <line x1="0" y1="-170" x2="0" y2="90" stroke="#c8b878" stroke-width="0.5" opacity="0.7"/>
+    <path d="M -75 80 L 75 80 L 70 95 L -70 95 Z" fill="url(#goldH)" stroke="#3a2810" stroke-width="1.5"/>
+    <circle cx="-75" cy="87" r="6" fill="url(#goldH)" stroke="#3a2810" stroke-width="1"/>
+    <circle cx="75" cy="87" r="6" fill="url(#goldH)" stroke="#3a2810" stroke-width="1"/>
+    <rect x="-9" y="95" width="18" height="55" fill="#3a1f0a" stroke="#1a1004" stroke-width="1"/>
+    <line x1="-7" y1="100" x2="7" y2="100" stroke="#604020" stroke-width="1.5"/>
+    <line x1="-7" y1="115" x2="7" y2="115" stroke="#604020" stroke-width="1.5"/>
+    <line x1="-7" y1="130" x2="7" y2="130" stroke="#604020" stroke-width="1.5"/>
+    <line x1="-7" y1="145" x2="7" y2="145" stroke="#604020" stroke-width="1.5"/>
+    <circle cx="0" cy="160" r="14" fill="url(#goldH)" stroke="#3a2810" stroke-width="1.5"/>
+    <circle cx="0" cy="160" r="6" fill="#604020" opacity="0.7"/>
+    <circle cx="0" cy="87" r="8" fill="#8a2020" stroke="#3a2810" stroke-width="1"/>
+    <circle cx="-2" cy="85" r="3" fill="#e84050" opacity="0.8"/>
+  </g>
+</svg>

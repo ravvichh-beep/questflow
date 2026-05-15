@@ -1,18 +1,37 @@
+# Netlify конфигурация для QuestFlow PWA
+[build]
+  publish = "."
+
+# Безопасность
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+# Service Worker — никогда не кэшируется браузером,
+# чтобы обновления приложения подхватывались сразу
 [[headers]]
-  for = "/sw.js"
+  for = "/service-worker.js"
   [headers.values]
-    Cache-Control = "no-cache"
+    Cache-Control = "no-cache, no-store, must-revalidate"
     Service-Worker-Allowed = "/"
 
+# Manifest — правильный MIME, короткий кэш
 [[headers]]
   for = "/manifest.json"
   [headers.values]
     Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=3600"
+
+# Иконки PNG/SVG — кэшируем на год (immutable)
+[[headers]]
+  for = "/icon-*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
