@@ -2946,6 +2946,119 @@ body.mood-5 .main-wrap::after{content:'';position:fixed;inset:0;pointer-events:n
 .sr-rewards{display:flex;justify-content:center;gap:12px;margin:20px 0;flex-wrap:wrap}
 .sr-reward{padding:8px 14px;background:var(--bg2);border:1px solid var(--bdg);border-radius:var(--r);font-size:13px;color:var(--gold)}
 .sr-claim-btn{margin-top:16px;padding:12px 28px;font-size:14px}
+
+/* ========== PHASE 3: ADAPTIVE NARRATIVE ========== */
+
+/* World Mood — фильтры на body создают атмосферу мира */
+body.world-bright {
+  filter: brightness(1.05) saturate(1.1);
+}
+body.world-dark {
+  filter: brightness(.82) saturate(.7) contrast(1.05);
+}
+body.world-corrupted {
+  filter: brightness(.78) saturate(.45) hue-rotate(-15deg) contrast(1.1);
+}
+body.world-bright::before,
+body.world-dark::before,
+body.world-corrupted::before {
+  transition: opacity 1.2s;
+}
+body.world-corrupted::after {
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;
+  background:radial-gradient(ellipse at center, transparent 60%, rgba(80,0,20,.15) 100%);
+  animation: corruptedPulse 4s ease-in-out infinite;
+}
+@keyframes corruptedPulse {
+  0%, 100% { opacity: .5; }
+  50% { opacity: .9; }
+}
+
+/* World mood indicator (маленький значок в топбаре) */
+.world-mood-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 8px;margin-left:8px;
+  border:1px solid var(--bdg);border-radius:var(--r);
+  font-family:var(--ff-title);font-size:9px;letter-spacing:1.5px;
+  text-transform:uppercase;
+  cursor:help;transition:all .25s;
+}
+.world-mood-badge.bright   { color:#e8d090;border-color:rgba(232,208,144,.4); }
+.world-mood-badge.neutral  { color:var(--text2);border-color:var(--bdg); }
+.world-mood-badge.dark     { color:#7090a0;border-color:rgba(112,144,160,.4); }
+.world-mood-badge.corrupted{ color:#c06070;border-color:rgba(192,96,112,.5);text-shadow:0 0 6px rgba(192,96,112,.4); }
+.wm-icon{font-size:12px}
+
+/* Mentor Trust шкала */
+.mentor-trust-block{margin:18px 0}
+.mt-label{display:flex;justify-content:space-between;font-family:var(--ff-title);font-size:10px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
+.mt-bar-wrap{position:relative;height:14px;background:var(--bg);border:1px solid var(--bdm);border-radius:var(--r);overflow:hidden}
+.mt-bar-fill{height:100%;background:linear-gradient(90deg,#604020 0%,#a08040 50%,#e8c870 100%);transition:width .8s ease;box-shadow:0 0 8px rgba(200,168,80,.4) inset}
+.mt-bar-fill.low{background:linear-gradient(90deg,#502020 0%,#803030 100%);box-shadow:0 0 8px rgba(160,40,40,.4) inset}
+.mt-bar-fill.high{background:linear-gradient(90deg,#806020 0%,#e8c870 60%,#fff0c0 100%);box-shadow:0 0 12px rgba(255,224,128,.5) inset;animation:mtGlow 2.5s ease-in-out infinite}
+@keyframes mtGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+.mt-marks{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--text3);font-family:var(--ff-title);letter-spacing:1px}
+
+/* Mentor voice button */
+.mentor-voice-btn{
+  margin-top:12px;padding:8px 14px;
+  background:var(--bg2);border:1px solid var(--bdg);
+  color:var(--gold);font-family:var(--ff-title);font-size:11px;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;border-radius:var(--r);
+  transition:all .2s;display:inline-flex;align-items:center;gap:6px;
+}
+.mentor-voice-btn:hover{border-color:var(--gold);background:rgba(160,128,64,.1)}
+.mentor-voice-btn.speaking{
+  border-color:var(--gold);
+  animation:voiceSpeaking 1.2s ease-in-out infinite;
+}
+@keyframes voiceSpeaking {
+  0%, 100% { box-shadow: 0 0 0 transparent; }
+  50% { box-shadow: 0 0 16px rgba(200,168,80,.5); }
+}
+
+/* Berserk Mode */
+body.berserk-mode {
+  animation: berserkPulse 3s ease-in-out infinite;
+}
+@keyframes berserkPulse {
+  0%, 100% { filter: contrast(1) saturate(1); }
+  50% { filter: contrast(1.08) saturate(1.15); }
+}
+.berserk-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;margin-left:8px;
+  background:linear-gradient(135deg,rgba(180,30,40,.25),rgba(80,10,20,.15));
+  border:1px solid rgba(220,60,60,.6);
+  color:#ff7060;border-radius:var(--r);
+  font-family:var(--ff-title);font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  text-shadow:0 0 8px rgba(255,80,60,.5);
+  animation:berserkBadgeGlow 1.4s ease-in-out infinite;
+}
+@keyframes berserkBadgeGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(255,80,60,.3); }
+  50% { box-shadow: 0 0 14px rgba(255,80,60,.7); }
+}
+
+/* Random Mini-Event modal */
+.mini-event-modal{max-width:480px;padding:28px;text-align:center}
+.me-icon{font-size:64px;line-height:1;margin-bottom:12px;animation:srPulse 2s ease-in-out infinite}
+.me-title{font-family:var(--ff-title);font-size:19px;color:var(--gold);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px}
+.me-desc{font-family:var(--ff-body);font-style:italic;color:var(--text);font-size:14px;line-height:1.7;margin:14px 0;padding:0 8px}
+.me-timer{font-family:var(--ff-title);font-size:13px;color:#ff8060;letter-spacing:2px;margin:10px 0;text-shadow:0 0 8px rgba(255,128,80,.5)}
+.me-actions{display:flex;gap:8px;justify-content:center;margin-top:18px}
+
+/* Mood-adaptive quest tag */
+.quest-mood-tag{
+  display:inline-block;padding:2px 8px;margin-left:6px;
+  font-family:var(--ff-title);font-size:9px;letter-spacing:1.5px;
+  text-transform:uppercase;border-radius:2px;vertical-align:middle;
+}
+.quest-mood-tag.gentle{background:rgba(80,140,220,.15);color:#80c0ff;border:1px solid rgba(80,140,220,.3)}
+.quest-mood-tag.epic  {background:rgba(220,60,60,.18);color:#ff8070;border:1px solid rgba(220,60,60,.4);text-shadow:0 0 6px rgba(255,80,60,.4)}
 </style>
 </head>
 <body>
@@ -3063,6 +3176,13 @@ body.mood-5 .main-wrap::after{content:'';position:fixed;inset:0;pointer-events:n
       <span class="streak-flame">🔥</span>
       <span class="streak-num" id="streak-num">0</span>
       <span class="streak-lbl">ДНЕЙ</span>
+    </div>
+    <div class="world-mood-badge neutral" id="world-mood-badge" title="Состояние мира — отражает твой ритм">
+      <span class="wm-icon" id="wm-icon">✦</span>
+      <span id="wm-text">РАВНОВЕСИЕ</span>
+    </div>
+    <div class="berserk-badge" id="berserk-badge" style="display:none" title="Режим Берсерка: +50% XP">
+      ⚔ БЕРСЕРК <span id="berserk-time"></span>
     </div>
   </div>
   <div class="tright">
@@ -3238,6 +3358,7 @@ body.mood-5 .main-wrap::after{content:'';position:fixed;inset:0;pointer-events:n
           <div class="stat-row"><div class="stat-name">ЗАЩИТА</div><div class="stat-bar"><div class="stat-fill" id="s-def" style="background:linear-gradient(90deg,var(--blue),var(--sap));width:35%"></div></div><div class="stat-val" id="sv-def">15</div></div>
           <div class="stat-row"><div class="stat-name">ВЫНОСЛ.</div><div class="stat-bar"><div class="stat-fill" id="s-stm" style="background:linear-gradient(90deg,#1a4820,var(--green));width:45%"></div></div><div class="stat-val" id="sv-stm">30</div></div>
           <div class="gold-box"><div class="gold-lbl">КАЗНА</div><div class="gold-val" id="c-gold">🪙 0</div></div>
+          <div id="mentor-trust-display" style="margin-top:14px"></div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:12px">
           <div class="shdr">Достижения</div>
@@ -3764,10 +3885,11 @@ body.mood-5 .main-wrap::after{content:'';position:fixed;inset:0;pointer-events:n
         <div style="font-size:11px;color:var(--text3);margin-top:8px;font-style:italic">Наставник пишет...</div>
       </div>
       <div class="mentor-letter" id="mentor-letter" style="display:none"></div>
+      <button class="mentor-voice-btn" id="mentor-voice-btn" onclick="speakCurrentMentorLetter(this)" style="display:none">🔊 Услышать наставника</button>
     </div>
     <div class="mentor-footer">
       <div class="mentor-sig">— Твой Наставник</div>
-      <button class="btn btn-g" onclick="closeM('m-mentor')">Принять к сведению</button>
+      <button class="btn btn-g" onclick="closeMentorAndStop()">Принять к сведению</button>
     </div>
   </div>
 </div>
@@ -3827,6 +3949,20 @@ body.mood-5 .main-wrap::after{content:'';position:fixed;inset:0;pointer-events:n
     <div id="loot-name" style="font-family:var(--ff-title);font-size:20px;color:var(--gold);letter-spacing:1.5px;margin-bottom:8px"></div>
     <div id="loot-desc" style="font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:13px;line-height:1.6;margin-bottom:20px"></div>
     <button class="btn btn-g" onclick="closeM('m-loot')">✦ Взять с собой</button>
+  </div>
+</div>
+
+<!-- RANDOM MINI-EVENT (Странный торговец / Древний враг / Звёзды благосклонны) -->
+<div class="m-overlay" id="m-mini-event">
+  <div class="modal mini-event-modal">
+    <div class="me-icon" id="me-icon">🎭</div>
+    <div class="me-title" id="me-title">Странная встреча</div>
+    <div class="me-desc" id="me-desc"></div>
+    <div class="me-timer" id="me-timer" style="display:none"></div>
+    <div class="me-actions">
+      <button class="btn btn-o" onclick="dismissMiniEvent()">Отказаться</button>
+      <button class="btn btn-g" id="me-accept-btn" onclick="acceptMiniEvent()">✦ Принять вызов</button>
+    </div>
   </div>
 </div>
 
@@ -3912,7 +4048,14 @@ function fresh() {
     dayReflections: {},
     lastRitualDate: '',
     // HP loss tracking
-    lastNightCheck: ''
+    lastNightCheck: '',
+    // Phase 3 — Adaptive Narrative
+    worldMood: 'neutral',           // bright | neutral | dark | corrupted
+    mentorTrust: 50,                // 0-100 — доверие наставника
+    berserkUntil: 0,                // timestamp когда заканчивается Берсерк
+    lastRandomEvent: 0,             // timestamp последнего случайного события
+    randomEventActive: null,        // активное мини-событие
+    voiceEnabled: true              // включён ли TTS
   };
 }
 
@@ -3940,6 +4083,13 @@ function load() {
     if (!d.dayReflections) d.dayReflections = {};
     if (d.lastRitualDate === undefined) d.lastRitualDate = '';
     if (d.lastNightCheck === undefined) d.lastNightCheck = '';
+    // Phase 3 migrations
+    if (d.worldMood === undefined) d.worldMood = 'neutral';
+    if (d.mentorTrust === undefined) d.mentorTrust = 50;
+    if (d.berserkUntil === undefined) d.berserkUntil = 0;
+    if (d.lastRandomEvent === undefined) d.lastRandomEvent = 0;
+    if (d.randomEventActive === undefined) d.randomEventActive = null;
+    if (d.voiceEnabled === undefined) d.voiceEnabled = true;
     return d;
   } catch(e) { return fresh(); }
 }
@@ -4344,8 +4494,12 @@ function showMentorLetter() {
 
   if (!S.apiKey) {
     document.getElementById('mentor-loading').style.display = 'none';
-    document.getElementById('mentor-letter').innerHTML = '<p>Введи Claude API ключ в настройках, чтобы получить письмо наставника.</p>';
-    document.getElementById('mentor-letter').style.display = 'block';
+    var fallbackText = 'Дороги, ' + h.name + '.\n\nЯ следил за тобой из тени. Неделя была непростой, но ты продолжаешь идти — и это главное.\n\nПомни: величие не в скорости, а в постоянстве. Каждый завершённый квест — камень в фундаменте легенды.\n\nТьма впереди гуще, чем кажется. Но и свет — ярче.';
+    var paras = fallbackText.split(/\n\n+/).map(function(p){ return '<p>' + p.trim() + '</p>'; }).join('');
+    var letterEl = document.getElementById('mentor-letter');
+    letterEl.innerHTML = paras;
+    letterEl.style.display = 'block';
+    showMentorVoiceBtn(fallbackText);
     return;
   }
   fetch('https://api.anthropic.com/v1/messages', {
@@ -4375,6 +4529,7 @@ function showMentorLetter() {
     var letterEl = document.getElementById('mentor-letter');
     letterEl.innerHTML  = html;
     letterEl.style.display = 'block';
+    showMentorVoiceBtn(text);
 
     // Отмечаем что письмо показано
     S.lastMentorLetter = new Date().toISOString().slice(0, 10);
@@ -4384,11 +4539,10 @@ function showMentorLetter() {
     // Fallback если нет ключа или ошибка
     document.getElementById('mentor-loading').style.display = 'none';
     var letterEl = document.getElementById('mentor-letter');
-    letterEl.innerHTML = '<p>Дороги, ' + h.name + '.</p>'
-      + '<p>Я следил за тобой из тени. Неделя была непростой, но ты продолжаешь идти — и это главное.</p>'
-      + '<p>Помни: величие не в скорости, а в постоянстве. Каждый завершённый квест — камень в фундаменте легенды.</p>'
-      + '<p>Тьма впереди гуще, чем кажется. Но и свет — ярче.</p>';
+    var fbText = 'Дороги, ' + h.name + '.\n\nЯ следил за тобой из тени. Неделя была непростой, но ты продолжаешь идти — и это главное.\n\nПомни: величие не в скорости, а в постоянстве. Каждый завершённый квест — камень в фундаменте легенды.\n\nТьма впереди гуще, чем кажется. Но и свет — ярче.';
+    letterEl.innerHTML = fbText.split(/\n\n+/).map(function(p){ return '<p>' + p.trim() + '</p>'; }).join('');
     letterEl.style.display = 'block';
+    showMentorVoiceBtn(fbText);
   });
 }
 
@@ -5134,6 +5288,12 @@ function setMood(value) {
   save();
   closeM('m-mood');
   applyMood(value, true);
+  // 🔥 При настроении "В огне" (5) активируем Берсерка на 6 часов
+  if (value === 5) {
+    setTimeout(function() { activateBerserk(6 * 60 * 60 * 1000); }, 600);
+  }
+  // Перерисовываем квесты — теперь у них могут быть mood-теги и новые награды
+  setTimeout(function() { renderQuests(); }, 100);
 }
 
 function applyMood(value, showToastMsg) {
@@ -5745,6 +5905,8 @@ function checkNightHPLoss() {
     var lostHP = 10;
     S.hero.chp = Math.max(1, (S.hero.chp || S.hero.hp) - lostHP);
     showToast('🌑 Тёмная ночь забрала ' + lostHP + ' HP. Враги почуяли слабость.');
+    // Штраф к доверию наставника за день простоя
+    changeMentorTrust(-3, 'idle_day');
   }
   S.lastNightCheck = today;
   save();
@@ -5878,6 +6040,340 @@ function pickNarrativePush(type, vars) {
   return msg;
 }
 
+// =============================================
+// PHASE 3.1 — WORLD MOOD SYSTEM
+// =============================================
+// Состояние мира: bright | neutral | dark | corrupted
+// Вычисляется из: серии входов, % выполнения за неделю, просрочек
+
+var WORLD_MOOD_DATA = {
+  bright:    { icon:'✦', text:'СВЕТЛО',     desc:'Мир сияет — твой ритм питает его светом.' },
+  neutral:   { icon:'✦', text:'РАВНОВЕСИЕ', desc:'Мир спокоен. Всё в порядке.' },
+  dark:      { icon:'☽', text:'ТЕНЬ',       desc:'Мир мрачнеет. Враги чувствуют слабость.' },
+  corrupted: { icon:'☠', text:'ИСКАЖЕНИЕ',  desc:'Мир искажён. Тёмные силы наступают.' }
+};
+
+function calcWorldMood() {
+  if (!S.hero || !S.hero.name) return 'neutral';
+
+  var streak = S.loginStreak || 0;
+  var today = new Date();
+  var weekDone = 0, weekDays = 0;
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(today.getTime() - i * ONE_DAY_MS).toISOString().slice(0, 10);
+    if (S.stats && S.stats.daily) {
+      weekDone += (S.stats.daily[d] || 0);
+      if (S.stats.daily[d] !== undefined) weekDays++;
+    }
+  }
+
+  // Считаем просрочки за 7 дней
+  var overdueRecent = 0;
+  (S.quests || []).forEach(function(q) {
+    if (!q.done && q.deadline) {
+      var d = (new Date() - new Date(q.deadline)) / ONE_DAY_MS;
+      if (d > 0 && d < 7) overdueRecent++;
+    }
+  });
+
+  if (overdueRecent >= 5) return 'corrupted';
+  if (streak >= 7 && weekDone >= 14) return 'bright';
+  if (streak === 0 && weekDone < 3) return 'dark';
+  return 'neutral';
+}
+
+function applyWorldMood() {
+  var mood = calcWorldMood();
+  if (mood !== S.worldMood) {
+    S.worldMood = mood;
+    save();
+    var data = WORLD_MOOD_DATA[mood];
+    if (data) showToast('🌌 Мир изменился: ' + data.desc);
+  }
+  // CSS-классы
+  document.body.classList.remove('world-bright', 'world-neutral', 'world-dark', 'world-corrupted');
+  document.body.classList.add('world-' + mood);
+  // Бейдж
+  var badge = document.getElementById('world-mood-badge');
+  var icon  = document.getElementById('wm-icon');
+  var text  = document.getElementById('wm-text');
+  if (badge && WORLD_MOOD_DATA[mood]) {
+    badge.className = 'world-mood-badge ' + mood;
+    badge.title = WORLD_MOOD_DATA[mood].desc;
+    if (icon) icon.textContent = WORLD_MOOD_DATA[mood].icon;
+    if (text) text.textContent = WORLD_MOOD_DATA[mood].text;
+  }
+}
+
+// =============================================
+// PHASE 3.2 — MOOD-ADAPTIVE DIFFICULTY
+// =============================================
+// Настроение героя влияет на бонусы и доступные квесты
+
+function getMoodMultiplier() {
+  var moodVal = S.mood && S.mood.value;
+  if (!moodVal) return { xp: 1, gold: 1, label: null };
+  if (moodVal <= 2) return { xp: 1.2, gold: 1.2, label: 'gentle', desc: 'Мягкий путь' };
+  if (moodVal === 5) return { xp: 1.5, gold: 1.0, label: 'epic',   desc: 'Эпический челлендж' };
+  return { xp: 1, gold: 1, label: null };
+}
+
+function isBerserkActive() {
+  return S.berserkUntil && Date.now() < S.berserkUntil;
+}
+
+function activateBerserk(durationMs) {
+  S.berserkUntil = Date.now() + (durationMs || 6 * 60 * 60 * 1000); // 6 часов по умолчанию
+  save();
+  refreshBerserkBadge();
+  showToast('⚔ РЕЖИМ БЕРСЕРКА АКТИВЕН — все награды +50% XP!');
+}
+
+function refreshBerserkBadge() {
+  var badge = document.getElementById('berserk-badge');
+  var time  = document.getElementById('berserk-time');
+  if (!badge) return;
+  if (isBerserkActive()) {
+    badge.style.display = 'inline-flex';
+    document.body.classList.add('berserk-mode');
+    if (time) {
+      var msLeft = S.berserkUntil - Date.now();
+      var hLeft = Math.ceil(msLeft / (60 * 60 * 1000));
+      time.textContent = hLeft + 'ч';
+    }
+  } else {
+    badge.style.display = 'none';
+    document.body.classList.remove('berserk-mode');
+  }
+}
+
+// =============================================
+// PHASE 3.3 — MENTOR TRUST
+// =============================================
+
+function changeMentorTrust(delta, reason) {
+  var prev = S.mentorTrust;
+  S.mentorTrust = Math.max(0, Math.min(100, S.mentorTrust + delta));
+  save();
+  // Уведомление о пересечении уровня
+  var thresholds = [30, 60, 90];
+  thresholds.forEach(function(t) {
+    if (prev < t && S.mentorTrust >= t) {
+      showToast('✦ Доверие наставника: ' + t + '%. Письмо ждёт тебя.');
+    }
+  });
+  // Обновляем UI на странице персонажа если открыта
+  var bar = document.getElementById('mt-bar-fill');
+  if (bar) bar.style.width = S.mentorTrust + '%';
+  var val = document.getElementById('mt-bar-val');
+  if (val) val.textContent = S.mentorTrust + '/100';
+}
+
+function renderMentorTrustHTML() {
+  var trust = S.mentorTrust || 0;
+  var levelClass = trust < 30 ? 'low' : trust >= 70 ? 'high' : '';
+  var levelText  = trust < 30 ? 'Подозрение' : trust < 60 ? 'Терпит' : trust < 90 ? 'Уважает' : 'Доверяет полностью';
+  return '<div class="mentor-trust-block">'
+    + '<div class="mt-label"><span>Доверие наставника</span><span id="mt-bar-val">' + trust + '/100</span></div>'
+    + '<div class="mt-bar-wrap"><div class="mt-bar-fill ' + levelClass + '" id="mt-bar-fill" style="width:' + trust + '%"></div></div>'
+    + '<div class="mt-marks"><span>0</span><span style="text-align:center;color:var(--gold)">' + levelText + '</span><span>100</span></div>'
+    + '</div>';
+}
+
+// =============================================
+// PHASE 3.4 — VOICE OF MENTOR (TTS)
+// =============================================
+
+var _currentUtterance = null;
+
+function speakMentorText(text, btnEl) {
+  if (!('speechSynthesis' in window) || !text) return;
+  // Если уже говорит — останавливаем
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    if (_currentUtterance && _currentUtterance._btn) {
+      _currentUtterance._btn.classList.remove('speaking');
+      _currentUtterance._btn.innerHTML = '🔊 Услышать наставника';
+    }
+    if (_currentUtterance && _currentUtterance.text === text) return; // toggle
+  }
+
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang  = 'ru-RU';
+  u.rate  = 0.85;
+  u.pitch = 0.7;
+  u.volume = 0.9;
+
+  var voices = window.speechSynthesis.getVoices().filter(function(v) { return v.lang.startsWith('ru'); });
+  if (voices.length) {
+    // Предпочитаем мужские голоса
+    var male = voices.find(function(v) {
+      return /yuri|pavel|maxim|aleksandr|microsoft pavel|google русский/i.test(v.name);
+    });
+    u.voice = male || voices[0];
+  }
+
+  u._btn = btnEl;
+  _currentUtterance = u;
+
+  u.onstart = function() {
+    if (btnEl) {
+      btnEl.classList.add('speaking');
+      btnEl.innerHTML = '⏸ Прервать речь';
+    }
+  };
+  u.onend = u.onerror = function() {
+    if (btnEl) {
+      btnEl.classList.remove('speaking');
+      btnEl.innerHTML = '🔊 Услышать наставника';
+    }
+    _currentUtterance = null;
+  };
+
+  window.speechSynthesis.speak(u);
+}
+
+var _currentMentorText = '';
+
+function showMentorVoiceBtn(text) {
+  _currentMentorText = text;
+  var btn = document.getElementById('mentor-voice-btn');
+  if (btn && S.voiceEnabled !== false) btn.style.display = 'inline-flex';
+}
+
+function speakCurrentMentorLetter(btnEl) {
+  speakMentorText(_currentMentorText, btnEl);
+}
+
+function closeMentorAndStop() {
+  if (window.speechSynthesis && window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+  }
+  closeM('m-mentor');
+}
+
+// =============================================
+// PHASE 3.5 — RANDOM MINI-EVENTS
+// =============================================
+var MINI_EVENTS = [
+  {
+    id: 'trader',
+    icon: '🎭',
+    title: 'Странный торговец',
+    desc: 'У границы леса появился старик в плаще. Он предлагает редкое зелье в обмен на быструю победу: выполни любой квест за 30 минут — получишь награду.',
+    duration: 30 * 60 * 1000,
+    accept: function() {
+      window._miniEventQuest = { type: 'trader', deadline: Date.now() + 30 * 60 * 1000 };
+      showToast('🎭 У тебя 30 минут. Выполни квест — получишь редкое зелье.');
+    },
+    reward: function() {
+      var loot = { icon:'⚗️', name:'Зелье торговца', desc:'+30 HP в следующий бой. Старик исчез так же внезапно.', rarity:'rare' };
+      showLoot(loot);
+    }
+  },
+  {
+    id: 'stars',
+    icon: '✨',
+    title: 'Звёзды благосклонны',
+    desc: 'Небо разверзлось — шесть звёзд выстроились в линию. Древнее предзнаменование. Следующий выполненный квест даёт ТРОЙНУЮ награду.',
+    accept: function() {
+      window._miniEventQuest = { type: 'stars' };
+      showToast('✨ Звёзды смотрят. Следующий квест — х3 награда!');
+    }
+  },
+  {
+    id: 'whisper',
+    icon: '🌫',
+    title: 'Шёпот из Тумана',
+    desc: 'Чей-то голос произнёс твоё имя. Никого нет. Но ты чувствуешь — кто-то предлагает сделку: получить +200 ОП мгновенно ценой -10 HP.',
+    accept: function() {
+      gainXP(200);
+      S.hero.chp = Math.max(1, (S.hero.chp || S.hero.hp) - 10);
+      save(); refreshDSVitals(); refreshTopBar();
+      showToast('🌫 Шёпот стих. Получено +200 ОП ценой 10 HP.');
+    }
+  },
+  {
+    id: 'enemy',
+    icon: '👁',
+    title: 'Древний враг почуял силу',
+    desc: 'Что-то древнее проснулось от твоей возрастающей мощи. Прими бой в подземелье прямо сейчас — победа даст бонусную награду.',
+    accept: function() {
+      sw('dungeon');
+      showToast('👁 Враг ждёт в подземелье. Покажи свою силу.');
+    }
+  },
+  {
+    id: 'merchant_gold',
+    icon: '💰',
+    title: 'Странствующий ювелир',
+    desc: 'У дороги стоит сундук. Никого вокруг. Внутри блестит золото. Возьмёшь?',
+    accept: function() {
+      var amt = 50 + Math.floor(Math.random() * 100);
+      gainGold(amt);
+      showToast('💰 Сундук был щедр: +' + amt + ' золота.');
+    }
+  },
+  {
+    id: 'omen',
+    icon: '🦅',
+    title: 'Знамение',
+    desc: 'Чёрный ворон уронил предмет к твоим ногам. Это маленькая сфера, которая светится изнутри. Она хочет, чтобы её взяли.',
+    accept: function() {
+      var loot = { icon:'🔮', name:'Сфера предзнаменования', desc:'Светится. Постоянно. Кажется, она знает что-то о твоём будущем.', rarity:'epic' };
+      showLoot(loot);
+    }
+  }
+];
+
+function maybeTriggerRandomEvent() {
+  if (!S.hero || !S.hero.name) return;
+  var now = Date.now();
+  // Не чаще раза в 4 часа
+  if (now - (S.lastRandomEvent || 0) < 4 * 60 * 60 * 1000) return;
+  // С шансом 30% при каждой проверке (раз в 30 мин)
+  if (Math.random() > 0.3) return;
+  // Не показываем если открыта другая модалка
+  if (document.querySelector('.m-overlay.open')) return;
+
+  var evt = MINI_EVENTS[Math.floor(Math.random() * MINI_EVENTS.length)];
+  S.lastRandomEvent = now;
+  S.randomEventActive = evt.id;
+  save();
+  showMiniEvent(evt);
+}
+
+function showMiniEvent(evt) {
+  document.getElementById('me-icon').textContent  = evt.icon;
+  document.getElementById('me-title').textContent = evt.title;
+  document.getElementById('me-desc').textContent  = evt.desc;
+  document.getElementById('me-accept-btn').setAttribute('data-evt', evt.id);
+  if (evt.duration) {
+    document.getElementById('me-timer').style.display = 'block';
+    document.getElementById('me-timer').textContent = '⏳ ' + Math.round(evt.duration / 60000) + ' минут';
+  } else {
+    document.getElementById('me-timer').style.display = 'none';
+  }
+  openM('m-mini-event');
+}
+
+function acceptMiniEvent() {
+  var btn = document.getElementById('me-accept-btn');
+  var evtId = btn.getAttribute('data-evt');
+  var evt = MINI_EVENTS.find(function(e) { return e.id === evtId; });
+  if (evt && evt.accept) evt.accept();
+  S.randomEventActive = null;
+  save();
+  closeM('m-mini-event');
+}
+
+function dismissMiniEvent() {
+  S.randomEventActive = null;
+  save();
+  closeM('m-mini-event');
+  showToast('Ты отказался от вызова. Может, в следующий раз.');
+}
+
 function initAll() {
   // === КРИТИЧЕСКИЙ ПУТЬ — выполняется сразу ===
   checkLoginStreak();   // обновляем серию входов
@@ -5886,6 +6382,8 @@ function initAll() {
   updateHeroTitle();
   refreshDSVitals();
   refreshStreakBadge();
+  applyWorldMood();         // применяем настроение мира
+  refreshBerserkBadge();    // показываем бейдж берсерка если активен
   checkRoutines();      // создаём квесты-копии рутин на сегодня
   renderQuests();       // главный экран
   sw('quests');         // показываем вьюху квестов
@@ -5915,6 +6413,13 @@ function initAll() {
     checkMentorLetter();
     checkStreakReward();   // показываем модалку награды за серию
     checkDayRitual();      // показываем ритуал конца дня
+    // Случайные мини-события — каждые 30 минут проверяем
+    setTimeout(maybeTriggerRandomEvent, 60000); // первая попытка через минуту
+    setInterval(maybeTriggerRandomEvent, 30 * 60 * 1000);
+    // Обновление World Mood — раз в час (плюс уже один раз сделали в initAll)
+    setInterval(applyWorldMood, 60 * 60 * 1000);
+    // Берсерк-таймер — каждую минуту проверяем не закончился ли
+    setInterval(refreshBerserkBadge, 60 * 1000);
   }, 500);
 }
 
@@ -6181,6 +6686,15 @@ function buildMainQuestHTML(q, nextQ) {
   var dl = dlLabel(q);
   var xp = (q.difficulty || 3) * (q.importance || 3) * 80;
   var gold = (q.difficulty || 3) * (q.importance || 3) * 60;
+  // Применяем mood-множители для отображения
+  var moodMul = getMoodMultiplier();
+  if (moodMul.xp !== 1) { xp = Math.round(xp * moodMul.xp); }
+  if (moodMul.gold !== 1) { gold = Math.round(gold * moodMul.gold); }
+  if (isBerserkActive()) xp = Math.round(xp * 1.5);
+  var moodTag = '';
+  if (moodMul.label === 'gentle') moodTag = '<span class="quest-mood-tag gentle" title="Бонус +20% за уставшее настроение">🌙 МЯГКИЙ ПУТЬ</span>';
+  if (moodMul.label === 'epic')   moodTag = '<span class="quest-mood-tag epic" title="Бонус +50% XP за прилив сил">🔥 ЭПИЧНЫЙ</span>';
+
   var loreClass = q.loadingLore ? 'lore lore-loading' : 'lore';
   var loreText = q.lore || q.description || 'Этот квест ждёт твоего внимания, герой.';
 
@@ -6189,7 +6703,8 @@ function buildMainQuestHTML(q, nextQ) {
     + '<div class="qbody">'
     + (q.project ? '<div class="ctag">⛓ ' + esc(getProjName(q.project)) + '</div>' : '')
     + '<div class="qtit">' + esc(q.fantasyTitle || q.title)
-      + (q.fantasyTitle ? '<span class="ai-badge">✨ AI</span>' : '') + '</div>'
+      + (q.fantasyTitle ? '<span class="ai-badge">✨ AI</span>' : '')
+      + moodTag + '</div>'
     + '<div class="qsub">' + esc(q.title) + '</div>'
     + '<div class="orn">— ✦ —</div>'
     + '<div class="' + loreClass + '">' + esc(loreText) + '</div>'
@@ -6576,7 +7091,12 @@ function resolveOD(action) {
   pendingOD = null;
   if (!q) return;
   if (action === 'complete') doComplete(q);
-  else { q.done = true; save(); renderQuests(); showToast('Квест пропущен.'); }
+  else {
+    q.done = true; save(); renderQuests(); showToast('Квест пропущен.');
+    // Штраф к доверию наставника
+    var penalty = (q.importance || 1) >= 4 ? -10 : -5;
+    changeMentorTrust(penalty, 'overdue_skip');
+  }
 }
 
 function doComplete(q) {
@@ -6585,6 +7105,28 @@ function doComplete(q) {
   var xp   = (q.difficulty || 3) * (q.importance || 3) * 80;
   var gold = (q.difficulty || 3) * (q.importance || 3) * 60;
 
+  // 🌗 Mood-Adaptive Difficulty — настроение влияет на награды
+  var moodMul = getMoodMultiplier();
+  xp   = Math.round(xp * moodMul.xp);
+  gold = Math.round(gold * moodMul.gold);
+
+  // ⚔ Berserk Mode — +50% XP когда активен
+  if (isBerserkActive()) xp = Math.round(xp * 1.5);
+
+  // ✨ Bonus от мини-события "Звёзды благосклонны" — x3 награда
+  if (window._miniEventQuest && window._miniEventQuest.type === 'stars') {
+    xp = xp * 3; gold = gold * 3;
+    window._miniEventQuest = null;
+    showToast('✨ Звёзды одарили тебя — ТРОЙНАЯ награда!');
+  }
+
+  // 🎭 Bonus от мини-события "Странный торговец" — редкое зелье если успели за 30 мин
+  if (window._miniEventQuest && window._miniEventQuest.type === 'trader' && Date.now() < window._miniEventQuest.deadline) {
+    var traderEvt = MINI_EVENTS.find(function(e){ return e.id === 'trader'; });
+    if (traderEvt && traderEvt.reward) setTimeout(traderEvt.reward, 1800);
+    window._miniEventQuest = null;
+  }
+
   // 🎬 Анимация выполнения (вспышка + частицы + +XP/+Gold + звук)
   var card = document.querySelector('[data-quest-id="' + q.id + '"]') || document.querySelector('.qcard');
   playCompletionAnimation(xp, gold, card);
@@ -6592,6 +7134,14 @@ function doComplete(q) {
   // 🎁 Случайный лут (15% шанс)
   var loot = rollLoot();
   if (loot) setTimeout(function() { showLoot(loot); }, 1700);
+
+  // 📈 Mentor Trust — +1 за каждый, +3 за выполнение в срок (deadline >= today)
+  var trustGain = 1;
+  if (q.deadline) {
+    var daysLeft = Math.ceil((new Date(q.deadline) - new Date()) / ONE_DAY_MS);
+    if (daysLeft >= 0) trustGain = 3;
+  }
+  changeMentorTrust(trustGain, 'quest_complete');
 
   var prevLvl = S.hero.lvl;
   gainXP(xp);
@@ -6959,6 +7509,10 @@ function renderChar() {
   document.getElementById('sv-dmg').textContent = h.dmg;
   document.getElementById('sv-def').textContent = h.def;
   document.getElementById('sv-stm').textContent = h.stam;
+
+  // Mentor Trust шкала
+  var mtEl = document.getElementById('mentor-trust-display');
+  if (mtEl) mtEl.innerHTML = renderMentorTrustHTML();
 
   document.getElementById('s-hp').style.width  = Math.min(100, Math.round(h.hp / 3)) + '%';
   document.getElementById('s-dmg').style.width = Math.min(100, Math.round(h.dmg / 0.8)) + '%';
@@ -7631,6 +8185,10 @@ function completeRoutineStreak(routineId, date) {
 
   r.streak = streak;
   if (streak > (r.bestStreak || 0)) r.bestStreak = streak;
+  // 🎯 Бонус к Mentor Trust за серию обряда
+  if (streak > 0 && streak % 7 === 0) {
+    changeMentorTrust(5, 'routine_week_' + streak);
+  }
   save();
   updateHeroTitle(); // Серия меняет титул
 }
