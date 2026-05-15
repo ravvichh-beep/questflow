@@ -2900,6 +2900,52 @@ body.mood-5 .main-wrap::after{content:'';position:fixed;inset:0;pointer-events:n
   line-height:1;
 }
 .mood-badge:hover{transform:scale(1.2)}
+
+/* Login Streak бейдж */
+.streak-badge{
+  display:flex;align-items:center;gap:4px;
+  padding:3px 8px;margin-left:10px;
+  background:linear-gradient(135deg, rgba(255,140,40,.18), rgba(160,80,32,.1));
+  border:1px solid rgba(255,140,40,.4);
+  border-radius:var(--r);
+  font-family:var(--ff-title);
+  cursor:default;
+  transition:all .25s;
+  position:relative;
+  overflow:hidden;
+}
+.streak-badge:hover{
+  border-color:rgba(255,180,80,.7);
+  transform:translateY(-1px);
+}
+.streak-badge.streak-fire{
+  animation: streakFireGlow 2.4s ease-in-out infinite;
+}
+@keyframes streakFireGlow {
+  0%, 100% { box-shadow: 0 0 0 transparent; }
+  50% { box-shadow: 0 0 12px rgba(255,140,40,.5); }
+}
+.streak-flame{font-size:14px;line-height:1;display:inline-block;animation:flameDance 1.2s ease-in-out infinite alternate}
+@keyframes flameDance {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-1px) scale(1.08); }
+}
+.streak-num{font-size:13px;font-weight:bold;color:#ffb060;text-shadow:0 0 6px rgba(255,140,40,.6);letter-spacing:.5px}
+.streak-lbl{font-size:8px;letter-spacing:1.5px;color:#a07040;text-transform:uppercase}
+
+/* Streak Reward Modal */
+.streak-reward-modal{max-width:480px;text-align:center;padding:32px}
+.sr-icon{font-size:80px;line-height:1;margin-bottom:16px;animation: srPulse 1.6s ease-in-out infinite}
+@keyframes srPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255,140,40,.4)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 30px rgba(255,180,80,.7)); }
+}
+.sr-title{font-family:var(--ff-title);font-size:22px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.sr-days{font-family:var(--ff-title);font-size:48px;color:#ffb060;text-shadow:0 0 20px rgba(255,140,40,.5);margin:8px 0;letter-spacing:2px}
+.sr-desc{font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:14px;margin:16px 0;line-height:1.6}
+.sr-rewards{display:flex;justify-content:center;gap:12px;margin:20px 0;flex-wrap:wrap}
+.sr-reward{padding:8px 14px;background:var(--bg2);border:1px solid var(--bdg);border-radius:var(--r);font-size:13px;color:var(--gold)}
+.sr-claim-btn{margin-top:16px;padding:12px 28px;font-size:14px}
 </style>
 </head>
 <body>
@@ -3013,6 +3059,11 @@ body.mood-5 .main-wrap::after{content:'';position:fixed;inset:0;pointer-events:n
       <span class="xpn" id="t-xp-lbl">0/1000</span>
     </div>
     <div class="goldrow">🪙 <span id="t-gold">0</span></div>
+    <div class="streak-badge" id="streak-badge" title="Серия входов" style="display:none">
+      <span class="streak-flame">🔥</span>
+      <span class="streak-num" id="streak-num">0</span>
+      <span class="streak-lbl">ДНЕЙ</span>
+    </div>
   </div>
   <div class="tright">
     <div class="mood-badge" id="mood-badge" onclick="openM('m-mood')" title="Настроение" style="display:none"></div>
@@ -3735,6 +3786,59 @@ body.mood-5 .main-wrap::after{content:'';position:fixed;inset:0;pointer-events:n
   </div>
 </div>
 
+<!-- STREAK REWARD -->
+<div class="m-overlay" id="m-streak-reward">
+  <div class="modal streak-reward-modal">
+    <div class="sr-icon" id="sr-icon">🔥</div>
+    <div class="sr-title" id="sr-title">Серия Преданности</div>
+    <div class="sr-days"><span id="sr-days-num">7</span> ДНЕЙ</div>
+    <div class="sr-desc" id="sr-desc">Ты возвращаешься день за днём. Это видят боги.</div>
+    <div class="sr-rewards" id="sr-rewards"></div>
+    <button class="btn btn-g sr-claim-btn" onclick="closeStreakReward()">✦ ПРИНЯТЬ ДАР</button>
+  </div>
+</div>
+
+<!-- DAY RITUAL (Конец дня) -->
+<div class="m-overlay" id="m-day-ritual">
+  <div class="modal" style="max-width:520px;padding:32px">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:56px;line-height:1">🌙</div>
+      <div style="font-family:var(--ff-title);font-size:18px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-top:8px">Герой возвращается в таверну</div>
+    </div>
+    <div id="dr-summary" style="margin:20px 0;padding:16px;background:var(--bg2);border:1px solid var(--bdg);border-radius:var(--r);text-align:center;font-family:var(--ff-body);color:var(--text2);font-size:14px;line-height:1.8"></div>
+    <div id="dr-quote" style="font-family:var(--ff-body);font-style:italic;color:var(--gold);text-align:center;font-size:13px;margin:18px 0;padding:0 12px;line-height:1.6;opacity:.85"></div>
+    <div style="margin:20px 0">
+      <div style="font-family:var(--ff-title);font-size:10px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:8px">Что ты понял сегодня, герой?</div>
+      <textarea id="dr-reflection" placeholder="Запиши мысль (необязательно)..." style="width:100%;min-height:60px;background:var(--bg);border:1px solid var(--bdm);border-radius:var(--r);padding:10px;color:var(--text);font-family:var(--ff-body);font-size:13px;resize:vertical"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-o" onclick="closeM('m-day-ritual')">Пропустить</button>
+      <button class="btn btn-g" onclick="saveDayRitual()">📜 Записать в летопись</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOOT REWARD -->
+<div class="m-overlay" id="m-loot">
+  <div class="modal" style="max-width:380px;padding:28px;text-align:center">
+    <div style="font-size:14px;letter-spacing:3px;color:var(--gold);font-family:var(--ff-title);text-transform:uppercase;margin-bottom:6px">Случайная находка</div>
+    <div id="loot-icon" style="font-size:80px;line-height:1;margin:14px 0;animation:srPulse 1.6s ease-in-out infinite">🎁</div>
+    <div id="loot-rarity" style="font-family:var(--ff-title);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px"></div>
+    <div id="loot-name" style="font-family:var(--ff-title);font-size:20px;color:var(--gold);letter-spacing:1.5px;margin-bottom:8px"></div>
+    <div id="loot-desc" style="font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:13px;line-height:1.6;margin-bottom:20px"></div>
+    <button class="btn btn-g" onclick="closeM('m-loot')">✦ Взять с собой</button>
+  </div>
+</div>
+
+<!-- ONBOARDING PROLOGUE -->
+<div class="m-overlay" id="m-prologue">
+  <div class="modal" style="max-width:560px;padding:36px;text-align:center">
+    <div style="font-family:var(--ff-title);font-size:11px;letter-spacing:4px;color:var(--text3);text-transform:uppercase;margin-bottom:14px">Пролог твоей саги</div>
+    <div id="prologue-text" style="font-family:var(--ff-body);font-size:15px;line-height:1.9;color:var(--text);text-align:left;min-height:140px;padding:0 8px;letter-spacing:.3px"></div>
+    <button class="btn btn-g" id="prologue-btn" onclick="closeM('m-prologue')" style="margin-top:24px;display:none">✦ Принять судьбу</button>
+  </div>
+</div>
+
 <!-- WEATHER CANVAS -->
 <canvas id="wx-canvas" style="
   position:fixed;top:54px;left:62px;right:0;bottom:0;
@@ -3796,7 +3900,19 @@ function fresh() {
     _tempBoss: null,
     lastMentorLetter: '',
     bcStreak: 0,
-    mood: null
+    mood: null,
+    // Login Streak
+    loginStreak: 0,
+    longestLoginStreak: 0,
+    lastLoginDate: '',
+    streakRewardsClaimed: [],
+    // Variable rewards
+    inventory: [],
+    // Day reflections
+    dayReflections: {},
+    lastRitualDate: '',
+    // HP loss tracking
+    lastNightCheck: ''
   };
 }
 
@@ -3815,6 +3931,15 @@ function load() {
     if (d.mood === undefined) d.mood = null;
     if (!d.stats) d.stats = { totalDone:0, totalXP:0, totalGold:0, daily:{}, cats:{study:0,work:0,health:0,hobby:0,life:0} };
     if (!d.stats.cats) d.stats.cats = { study:0, work:0, health:0, hobby:0, life:0 };
+    // Login Streak migrations
+    if (d.loginStreak === undefined) d.loginStreak = 0;
+    if (d.longestLoginStreak === undefined) d.longestLoginStreak = 0;
+    if (d.lastLoginDate === undefined) d.lastLoginDate = '';
+    if (!d.streakRewardsClaimed) d.streakRewardsClaimed = [];
+    if (!d.inventory) d.inventory = [];
+    if (!d.dayReflections) d.dayReflections = {};
+    if (d.lastRitualDate === undefined) d.lastRitualDate = '';
+    if (d.lastNightCheck === undefined) d.lastNightCheck = '';
     return d;
   } catch(e) { return fresh(); }
 }
@@ -4109,6 +4234,8 @@ function obFinish() {
       document.getElementById('app').style.opacity = '';
     }, 450);
     initAll();
+    // 🎭 Magic Moment: показываем пролог через секунду после старта
+    setTimeout(function() { showPrologueAfterOnboarding(); }, 1200);
   }, 520);
 }
 
@@ -5355,11 +5482,410 @@ window.addEventListener('load', function() {
   }
 });
 
+// =============================================
+// LOGIN STREAK — серия дней подряд
+// =============================================
+var STREAK_REWARDS = {
+  3:   { xp: 50,  gold: 30,  title: 'Новый ритм', desc: 'Три дня подряд. Это уже не случайность — это начало пути.' },
+  7:   { xp: 200, gold: 100, title: 'Преданный', desc: 'Неделя без пропусков. Твоё имя начали запоминать в Чертогах.' },
+  14:  { xp: 500, gold: 250, title: 'Стойкий', desc: 'Две недели. Старые враги боятся, новые наставники приходят сами.' },
+  30:  { xp: 1500,gold: 700, title: 'Несокрушимый', desc: 'Тридцать дней — целый круг луны. Ты доказал то, что не доказывают словами.' },
+  60:  { xp: 4000,gold: 2000,title: 'Легендарный', desc: 'Шестьдесят дней. О таких как ты пишут саги.' },
+  100: { xp: 10000,gold:5000,title: 'Бессмертный', desc: 'Сто дней без пропусков. Боги склонились перед твоей волей.' }
+};
+
+function checkLoginStreak() {
+  var today = new Date().toISOString().slice(0, 10);
+  if (S.lastLoginDate === today) return; // уже проверяли сегодня
+
+  if (!S.lastLoginDate) {
+    // Первый запуск
+    S.loginStreak = 1;
+  } else {
+    var lastDate = new Date(S.lastLoginDate);
+    var todayDate = new Date(today);
+    var diff = Math.round((todayDate - lastDate) / ONE_DAY_MS);
+    if (diff === 1) {
+      S.loginStreak++;
+    } else if (diff > 1) {
+      S.loginStreak = 1; // сброс
+    }
+    // diff === 0 — невозможно из-за проверки выше
+  }
+
+  if (S.loginStreak > S.longestLoginStreak) S.longestLoginStreak = S.loginStreak;
+  S.lastLoginDate = today;
+  save();
+}
+
+function refreshStreakBadge() {
+  var badge = document.getElementById('streak-badge');
+  var num = document.getElementById('streak-num');
+  if (!badge || !num) return;
+  if (S.loginStreak >= 2) {
+    badge.style.display = 'flex';
+    num.textContent = S.loginStreak;
+    if (S.loginStreak >= 7) badge.classList.add('streak-fire');
+    else badge.classList.remove('streak-fire');
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function checkStreakReward() {
+  // Показываем награду если достигли milestone и ещё не забирали
+  var milestones = Object.keys(STREAK_REWARDS).map(Number).sort(function(a,b){return a-b});
+  for (var i = 0; i < milestones.length; i++) {
+    var ms = milestones[i];
+    if (S.loginStreak >= ms && S.streakRewardsClaimed.indexOf(ms) === -1) {
+      showStreakReward(ms);
+      return;
+    }
+  }
+}
+
+function showStreakReward(days) {
+  var rwd = STREAK_REWARDS[days];
+  if (!rwd) return;
+  document.getElementById('sr-icon').textContent = days >= 100 ? '👑' : days >= 30 ? '⚜' : days >= 7 ? '🔥' : '✦';
+  document.getElementById('sr-title').textContent = rwd.title;
+  document.getElementById('sr-days-num').textContent = days;
+  document.getElementById('sr-desc').textContent = rwd.desc;
+  document.getElementById('sr-rewards').innerHTML =
+    '<div class="sr-reward">✨ +' + rwd.xp + ' ОП</div>' +
+    '<div class="sr-reward">🪙 +' + rwd.gold + '</div>';
+
+  // Применяем награды
+  gainXP(rwd.xp);
+  gainGold(rwd.gold);
+  S.streakRewardsClaimed.push(days);
+  save();
+  openM('m-streak-reward');
+}
+
+function closeStreakReward() {
+  closeM('m-streak-reward');
+  refreshTopBar();
+  refreshStreakBadge();
+}
+
+// =============================================
+// VARIABLE REWARD — случайный лут
+// =============================================
+var LOOT_TABLE = {
+  common: [
+    { icon:'🍞', name:'Чёрствый хлеб',     desc:'Стары пекарь дал тебе кусок. Что ж, и это знак уважения.' },
+    { icon:'🕯', name:'Огарок свечи',      desc:'Сгорел почти полностью. Но огонь в нём ещё есть.' },
+    { icon:'🪵', name:'Сухая ветвь',       desc:'Пригодится на привале. Когда придёт ночь.' },
+    { icon:'🪶', name:'Перо ворона',       desc:'Чёрное, длинное. Говорят, такие приносят удачу.' },
+    { icon:'🥖', name:'Походный сухарь',   desc:'Жёсткий как камень. Но сытный.' },
+    { icon:'🪨', name:'Странный камень',   desc:'Тёплый на ощупь. Может, в нём что-то есть.' },
+    { icon:'🍂', name:'Сушёная трава',     desc:'Пахнет летом и забытыми тропами.' },
+    { icon:'🥚', name:'Яйцо неизвестной птицы', desc:'Лучше не задавать вопросов.' },
+    { icon:'🦴', name:'Маленькая кость',   desc:'От кого она? Лучше не знать.' },
+    { icon:'🪙', name:'Старая монета',     desc:'+5 🪙 — герб незнакомого королевства.' },
+  ],
+  rare: [
+    { icon:'⚗️', name:'Зелье малой силы',  desc:'+30 HP в следующий бой. Горькое.' },
+    { icon:'📜', name:'Древний свиток',    desc:'Открывает фрагмент старого лора. Прочти позже.' },
+    { icon:'🔮', name:'Хрустальный осколок', desc:'Светится в темноте. Источник неизвестен.' },
+    { icon:'⚔', name:'Зачарованный клинок', desc:'+5 урона на сегодня. Завтра растает в воздухе.' },
+    { icon:'🛡', name:'Щит ночного стража', desc:'+5 защиты на сегодня. Старая работа.' },
+    { icon:'💎', name:'Гранёный сапфир',    desc:'+50 🪙 — продай в лавке. Или сохрани.' },
+    { icon:'🗝', name:'Ржавый ключ',        desc:'От чего-то он подходит. Пока неясно.' },
+    { icon:'🎭', name:'Маска незнакомца',   desc:'Кто-то её обронил. На обратной стороне — руна.' },
+    { icon:'🏹', name:'Стрела с пером огня', desc:'Бьёт сильнее обычных. Береги.' },
+  ],
+  epic: [
+    { icon:'👑', name:'Корона забытого короля', desc:'+100 🪙 +200 ОП. Носи её редко — она тяжела.' },
+    { icon:'⚜', name:'Реликвия Ордена',         desc:'Титул "Избранный" на неделю. +10 ко всем статам.' },
+    { icon:'🔥', name:'Сердце дракона',          desc:'+150 HP навсегда. Полученное — твоё.' },
+    { icon:'🌟', name:'Падшая звезда',           desc:'+500 ОП. И секретная глава лора открыта.' },
+    { icon:'🗡', name:'Клинок Первой Крови',     desc:'+15 урона навсегда. Этот меч помнит все битвы.' },
+    { icon:'📕', name:'Книга Запретных Знаний',  desc:'+1 уровень мгновенно. Цена — кошмары на неделю.' },
+  ]
+};
+
+function rollLoot() {
+  if (Math.random() > 0.15) return null; // 15% шанс
+  var roll = Math.random();
+  var rarity = roll < 0.7 ? 'common' : roll < 0.95 ? 'rare' : 'epic';
+  var pool = LOOT_TABLE[rarity];
+  var item = pool[Math.floor(Math.random() * pool.length)];
+  return Object.assign({ rarity: rarity }, item);
+}
+
+function showLoot(loot) {
+  if (!loot) return;
+  var rarityColor = loot.rarity === 'epic' ? '#c060ff' : loot.rarity === 'rare' ? '#3d7bc8' : '#a08040';
+  var rarityName = loot.rarity === 'epic' ? '★ ★ ★  Эпическое' : loot.rarity === 'rare' ? '★ ★  Редкое' : '★  Обычное';
+  document.getElementById('loot-icon').textContent = loot.icon;
+  var rarityEl = document.getElementById('loot-rarity');
+  rarityEl.textContent = rarityName;
+  rarityEl.style.color = rarityColor;
+  document.getElementById('loot-name').textContent = loot.name;
+  document.getElementById('loot-desc').textContent = loot.desc;
+
+  // Сохраняем в инвентарь
+  S.inventory.push({
+    name: loot.name, icon: loot.icon, rarity: loot.rarity,
+    desc: loot.desc, gotAt: new Date().toISOString()
+  });
+  if (S.inventory.length > 100) S.inventory = S.inventory.slice(-100); // лимит
+  save();
+  openM('m-loot');
+}
+
+// =============================================
+// QUEST COMPLETION ANIMATION — 2 секунды драмы
+// =============================================
+function playCompletionAnimation(xp, gold, anchor) {
+  var rect = anchor && anchor.getBoundingClientRect ? anchor.getBoundingClientRect() : null;
+  var cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+  var cy = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+
+  // 1. Золотая вспышка
+  var flash = document.createElement('div');
+  flash.style.cssText = 'position:fixed;inset:0;background:radial-gradient(circle at ' + cx + 'px ' + cy + 'px, rgba(255,200,80,.5) 0%, rgba(160,128,64,.2) 30%, transparent 60%);pointer-events:none;z-index:9999;opacity:0;transition:opacity .2s';
+  document.body.appendChild(flash);
+  requestAnimationFrame(function(){ flash.style.opacity = '1'; });
+  setTimeout(function(){ flash.style.opacity = '0'; }, 250);
+  setTimeout(function(){ flash.remove(); }, 600);
+
+  // 2. Частицы (Canvas)
+  var canvas = document.createElement('canvas');
+  canvas.width = 400; canvas.height = 400;
+  canvas.style.cssText = 'position:fixed;left:' + (cx - 200) + 'px;top:' + (cy - 200) + 'px;width:400px;height:400px;pointer-events:none;z-index:9998';
+  document.body.appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  for (var i = 0; i < 35; i++) {
+    var ang = Math.random() * Math.PI * 2;
+    var spd = 2 + Math.random() * 4;
+    particles.push({
+      x: 200, y: 200,
+      vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
+      life: 1, size: 1 + Math.random() * 2,
+      color: Math.random() > 0.5 ? '#ffd060' : '#a08040'
+    });
+  }
+  var startT = performance.now();
+  function animateParticles(t) {
+    var dt = t - startT;
+    if (dt > 1500) { canvas.remove(); return; }
+    ctx.clearRect(0, 0, 400, 400);
+    particles.forEach(function(p) {
+      p.x += p.vx; p.y += p.vy;
+      p.vy += 0.08; // гравитация
+      p.life -= 0.012;
+      if (p.life < 0) return;
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(animateParticles);
+  }
+  requestAnimationFrame(animateParticles);
+
+  // 3. Большие плавающие числа +XP / +GOLD
+  function floatNumber(text, color, dy) {
+    var el = document.createElement('div');
+    el.textContent = text;
+    el.style.cssText = 'position:fixed;left:' + cx + 'px;top:' + cy + 'px;transform:translate(-50%,-50%);font-family:Palatino,serif;font-size:38px;font-weight:bold;color:' + color + ';text-shadow:0 0 18px ' + color + ',0 2px 4px #000;pointer-events:none;z-index:9999;opacity:0;transition:all 1.6s cubic-bezier(.2,.8,.3,1)';
+    document.body.appendChild(el);
+    requestAnimationFrame(function() {
+      el.style.opacity = '1';
+      el.style.transform = 'translate(-50%,calc(-50% - ' + dy + 'px)) scale(1.2)';
+    });
+    setTimeout(function() {
+      el.style.opacity = '0';
+      el.style.transform = 'translate(-50%,calc(-50% - ' + (dy + 30) + 'px)) scale(1)';
+    }, 1100);
+    setTimeout(function() { el.remove(); }, 1700);
+  }
+  if (xp)   setTimeout(function(){ floatNumber('+' + xp + ' ОП', '#ffd060', 60); }, 100);
+  if (gold) setTimeout(function(){ floatNumber('+' + gold + ' 🪙', '#ffb060', 100); }, 250);
+
+  // 4. Звук "ритуальный гонг" (Web Audio синтез)
+  try {
+    var ac = window._audioCtx || (window._audioCtx = new (window.AudioContext || window.webkitAudioContext)());
+    var now = ac.currentTime;
+    [440, 660, 880].forEach(function(freq, i) {
+      var o = ac.createOscillator();
+      var g = ac.createGain();
+      o.frequency.value = freq;
+      o.type = 'sine';
+      g.gain.value = 0;
+      g.gain.setValueAtTime(0, now + i * 0.06);
+      g.gain.linearRampToValueAtTime(0.08, now + i * 0.06 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.06 + 0.8);
+      o.connect(g); g.connect(ac.destination);
+      o.start(now + i * 0.06); o.stop(now + i * 0.06 + 1);
+    });
+  } catch(e) { /* ignore */ }
+}
+
+// =============================================
+// HP LOSS AT NIGHT — потеря HP за бездействие
+// =============================================
+function checkNightHPLoss() {
+  if (!S.hero || !S.hero.name) return; // онбординг ещё не пройден
+  var today = new Date().toISOString().slice(0, 10);
+  if (S.lastNightCheck === today) return;
+
+  // Проверяем вчерашний день
+  var yesterday = new Date(Date.now() - ONE_DAY_MS).toISOString().slice(0, 10);
+  var yesterdayDone = (S.stats && S.stats.daily && S.stats.daily[yesterday]) || 0;
+
+  // Если вчера ничего не было сделано И уже не первый день
+  if (yesterdayDone === 0 && S.lastNightCheck && S.lastNightCheck !== '') {
+    var lostHP = 10;
+    S.hero.chp = Math.max(1, (S.hero.chp || S.hero.hp) - lostHP);
+    showToast('🌑 Тёмная ночь забрала ' + lostHP + ' HP. Враги почуяли слабость.');
+  }
+  S.lastNightCheck = today;
+  save();
+}
+
+// =============================================
+// END OF DAY RITUAL — конец дня в таверне
+// =============================================
+var DAY_RITUAL_QUOTES = [
+  'Не каждый день должен быть победой. Главное — не пропустить ни одного.',
+  'Усталость — это не слабость. Это плата за то, что ты сделал.',
+  'Завтра будет новый рассвет. И ты встретишь его сильнее.',
+  'Тишина перед сном — это место, где живёт мудрость.',
+  'Каждый день — это маленькая жизнь. Прожитая, она становится частью большой.',
+  'Тот, кто умеет остановиться, далеко уйдёт.',
+  'Ночь забирает тревоги. Утро возвращает только нужное.',
+  'Вспомни три вещи, за которые благодарен этому дню. Этого хватит.',
+  'Сон — лучшее лекарство для героя, который весь день держал меч.',
+  'То, что не закончил сегодня, не значит, что ты проиграл. Это значит, что есть завтра.'
+];
+
+function checkDayRitual() {
+  if (!S.hero || !S.hero.name) return;
+  var now = new Date();
+  var hours = now.getHours();
+  var today = now.toISOString().slice(0, 10);
+  // Показываем после 21:00, не более раза в день
+  if (hours < 21) return;
+  if (S.lastRitualDate === today) return;
+  showDayRitual();
+}
+
+function showDayRitual() {
+  var today = new Date().toISOString().slice(0, 10);
+  var doneToday = (S.stats && S.stats.daily && S.stats.daily[today]) || 0;
+  var xpToday = 0, goldToday = 0;
+  (S.quests || []).forEach(function(q) {
+    if (q.done && q.completedAt && q.completedAt.slice(0, 10) === today) {
+      xpToday += (q.difficulty || 3) * (q.importance || 3) * 80;
+      goldToday += (q.difficulty || 3) * (q.importance || 3) * 60;
+    }
+  });
+
+  var summary = doneToday > 0
+    ? '<div>Сегодня выполнено квестов: <b style="color:var(--gold)">' + doneToday + '</b></div>'
+      + '<div style="margin-top:6px">Получено: <b style="color:var(--gold)">+' + xpToday + ' ОП</b> · <b style="color:var(--gold)">+' + goldToday + ' 🪙</b></div>'
+    : '<div style="font-style:italic;color:var(--text3)">Сегодня квестов не выполнено.<br>Завтра — новый рассвет.</div>';
+
+  document.getElementById('dr-summary').innerHTML = summary;
+  document.getElementById('dr-quote').textContent = '« ' + DAY_RITUAL_QUOTES[Math.floor(Math.random() * DAY_RITUAL_QUOTES.length)] + ' »';
+  document.getElementById('dr-reflection').value = '';
+  openM('m-day-ritual');
+}
+
+function saveDayRitual() {
+  var today = new Date().toISOString().slice(0, 10);
+  var text = document.getElementById('dr-reflection').value.trim();
+  if (text) {
+    S.dayReflections[today] = text;
+  }
+  S.lastRitualDate = today;
+  save();
+  closeM('m-day-ritual');
+  if (text) showToast('📜 Записано в летопись');
+}
+
+// =============================================
+// ONBOARDING PROLOGUE — Magic Moment
+// =============================================
+var PROLOGUES = {
+  keeper:  'В тот час, когда первый луч коснулся стен древней Башни Книг, родился новый Хранитель. Имя его было — {name}. Старые мудрецы переглянулись: путь этот будет долог, но ум {name} жаждал знания, а сердце было готово к тяготам. И начертал летописец первую строку: «И вот пришёл тот, кто читал даже там, где буквы стёрлись».',
+  warrior: 'На закате того дня, когда сталь ещё помнила пот старых битв, явился он — {name}, новый Воин Дел. Не богат был, не славен — но в глазах его горел тот огонь, что не погасить ни усталостью, ни сомнением. Старый кузнец молча протянул ему первый меч. И сказал: «Иди. Дороги ждут тех, кто не оборачивается».',
+  druid:   'Лесные духи зашептались, когда {name} впервые ступил на тропу. Новый Друид Здоровья, чьё дыхание отзывалось в листьях, а шаги — в корнях. Деревья склонились в знак приветствия. И знал {name}: этот путь — не борьба с миром, а единение с ним. И сила его росла, как растёт дуб — медленно, но неудержимо.',
+  rogue:   'Никто не видел, откуда {name} пришёл. Вольный Странник, чьи карманы полны были не золотом, но мечтами. Города манили, дороги звали, и каждый рассвет был новой страницей. «Я не герой, — сказал {name} сам себе. — Я тот, кто живёт». И этого было достаточно для начала легенды.'
+};
+
+function showPrologueAfterOnboarding() {
+  var cls = (S.hero && S.hero.cls) || 'warrior';
+  var name = (S.hero && S.hero.name) || 'Герой';
+  var prologue = (PROLOGUES[cls] || PROLOGUES.warrior).replace(/\{name\}/g, name);
+
+  var el = document.getElementById('prologue-text');
+  el.textContent = '';
+  openM('m-prologue');
+  document.getElementById('prologue-btn').style.display = 'none';
+
+  // Typewriter effect
+  var i = 0;
+  function typeNext() {
+    if (i < prologue.length) {
+      el.textContent += prologue[i++];
+      setTimeout(typeNext, 28 + Math.random() * 30);
+    } else {
+      document.getElementById('prologue-btn').style.display = 'inline-block';
+    }
+  }
+  setTimeout(typeNext, 500);
+}
+
+// =============================================
+// NARRATIVE PUSH NOTIFICATIONS
+// =============================================
+var NARRATIVE_PUSH_TEMPLATES = {
+  overdue: [
+    '🐉 Дракон ждёт уже {days} дней. Каждый час делает его сильнее.',
+    '🌑 Просроченный квест отбрасывает тень на твою летопись.',
+    '⚠ Враг крепчает в забвении. Время действовать.',
+    '📜 Старый свиток тлеет в углу — он ждал тебя несколько дней.',
+  ],
+  reminder: [
+    '⚔ Главный квест ждёт твоего внимания, герой.',
+    '🔥 Не дай огню костра погаснуть. Один шаг — и ты ближе к цели.',
+    '🌌 Звёзды благосклонны сегодня. Используй это.',
+    '✦ Боги наблюдают. Покажи им, что ты достоин.',
+  ],
+  streak: [
+    '🔥 {n} дней подряд. Не разрывай нить — она крепнет.',
+    '⚜ Серия: {n}. Старые враги уже знают твоё имя.',
+  ],
+  morning: [
+    '🌅 Новый день. Карта твоей судьбы уже развёрнута.',
+    '☀ Солнце встало. Что-то ждёт тебя за горизонтом.',
+    '🪶 Летописец взял перо. Что он напишет о сегодня?',
+  ]
+};
+
+function pickNarrativePush(type, vars) {
+  var pool = NARRATIVE_PUSH_TEMPLATES[type] || NARRATIVE_PUSH_TEMPLATES.reminder;
+  var msg = pool[Math.floor(Math.random() * pool.length)];
+  if (vars) Object.keys(vars).forEach(function(k) { msg = msg.replace('{' + k + '}', vars[k]); });
+  return msg;
+}
+
 function initAll() {
   // === КРИТИЧЕСКИЙ ПУТЬ — выполняется сразу ===
+  checkLoginStreak();   // обновляем серию входов
+  checkNightHPLoss();   // проверяем потерю HP за ночь бездействия
   refreshTopBar();
   updateHeroTitle();
   refreshDSVitals();
+  refreshStreakBadge();
   checkRoutines();      // создаём квесты-копии рутин на сегодня
   renderQuests();       // главный экран
   sw('quests');         // показываем вьюху квестов
@@ -5387,6 +5913,8 @@ function initAll() {
     checkMood();
     checkDailyEvent();
     checkMentorLetter();
+    checkStreakReward();   // показываем модалку награды за серию
+    checkDayRitual();      // показываем ритуал конца дня
   }, 500);
 }
 
@@ -5656,7 +6184,7 @@ function buildMainQuestHTML(q, nextQ) {
   var loreClass = q.loadingLore ? 'lore lore-loading' : 'lore';
   var loreText = q.lore || q.description || 'Этот квест ждёт твоего внимания, герой.';
 
-  return '<div class="qcard">'
+  return '<div class="qcard" data-quest-id="' + q.id + '">'
     + '<div class="qart">' + questArtHTML(q) + '</div>'
     + '<div class="qbody">'
     + (q.project ? '<div class="ctag">⛓ ' + esc(getProjName(q.project)) + '</div>' : '')
@@ -6056,6 +6584,14 @@ function doComplete(q) {
   q.completedAt = new Date().toISOString();
   var xp   = (q.difficulty || 3) * (q.importance || 3) * 80;
   var gold = (q.difficulty || 3) * (q.importance || 3) * 60;
+
+  // 🎬 Анимация выполнения (вспышка + частицы + +XP/+Gold + звук)
+  var card = document.querySelector('[data-quest-id="' + q.id + '"]') || document.querySelector('.qcard');
+  playCompletionAnimation(xp, gold, card);
+
+  // 🎁 Случайный лут (15% шанс)
+  var loot = rollLoot();
+  if (loot) setTimeout(function() { showLoot(loot); }, 1700);
 
   var prevLvl = S.hero.lvl;
   gainXP(xp);
@@ -7548,7 +8084,18 @@ function renderUpcoming() {
 // =============================================
 function checkOverdue() {
   var od = S.quests.filter(function(q) { return !q.done && isOverdue(q); });
-  if (od.length > 0) sendPush('Хроники Судьбы', 'Есть ' + od.length + ' просроченных квестов!');
+  if (od.length > 0) {
+    // Считаем самый старый просроченный
+    var maxDays = 0;
+    od.forEach(function(q) {
+      if (q.deadline) {
+        var d = Math.ceil((new Date() - new Date(q.deadline)) / ONE_DAY_MS);
+        if (d > maxDays) maxDays = d;
+      }
+    });
+    var msg = pickNarrativePush('overdue', { days: maxDays || od.length });
+    sendPush('Хроники Судьбы', msg);
+  }
 }
 function askPush() {
   if ('Notification' in window && Notification.permission === 'default') {
