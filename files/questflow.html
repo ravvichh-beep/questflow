@@ -8006,13 +8006,44 @@ function showToast(msg) {
 }
 
 // =============================================
-// PWA — регистрация Service Worker
+// PWA — регистрация Service Worker + автообновление
 // =============================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('service-worker.js')
-      .then(function(reg) { console.log('[PWA] SW registered:', reg.scope); })
+      .then(function(reg) {
+        console.log('[PWA] SW registered:', reg.scope);
+
+        // Если есть waiting SW (новая версия готова) — перезагрузим страницу
+        if (reg.waiting) {
+          reg.waiting.postMessage('SKIP_WAITING');
+        }
+
+        // Когда найдена новая версия — слушаем её установку
+        reg.addEventListener('updatefound', function() {
+          var newSW = reg.installing;
+          if (!newSW) return;
+          newSW.addEventListener('statechange', function() {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              // Новая версия установлена и есть текущий контроллер → активируем новую
+              newSW.postMessage('SKIP_WAITING');
+            }
+          });
+        });
+
+        // Принудительно проверяем обновление каждые 60 секунд
+        setInterval(function() { reg.update().catch(function(){}); }, 60000);
+      })
       .catch(function(err) { console.warn('[PWA] SW registration failed:', err); });
+
+    // Когда контроллер сменился (новый SW взял управление) — перезагружаем страницу
+    var refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      if (refreshing) return;
+      refreshing = true;
+      console.log('[PWA] New version active, reloading...');
+      window.location.reload();
+    });
   });
 }
 

@@ -1,6 +1,6 @@
 /* QuestFlow Service Worker — офлайн-кэш через cache-first стратегию */
 
-const CACHE_NAME = 'questflow-v1';
+const CACHE_NAME = 'questflow-v2-darksouls';
 const ASSETS = [
   './',
   './index.html',
@@ -32,7 +32,10 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: cache-first для своего домена, network-only для API
+// Fetch стратегия:
+// - HTML/JS/manifest → network-first (всегда свежее, fallback на кэш если оффлайн)
+// - Иконки/SVG → cache-first (статика, меняется редко)
+// - API запросы → не трогаем
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -44,24 +47,42 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
+  // Не наш домен — пропускаем
+  if (url.origin !== self.location.origin) return;
 
-      return fetch(req)
+  // Network-first для HTML и manifest (чтобы обновления применялись сразу)
+  const isHTML = req.mode === 'navigate' || req.destination === 'document'
+              || url.pathname === '/' || url.pathname.endsWith('.html')
+              || url.pathname.endsWith('.json');
+
+  if (isHTML) {
+    event.respondWith(
+      fetch(req)
         .then((resp) => {
-          // Кэшируем успешные ответы со своего домена
-          if (resp && resp.ok && url.origin === self.location.origin) {
+          if (resp && resp.ok) {
             const clone = resp.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+            caches.open(CACHE_NAME).then((c) => c.put(req, clone));
           }
           return resp;
         })
-        .catch(() => {
-          // Если оффлайн — отдаём index.html для навигационных запросов
-          if (req.mode === 'navigate') return caches.match('./index.html');
-          return new Response('', { status: 503, statusText: 'Offline' });
-        });
+        .catch(() => caches.match(req).then((c) => c || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Cache-first для статики (иконки, SVG)
+  event.respondWith(
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+      return fetch(req)
+        .then((resp) => {
+          if (resp && resp.ok) {
+            const clone = resp.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+          }
+          return resp;
+        })
+        .catch(() => new Response('', { status: 503, statusText: 'Offline' }));
     })
   );
 });
