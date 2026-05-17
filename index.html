@@ -32,48 +32,49 @@ window.FIREBASE_CONFIG = null; // <- сюда вставить config из Fireb
 <style>
 /* ===== NO EXTERNAL FONTS — system stack only ===== */
 :root{
-  --ff-title:"Palatino Linotype","Book Antiqua",Palatino,"Times New Roman",serif;
+  --ff-title:"Cormorant Garamond","Cormorant SC","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
   --ff-body:Georgia,"Times New Roman",serif;
   --ff-ui:system-ui,-apple-system,sans-serif;
 
-  /* Dark Souls / Elden Ring палитра */
-  --bg:#080808;
-  --bg2:#0c0c10;
-  --bg3:#101014;
-  --bg4:#141418;
-  --bg5:#1a1a20;
+  /* v3 — Кодекс Охотника (тёплый коричневый + золото + сургуч) */
+  --bg:#0a0706;
+  --bg2:#120c08;
+  --bg3:#1a120a;
+  --bg4:#241608;
+  --bg5:#2e1c0a;
 
-  /* Золото — пепельное как в Dark Souls */
-  --gold:#a08040;
-  --gold2:#c8a050;
-  --gold3:#604818;
-  --gold-dim:#604818;
-  --gold-glow:rgba(160,128,64,.15);
+  /* Золото — тёплое, медное */
+  --gold:#b8893f;
+  --gold2:#e0b25a;
+  --gold3:#5a4218;
+  --gold-dim:#5a4218;
+  --gold-glow:rgba(224,178,90,.18);
 
-  /* Синий — сдержанный, для FP */
-  --blue:#102040;
-  --blue2:#1a3060;
-  --sap:#2a5090;
-  --sky:#4a80c0;
+  /* Синий — для FP, чуть теплее */
+  --blue:#1a1825;
+  --blue2:#2a2640;
+  --sap:#3d4868;
+  --sky:#6a7aa0;
 
-  /* Красный — для HP */
-  --red:#6a0000;
-  --red2:#c02020;
+  /* Красный — сургуч / HP */
+  --red:#5a1010;
+  --red2:#c44545;
+  --seal-red:#8b1a1a;
 
-  /* Текст — пергаментный */
-  --text:#c8bfa8;
-  --text2:#807060;
-  --text3:#3a3028;
+  /* Текст — пергаментный кремовый */
+  --text:#ead5a4;
+  --text2:#8b6a3a;
+  --text3:#4a3818;
 
-  /* Границы — золотые, очень тонкие */
-  --bd:rgba(160,128,64,.1);
-  --bdm:rgba(160,128,64,.2);
-  --bdg:rgba(160,128,64,.35);
-  --bdg2:rgba(160,128,64,.08);
+  /* Границы — медные, тонкие */
+  --bd:rgba(184,137,63,.12);
+  --bdm:rgba(184,137,63,.25);
+  --bdg:rgba(184,137,63,.4);
+  --bdg2:rgba(184,137,63,.08);
 
   /* Семантические */
-  --green:#206040;
-  --purple:#402060;
+  --green:#4a8060;
+  --purple:#5a3870;
 
   /* Стекло */
   --glass:rgba(8,8,12,.88);
@@ -291,13 +292,19 @@ button{cursor:pointer;font-family:var(--ff-title)}
   background:linear-gradient(90deg,transparent,var(--gold),transparent);
   opacity:.4;
 }
+.logo-block{display:flex;flex-direction:column;gap:1px}
 .logo{
   font-family:var(--ff-title);font-size:16px;
   color:var(--gold);letter-spacing:5px;
   text-transform:uppercase;
-  text-shadow:0 0 16px rgba(160,128,64,.25);
+  text-shadow:0 0 16px rgba(184,137,63,.3);
 }
-.logo span{color:var(--text3);font-weight:normal;letter-spacing:3px}
+.logo span{color:var(--text2);font-weight:normal;letter-spacing:3px}
+.logo-sub{
+  font-family:var(--ff-title);font-size:8px;letter-spacing:2.5px;
+  color:var(--text3);text-transform:uppercase;opacity:.8;
+}
+.logo-sub span{color:var(--gold);font-weight:bold}
 
 .tmid{display:flex;align-items:center;gap:16px}
 .lvlbadge{
@@ -3190,6 +3197,27 @@ body.berserk-mode {
 .share-modal{max-width:520px;padding:24px;text-align:center}
 .share-preview{width:100%;max-width:480px;margin:14px auto;border:1px solid var(--bdg);border-radius:var(--r)}
 .share-tip{font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:12px;margin:12px 0;line-height:1.6}
+
+/* ========== v3: Quest Class Badges (S/A/B/C/D) ========== */
+.qt-class{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:3px 10px;
+  font-family:var(--ff-title);font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;
+  border:1px solid currentColor;border-radius:var(--r);
+  background:rgba(0,0,0,0.3);
+}
+.qt-class b{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;font-size:11px;font-weight:bold;
+  border-radius:50%;background:currentColor;color:#0a0706;
+  letter-spacing:0;
+}
+.qt-class-S{color:#c83030;text-shadow:0 0 8px rgba(200,48,48,.5)}
+.qt-class-A{color:#e0b25a}
+.qt-class-B{color:#6080c0}
+.qt-class-C{color:#509060}
+.qt-class-D{color:#808080}
 </style>
 </head>
 <body>
@@ -3281,7 +3309,10 @@ body.berserk-mode {
 
 <!-- topbar -->
 <div class="topbar">
-  <div class="logo">Хроники <span>Судьбы</span></div>
+  <div class="logo-block">
+    <div class="logo">Хроники <span>Судьбы</span></div>
+    <div class="logo-sub">QUESTFLOW · <span id="logo-date">—</span></div>
+  </div>
   <div class="tmid">
     <div class="lvlbadge" id="t-lvl">УР. 1</div>
     <div class="t-hero-title" id="t-hero-title" style="font-size:9px;letter-spacing:2px;color:var(--gold);opacity:.7;text-transform:uppercase;margin-top:1px"></div>
@@ -3324,7 +3355,7 @@ body.berserk-mode {
     <button class="apibtn" id="cloud-btn" onclick="openM('m-sync')" title="Облачная синхронизация (показывает инструкции по настройке)">☁</button>
     <button class="apibtn" id="api-btn" onclick="openM('m-api')">⚙ Claude API</button>
     <button class="rbtn" onclick="openM('m-reset')">⚠ Сброс</button>
-    <div class="app-version" id="app-version" title="Версия приложения" onclick="showVersionInfo()">v<span id="app-version-num">2.4.0</span></div>
+    <div class="app-version" id="app-version" title="Версия приложения" onclick="showVersionInfo()">v<span id="app-version-num">2.5.0</span></div>
   </div>
 </div>
 
@@ -4149,8 +4180,8 @@ body.berserk-mode {
   <div class="modal version-modal">
     <div class="vm-icon">⚔</div>
     <div class="vm-title">Хроники Судьбы</div>
-    <div class="vm-version">v<span id="vm-version-num">2.4.0</span></div>
-    <div class="vm-phase" id="vm-phase">Personal Saga</div>
+    <div class="vm-version">v<span id="vm-version-num">2.5.0</span></div>
+    <div class="vm-phase" id="vm-phase">Hunter Codex</div>
     <div class="vm-meta">
       <div>Сборка<b id="vm-build">—</b></div>
       <div>Героев живёт<b id="vm-heroes">1</b></div>
@@ -4245,9 +4276,9 @@ if (window.FIREBASE_CONFIG) {
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '2.4.0';
+var APP_VERSION = '2.5.0';
 var APP_BUILD_DATE = '2026-05-17';
-var APP_PHASE = 'Personal Saga';
+var APP_PHASE = 'Hunter Codex';
 
 // Лог в консоль при старте — удобно для дебага
 console.log('%c⚔ QuestFlow v' + APP_VERSION + ' (' + APP_PHASE + ')',
@@ -6308,6 +6339,61 @@ function pickNarrativePush(type, vars) {
 }
 
 // =============================================
+// v3 — КОДЕКС ОХОТНИКА: славянские названия месяцев + римские года
+// =============================================
+var SLAVIC_MONTHS = [
+  'СЕЧЕНЬ',   // январь
+  'ЛЮТЕНЬ',   // февраль
+  'БЕРЕЗЕНЬ', // март
+  'ЦВЕТЕНЬ',  // апрель
+  'ТРАВЕНЬ',  // май
+  'ЧЕРВЕНЬ',  // июнь
+  'ЛИПЕНЬ',   // июль
+  'СЕРПЕНЬ',  // август
+  'ВЕРЕСЕНЬ', // сентябрь
+  'РУЕНЬ',    // октябрь
+  'ЛИСТОПАД', // ноябрь
+  'СТУДЕНЬ'   // декабрь
+];
+
+function toRoman(num) {
+  var lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+  var roman = '';
+  for (var key in lookup) {
+    while (num >= lookup[key]) { roman += key; num -= lookup[key]; }
+  }
+  return roman;
+}
+
+function formatHunterDate(date) {
+  date = date || new Date();
+  return SLAVIC_MONTHS[date.getMonth()] + ' ' + toRoman(date.getFullYear());
+}
+
+function refreshLogoDate() {
+  var el = document.getElementById('logo-date');
+  if (el) el.textContent = formatHunterDate();
+}
+
+// Буквенный класс заказа охотника по сложности (S/A/B/C/D)
+// 5★ = S (легендарный), 4★ = A, 3★ = B, 2★ = C, 1★ = D
+function questClassLetter(difficulty) {
+  return ['D','D','C','B','A','S'][Math.min(Math.max(difficulty || 3, 1), 5)] || 'C';
+}
+function questClassName(difficulty) {
+  return ['Простой','Простой','Лёгкий','Средний','Трудный','Легендарный'][Math.min(Math.max(difficulty || 3, 1), 5)];
+}
+function questClassColor(letter) {
+  return {
+    S: '#c83030', // сургуч-красный — легендарный
+    A: '#c8a050', // золото
+    B: '#6080c0', // синий
+    C: '#509060', // зелёный
+    D: '#808080'  // серый
+  }[letter] || '#808080';
+}
+
+// =============================================
 // PHASE 5.1 — PERSONAL SAGA (еженедельная история)
 // =============================================
 // Один раз в неделю (по воскресеньям после 18:00) герой может прочитать сагу о своей неделе.
@@ -7106,6 +7192,20 @@ function refreshSyncModal() {
 // =============================================
 var CHANGELOG = [
   {
+    v: '2.5.0',
+    date: '2026-05-17',
+    title: 'Hunter Codex — дизайн от Claude Design',
+    items: [
+      'Новая палитра: тёплый коричневый + медное золото + сургуч',
+      'Шрифты: Cormorant Garamond → Palatino fallback',
+      'Дата в топбаре в славянском стиле — ТРАВЕНЬ MMXXVI',
+      'Буквенные классы квестов (S/A/B/C/D) вместо звёзд сложности',
+      'S-класс с красной сургучной печатью (легендарные)',
+      'Текст пергаментный кремовый (#ead5a4)',
+      'Контент v3 (40 врагов, 10 боссов, 12 предметов) — следующий этап'
+    ]
+  },
+  {
     v: '2.4.0',
     date: '2026-05-17',
     title: 'Phase 5 — Personal Saga & Sharing',
@@ -7543,6 +7643,7 @@ function dismissMiniEvent() {
 
 function initAll() {
   // === КРИТИЧЕСКИЙ ПУТЬ — выполняется сразу ===
+  refreshLogoDate();    // ТРАВЕНЬ MMXXVI в топбаре
   checkLoginStreak();   // обновляем серию входов
   checkNightHPLoss();   // проверяем потерю HP за ночь бездействия
   refreshTopBar();
@@ -7551,6 +7652,8 @@ function initAll() {
   refreshStreakBadge();
   applyWorldMood();         // применяем настроение мира
   refreshBerserkBadge();    // показываем бейдж берсерка если активен
+  // Обновлять дату раз в час — для перехода между месяцами
+  setInterval(refreshLogoDate, 60 * 60 * 1000);
   checkRoutines();      // создаём квесты-копии рутин на сегодня
   renderQuests();       // главный экран
   sw('quests');         // показываем вьюху квестов
@@ -7882,7 +7985,7 @@ function buildMainQuestHTML(q, nextQ) {
     + '<div class="orn">— ✦ —</div>'
     + '<div class="' + loreClass + '">' + esc(loreText) + '</div>'
     + '<div class="qtags">'
-    + '<div class="qt g">' + stars(q.difficulty || 3) + ' Сложность</div>'
+    + '<div class="qt-class qt-class-' + questClassLetter(q.difficulty) + '"><b>' + questClassLetter(q.difficulty) + '</b> · класс ' + questClassName(q.difficulty) + '</div>'
     + '<div class="qt g">★ Важность ' + (q.importance || 3) + '</div>'
     + (dl ? '<div class="qt ' + (od ? 'd' : '') + '">' + dl + '</div>' : '')
     + '<div class="qt">' + (CAT_ICONS[q.category] || '🌍') + ' ' + (CAT_LABELS[q.category] || 'Жизнь') + '</div>'
