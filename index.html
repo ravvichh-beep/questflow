@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Хроники Судьбы</title>
+<!-- Firebase config (опционально) — облачная синхронизация. Если не настроен — работаем только локально. -->
+<script>
+window.FIREBASE_CONFIG = null; // <- сюда вставить config из Firebase Console для включения sync
+// Пример:
+// window.FIREBASE_CONFIG = {
+//   apiKey: "AIzaSy...",
+//   authDomain: "questflow-XXXX.firebaseapp.com",
+//   projectId: "questflow-XXXX",
+//   storageBucket: "questflow-XXXX.appspot.com",
+//   messagingSenderId: "...",
+//   appId: "1:..."
+// };
+</script>
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#a08040">
@@ -3059,6 +3072,71 @@ body.berserk-mode {
 }
 .quest-mood-tag.gentle{background:rgba(80,140,220,.15);color:#80c0ff;border:1px solid rgba(80,140,220,.3)}
 .quest-mood-tag.epic  {background:rgba(220,60,60,.18);color:#ff8070;border:1px solid rgba(220,60,60,.4);text-shadow:0 0 6px rgba(255,80,60,.4)}
+
+/* App version badge */
+.app-version{
+  display:inline-block;margin-left:10px;
+  font-family:var(--ff-title);font-size:9px;letter-spacing:1.5px;
+  color:var(--text3);opacity:.5;cursor:pointer;
+  padding:2px 6px;border:1px solid transparent;border-radius:var(--r);
+  transition:all .2s;user-select:none;
+}
+.app-version:hover{opacity:1;color:var(--gold);border-color:var(--bdg)}
+
+/* Version info modal */
+.version-modal{max-width:440px;padding:28px;text-align:center}
+.vm-icon{font-size:48px;margin-bottom:12px;color:var(--gold)}
+.vm-title{font-family:var(--ff-title);font-size:18px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+.vm-version{font-family:var(--ff-title);font-size:32px;color:#ffd060;text-shadow:0 0 14px rgba(255,200,80,.5);margin:8px 0;letter-spacing:2px}
+.vm-phase{font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:13px;margin:8px 0}
+.vm-meta{display:flex;justify-content:space-around;margin:16px 0;padding:12px;background:var(--bg);border:1px solid var(--bdg);border-radius:var(--r);font-family:var(--ff-title);font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase}
+.vm-meta div b{display:block;color:var(--gold);font-size:13px;margin-top:4px;letter-spacing:2px}
+.vm-changelog{text-align:left;font-family:var(--ff-body);font-size:12px;color:var(--text2);line-height:1.7;margin:16px 0;max-height:200px;overflow-y:auto;padding-right:6px}
+.vm-changelog h4{font-family:var(--ff-title);font-size:11px;color:var(--gold);letter-spacing:2px;margin:10px 0 4px;text-transform:uppercase}
+.vm-changelog ul{margin:4px 0 8px;padding-left:18px}
+.vm-changelog li{margin:2px 0}
+
+/* Cloud Sync UI */
+.sync-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;margin-right:8px;
+  border:1px solid var(--bdg);border-radius:var(--r);
+  font-family:var(--ff-title);font-size:9px;letter-spacing:1.5px;
+  cursor:pointer;transition:all .2s;
+}
+.sync-badge.sync-synced{color:#80c890;border-color:rgba(128,200,144,.4)}
+.sync-badge.sync-synced .sync-icon{animation:none}
+.sync-badge.sync-syncing{color:#80a0e0;border-color:rgba(128,160,224,.4)}
+.sync-badge.sync-syncing .sync-icon{animation:syncSpin 1.2s linear infinite}
+.sync-badge.sync-error{color:#e08070;border-color:rgba(224,128,112,.4)}
+@keyframes syncSpin {
+  100% { transform: rotate(360deg); }
+}
+.sync-icon{display:inline-block;font-size:11px;line-height:1}
+
+/* Sync setup modal */
+.sync-modal{max-width:560px;padding:28px}
+.sync-section{margin:18px 0;padding:14px;background:var(--bg);border:1px solid var(--bdg);border-radius:var(--r)}
+.sync-section-title{font-family:var(--ff-title);font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.sync-status{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg2);border:1px solid var(--bdm);border-radius:var(--r);font-size:13px}
+.sync-status-icon{font-size:24px}
+.sync-info{font-family:var(--ff-body);font-size:12px;color:var(--text2);line-height:1.6;margin:8px 0}
+.sync-instructions{font-family:var(--ff-body);font-size:12px;color:var(--text2);line-height:1.7}
+.sync-instructions ol{padding-left:20px;margin:8px 0}
+.sync-instructions li{margin:6px 0}
+.sync-instructions code{background:var(--bg);padding:2px 6px;border:1px solid var(--bdg);border-radius:2px;font-family:Consolas,monospace;font-size:11px;color:var(--gold)}
+.sync-google-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;
+  background:#fff;color:#1a1a1a;border:none;border-radius:var(--r);
+  font-family:Arial,sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .2s;
+}
+.sync-google-btn:hover{box-shadow:0 2px 12px rgba(255,255,255,.2);transform:translateY(-1px)}
+.sync-google-icon{
+  width:18px;height:18px;border-radius:50%;
+  background:linear-gradient(45deg,#4285F4,#34A853 25%,#FBBC05 50%,#EA4335 75%);
+}
 </style>
 </head>
 <body>
@@ -3189,8 +3267,11 @@ body.berserk-mode {
     <div class="mood-badge" id="mood-badge" onclick="openM('m-mood')" title="Настроение" style="display:none"></div>
     <button class="apibtn" id="mute-btn" onclick="toggleMute()" title="Звук">🔊</button>
 <button class="apibtn" onclick="openFocusWindow()" title="Режим фокуса">🎯</button>
+    <div class="sync-badge" id="sync-badge" style="display:none" onclick="openM('m-sync')"></div>
+    <button class="apibtn" id="cloud-btn" onclick="openM('m-sync')" title="Облачная синхронизация (показывает инструкции по настройке)">☁</button>
     <button class="apibtn" id="api-btn" onclick="openM('m-api')">⚙ Claude API</button>
     <button class="rbtn" onclick="openM('m-reset')">⚠ Сброс</button>
+    <div class="app-version" id="app-version" title="Версия приложения" onclick="showVersionInfo()">v<span id="app-version-num">2.3.0</span></div>
   </div>
 </div>
 
@@ -3952,6 +4033,43 @@ body.berserk-mode {
   </div>
 </div>
 
+<!-- CLOUD SYNC -->
+<div class="m-overlay" id="m-sync">
+  <div class="modal sync-modal">
+    <button class="m-close" onclick="closeM('m-sync')">✕</button>
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:42px;line-height:1">☁</div>
+      <div style="font-family:var(--ff-title);font-size:18px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-top:6px">Облачная синхронизация</div>
+      <div style="font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:12px;margin-top:4px">Один аккаунт — все устройства</div>
+    </div>
+
+    <div id="sync-status-wrap">
+      <!-- Динамически заполняется через refreshSyncModal() -->
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-o" onclick="closeM('m-sync')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- VERSION INFO -->
+<div class="m-overlay" id="m-version">
+  <div class="modal version-modal">
+    <div class="vm-icon">⚔</div>
+    <div class="vm-title">Хроники Судьбы</div>
+    <div class="vm-version">v<span id="vm-version-num">2.3.0</span></div>
+    <div class="vm-phase" id="vm-phase">Cloud Sync</div>
+    <div class="vm-meta">
+      <div>Сборка<b id="vm-build">—</b></div>
+      <div>Героев живёт<b id="vm-heroes">1</b></div>
+      <div>Квестов выполнено<b id="vm-quests-done">0</b></div>
+    </div>
+    <div class="vm-changelog" id="vm-changelog"></div>
+    <button class="btn btn-g" onclick="closeM('m-version')" style="margin-top:8px">Понял</button>
+  </div>
+</div>
+
 <!-- RANDOM MINI-EVENT (Странный торговец / Древний враг / Звёзды благосклонны) -->
 <div class="m-overlay" id="m-mini-event">
   <div class="modal mini-event-modal">
@@ -3994,8 +4112,57 @@ body.berserk-mode {
 
 <div class="toast" id="toast"></div>
 
+<!-- Firebase ESM SDK — загружается только если config задан -->
+<script type="module">
+if (window.FIREBASE_CONFIG) {
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
+    const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } =
+      await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
+    const { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp, enableIndexedDbPersistence } =
+      await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
+
+    const app = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Оффлайн-кэш Firestore (auto-sync при возвращении в онлайн)
+    try { await enableIndexedDbPersistence(db); } catch(e) { /* tab limit или другая вкладка */ }
+
+    window._fb = {
+      auth, db,
+      provider: new GoogleAuthProvider(),
+      signInWithPopup, signOut, onAuthStateChanged,
+      doc, setDoc, getDoc, onSnapshot, serverTimestamp,
+      ready: true
+    };
+    window.dispatchEvent(new Event('firebase-ready'));
+    console.log('%c☁ Firebase initialized', 'color:#4a90e2;font-weight:bold');
+  } catch(e) {
+    console.error('[Firebase] init failed:', e);
+  }
+}
+</script>
+
 <script>
 'use strict';
+
+// =============================================
+// VERSION
+// =============================================
+// Семантическая версия (MAJOR.MINOR.PATCH):
+//   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
+//   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
+//   PATCH — багфиксы и косметика
+var APP_VERSION = '2.3.0';
+var APP_BUILD_DATE = '2026-05-17';
+var APP_PHASE = 'Cloud Sync';
+
+// Лог в консоль при старте — удобно для дебага
+console.log('%c⚔ QuestFlow v' + APP_VERSION + ' (' + APP_PHASE + ')',
+  'color:#c8a84a;font-size:14px;font-weight:bold;font-family:Palatino,serif');
+console.log('%cBuild: ' + APP_BUILD_DATE + ' · github.com/ravvichh-beep/questflow',
+  'color:#88a6c2;font-size:11px');
 
 // =============================================
 // CONSTANTS — все магические числа в одном месте
@@ -4094,8 +4261,12 @@ function load() {
   } catch(e) { return fresh(); }
 }
 
-function save() {
+function save(opts) {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch(e) { console.error(e); }
+  // Облачная синхронизация (debounced) — если не указано пропустить
+  if (!opts || !opts.skipCloud) {
+    if (typeof debouncedCloudSync === 'function') debouncedCloudSync();
+  }
 }
 
 // =============================================
@@ -6041,6 +6212,387 @@ function pickNarrativePush(type, vars) {
 }
 
 // =============================================
+// PHASE 4 — FIREBASE CLOUD SYNC
+// =============================================
+// Опциональная облачная синхронизация между устройствами.
+// Активируется автоматически если задан window.FIREBASE_CONFIG в <head>
+// и пользователь нажал "Войти через Google".
+//
+// Стратегия:
+//  - Локальный localStorage остаётся главным источником правды
+//  - При логине: мерджим cloud+local по updatedAt каждого квеста
+//  - После save() → debounce 1.5s → пишем в Firestore
+//  - onSnapshot слушает изменения с других устройств → обновляет S
+//  - Конфликты: Last-Write-Wins по updatedAt
+
+var _syncDebounceTimer = null;
+var _syncing = false;
+var _ignoreNextSnapshot = false;
+var _userUid = null;
+var _unsubscribeSnapshot = null;
+
+function fbReady() {
+  return window._fb && window._fb.ready;
+}
+
+function isLoggedIn() {
+  return !!_userUid;
+}
+
+function setupFirebaseAuth() {
+  if (!fbReady()) return;
+  window._fb.onAuthStateChanged(window._fb.auth, function(user) {
+    if (user) {
+      _userUid = user.uid;
+      S._cloudUserEmail = user.email || '';
+      S._cloudUserName  = user.displayName || '';
+      save({ skipCloud: true });
+      onUserSignedIn(user);
+    } else {
+      _userUid = null;
+      if (_unsubscribeSnapshot) { _unsubscribeSnapshot(); _unsubscribeSnapshot = null; }
+      onUserSignedOut();
+    }
+    refreshSyncBadge();
+  });
+}
+
+function signInWithGoogle() {
+  if (!fbReady()) {
+    showToast('☁ Облако не настроено. См. инструкции в Настройках.');
+    return;
+  }
+  window._fb.signInWithPopup(window._fb.auth, window._fb.provider)
+    .then(function(result) {
+      showToast('☁ Вход выполнен: ' + (result.user.email || 'успешно'));
+    })
+    .catch(function(err) {
+      console.error('[Firebase] signin error:', err);
+      showToast('Ошибка входа: ' + (err.message || err.code || 'неизвестно'));
+    });
+}
+
+function signOutCloud() {
+  if (!fbReady()) return;
+  window._fb.signOut(window._fb.auth).then(function() {
+    showToast('☁ Вышли из облака. Локальные данные сохранены.');
+  });
+}
+
+function onUserSignedIn(user) {
+  showToast('☁ Подключаюсь к облаку...');
+  // 1. Загружаем cloud-данные
+  var docRef = window._fb.doc(window._fb.db, 'users', _userUid);
+  window._fb.getDoc(docRef).then(function(snap) {
+    if (snap.exists()) {
+      var cloud = snap.data();
+      var merged = mergeCloudAndLocal(cloud, S);
+      S = merged;
+      save({ skipCloud: true });
+      // Перерисовываем всё
+      try { initAll(); } catch(e) { console.error(e); }
+      showToast('☁ Облачные данные загружены и слиты');
+    } else {
+      // Первый вход на этом аккаунте → загружаем локальное в облако
+      pushToCloud();
+      showToast('☁ Локальные данные загружены в облако');
+    }
+    // Подписываемся на realtime обновления
+    _unsubscribeSnapshot = window._fb.onSnapshot(docRef, function(snap) {
+      if (_ignoreNextSnapshot) { _ignoreNextSnapshot = false; return; }
+      if (!snap.exists()) return;
+      var cloud = snap.data();
+      // Обновляем только если облачное новее локального
+      if ((cloud._cloudUpdatedAt || 0) > (S._cloudUpdatedAt || 0)) {
+        S = mergeCloudAndLocal(cloud, S);
+        save({ skipCloud: true });
+        try { initAll(); } catch(e) {}
+        showToast('☁ Получены изменения с другого устройства');
+      }
+    });
+  }).catch(function(e) {
+    console.error('[Firebase] read error:', e);
+    showToast('☁ Ошибка чтения облака: ' + (e.code || e.message || ''));
+  });
+}
+
+function onUserSignedOut() {
+  // Не очищаем S — пользователь продолжает работать локально
+}
+
+// Мердж: для квестов — last-write-wins по updatedAt каждого квеста.
+// Для остальных полей — берём то, у кого _cloudUpdatedAt новее.
+function mergeCloudAndLocal(cloud, local) {
+  if (!cloud) return local;
+  if (!local) return cloud;
+
+  var cloudTs = cloud._cloudUpdatedAt || 0;
+  var localTs = local._cloudUpdatedAt || 0;
+
+  // Если локальное новее → используем как базу
+  var base = (localTs >= cloudTs) ? local : cloud;
+  var other = (localTs >= cloudTs) ? cloud : local;
+
+  // Спец-обработка квестов: мерджим по ID
+  var allQuests = {};
+  (base.quests || []).forEach(function(q) { allQuests[q.id] = q; });
+  (other.quests || []).forEach(function(q) {
+    var existing = allQuests[q.id];
+    if (!existing) { allQuests[q.id] = q; return; }
+    // Сравниваем по updatedAt квеста
+    var qTs1 = existing.updatedAt || existing.createdAt || 0;
+    var qTs2 = q.updatedAt || q.createdAt || 0;
+    if (qTs2 > qTs1) allQuests[q.id] = q;
+  });
+  base.quests = Object.values(allQuests);
+
+  // То же для журнала и достижений (объединяем уникальные)
+  if (other.journal) {
+    var seenJ = {};
+    base.journal = base.journal || [];
+    base.journal.forEach(function(j) { seenJ[j.title + '_' + j.date] = true; });
+    other.journal.forEach(function(j) {
+      var key = j.title + '_' + j.date;
+      if (!seenJ[key]) { base.journal.push(j); seenJ[key] = true; }
+    });
+    base.journal.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    base.journal = base.journal.slice(0, MAX_JOURNAL_ENTRIES);
+  }
+
+  // Stats: суммируем то что больше (счётчики не должны падать)
+  if (other.stats) {
+    base.stats = base.stats || { totalDone:0, totalXP:0, totalGold:0, daily:{}, cats:{} };
+    base.stats.totalDone  = Math.max(base.stats.totalDone || 0,  other.stats.totalDone || 0);
+    base.stats.totalXP    = Math.max(base.stats.totalXP || 0,    other.stats.totalXP || 0);
+    base.stats.totalGold  = Math.max(base.stats.totalGold || 0,  other.stats.totalGold || 0);
+    // Daily — поэлементный max
+    Object.keys(other.stats.daily || {}).forEach(function(d) {
+      base.stats.daily[d] = Math.max(base.stats.daily[d] || 0, other.stats.daily[d]);
+    });
+    // Cats — поэлементный max
+    Object.keys(other.stats.cats || {}).forEach(function(c) {
+      base.stats.cats[c] = Math.max(base.stats.cats[c] || 0, other.stats.cats[c]);
+    });
+  }
+
+  return base;
+}
+
+function pushToCloud() {
+  if (!fbReady() || !isLoggedIn() || _syncing) return;
+  _syncing = true;
+  var docRef = window._fb.doc(window._fb.db, 'users', _userUid);
+  S._cloudUpdatedAt = Date.now();
+  _ignoreNextSnapshot = true; // следующий snapshot — наш, не реагируем
+  window._fb.setDoc(docRef, S, { merge: false })
+    .then(function() {
+      _syncing = false;
+      refreshSyncBadge('synced');
+    })
+    .catch(function(e) {
+      _syncing = false;
+      console.error('[Firebase] push error:', e);
+      refreshSyncBadge('error');
+    });
+}
+
+function debouncedCloudSync() {
+  if (!isLoggedIn()) return;
+  refreshSyncBadge('syncing');
+  if (_syncDebounceTimer) clearTimeout(_syncDebounceTimer);
+  _syncDebounceTimer = setTimeout(pushToCloud, 1500);
+}
+
+function refreshSyncBadge(status) {
+  var el = document.getElementById('sync-badge');
+  if (!el) return;
+  if (!fbReady() || !isLoggedIn()) {
+    el.style.display = 'none';
+    return;
+  }
+  el.style.display = 'inline-flex';
+  var s = status || 'synced';
+  el.className = 'sync-badge sync-' + s;
+  var icons = { synced:'☁', syncing:'⟳', error:'⚠' };
+  var labels = { synced:'СИНХР.', syncing:'...', error:'ОШИБКА' };
+  el.innerHTML = '<span class="sync-icon">' + icons[s] + '</span><span>' + labels[s] + '</span>';
+  el.title = (S._cloudUserEmail ? S._cloudUserEmail + ' · ' : '') + (s === 'synced' ? 'Синхронизировано' : s === 'syncing' ? 'Идёт загрузка...' : 'Ошибка синхронизации');
+}
+
+// Динамический контент модалки sync
+function refreshSyncModal() {
+  var wrap = document.getElementById('sync-status-wrap');
+  if (!wrap) return;
+
+  // Сценарий 1: Firebase не настроен
+  if (!fbReady()) {
+    wrap.innerHTML =
+      '<div class="sync-section">'
+      +   '<div class="sync-section-title">⚠ Облако не настроено</div>'
+      +   '<div class="sync-info">Сейчас данные хранятся только на этом устройстве. Чтобы синхронизировать с другими — нужен Firebase проект (бесплатный).</div>'
+      + '</div>'
+      + '<div class="sync-section">'
+      +   '<div class="sync-section-title">📋 Как настроить (5 минут)</div>'
+      +   '<div class="sync-instructions">'
+      +     '<ol>'
+      +       '<li>Открой <code>console.firebase.google.com</code></li>'
+      +       '<li>Создай новый проект (например "questflow")</li>'
+      +       '<li>Включи <b>Authentication → Google Sign-in</b></li>'
+      +       '<li>Включи <b>Firestore Database</b> (region: europe-west)</li>'
+      +       '<li>Project Settings → Web App → скопируй <code>firebaseConfig</code></li>'
+      +       '<li>Вставь его в <code>index.html</code> в блок <code>window.FIREBASE_CONFIG = ...</code></li>'
+      +       '<li>Передеплой → перезагрузи страницу</li>'
+      +     '</ol>'
+      +   '</div>'
+      + '</div>';
+    return;
+  }
+
+  // Сценарий 2: Firebase готов, но не залогинен
+  if (!isLoggedIn()) {
+    wrap.innerHTML =
+      '<div class="sync-status">'
+      +   '<div class="sync-status-icon">☁</div>'
+      +   '<div>'
+      +     '<div style="font-family:var(--ff-title);color:var(--gold);font-size:13px">ОБЛАКО ГОТОВО</div>'
+      +     '<div style="color:var(--text2);font-size:12px;margin-top:2px">Войди через Google для синхронизации</div>'
+      +   '</div>'
+      + '</div>'
+      + '<div style="text-align:center;margin:20px 0">'
+      +   '<button class="sync-google-btn" onclick="signInWithGoogle()">'
+      +     '<span class="sync-google-icon"></span>'
+      +     'Войти через Google'
+      +   '</button>'
+      + '</div>'
+      + '<div class="sync-info" style="text-align:center">'
+      +   'При первом входе локальные данные загрузятся в облако. На других устройствах после входа — данные подтянутся.'
+      + '</div>';
+    return;
+  }
+
+  // Сценарий 3: Залогинен и синхронизируется
+  var lastSync = S._cloudUpdatedAt
+    ? new Date(S._cloudUpdatedAt).toLocaleString('ru-RU', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' })
+    : '—';
+  wrap.innerHTML =
+    '<div class="sync-status">'
+    +   '<div class="sync-status-icon" style="color:#80c890">☁</div>'
+    +   '<div style="flex:1">'
+    +     '<div style="font-family:var(--ff-title);color:var(--gold);font-size:13px">СИНХРОНИЗИРОВАНО</div>'
+    +     '<div style="color:var(--text2);font-size:12px;margin-top:2px">' + (S._cloudUserEmail || S._cloudUserName || 'аккаунт') + '</div>'
+    +   '</div>'
+    + '</div>'
+    + '<div class="sync-section">'
+    +   '<div class="sync-section-title">📊 Статус</div>'
+    +   '<div class="sync-info">Последняя синхронизация: <b>' + lastSync + '</b></div>'
+    +   '<div class="sync-info">Все изменения автоматически отправляются в облако через 1.5 секунды после действия.</div>'
+    + '</div>'
+    + '<div class="sync-section">'
+    +   '<div class="sync-section-title">📱 Как подключить второе устройство</div>'
+    +   '<div class="sync-instructions">'
+    +     '<ol>'
+    +       '<li>Открой ту же ссылку на другом устройстве</li>'
+    +       '<li>Нажми ☁ → "Войти через Google"</li>'
+    +       '<li>Используй <b>тот же Google-аккаунт</b></li>'
+    +       '<li>Все данные подтянутся автоматически</li>'
+    +     '</ol>'
+    +   '</div>'
+    + '</div>'
+    + '<div style="text-align:center;margin-top:16px">'
+    +   '<button class="btn btn-o" onclick="signOutCloud()">Выйти из облака</button>'
+    + '</div>';
+}
+
+// =============================================
+// VERSION INFO MODAL
+// =============================================
+var CHANGELOG = [
+  {
+    v: '2.3.0',
+    date: '2026-05-17',
+    title: 'Phase 4 — Cloud Sync',
+    items: [
+      'Опциональная синхронизация через Firebase (Google login)',
+      'Last-Write-Wins resolution по updatedAt каждого квеста',
+      'Мердж stats — берётся max из cloud/local (счётчики не падают)',
+      'Auto-sync 1.5 сек после изменения (debounced)',
+      'Realtime: изменения на одном устройстве видны на других',
+      'Офлайн-кэш через IndexedDB Firestore',
+      'Бейдж синхронизации в топбаре',
+      'Sync-модалка с инструкциями по настройке Firebase'
+    ]
+  },
+  {
+    v: '2.2.0',
+    date: '2026-05-15',
+    title: 'Phase 3 — Adaptive Narrative',
+    items: [
+      'World Mood System: 4 состояния мира (СВЕТЛО/ТЕНЬ/ИСКАЖЕНИЕ)',
+      'Mood-Adaptive Difficulty: настроение даёт +20%/+50% XP',
+      'Berserk Mode: авто-активация при mood "В огне"',
+      'Mentor Trust шкала 0-100',
+      'Голос Наставника (TTS)',
+      '6 случайных мини-событий'
+    ]
+  },
+  {
+    v: '2.1.0',
+    date: '2026-05-15',
+    title: 'Phase 2 — Quick Wins',
+    items: [
+      'Login Streak с наградами на 3/7/14/30/60/100 дней',
+      'Анимация выполнения квеста (вспышка + частицы + звук)',
+      'Случайный лут (15% шанс): 25 предметов',
+      'HP теряется ночью при бездействии',
+      'Magic Moment в онбординге (typewriter-пролог)',
+      'Ритуал конца дня после 21:00',
+      'Нарративные push-уведомления'
+    ]
+  },
+  {
+    v: '2.0.0',
+    date: '2026-05-15',
+    title: 'PWA + Dark Souls Redesign',
+    items: [
+      'PWA: установка на iOS/Android/ПК',
+      'Service Worker, офлайн-режим',
+      'Dark Souls UI: HP/FP бары, медальоны',
+      'Canvas-генератор обложек квестов',
+      'Локальный генератор названий и лора (без API)',
+      'Боевая Концентрация (Pomodoro)',
+      '9 критических багов исправлено'
+    ]
+  },
+  {
+    v: '1.0.0',
+    date: '2026-05-12',
+    title: 'Initial Release',
+    items: [
+      'Базовый геймплей: квесты, прокачка, классы',
+      'Подземелье с боёвкой',
+      'Календарь, Журнал, Архив, Обряды',
+      'Mood Tracker',
+      'AI генерация через Pollinations + Claude API'
+    ]
+  }
+];
+
+function showVersionInfo() {
+  document.getElementById('vm-version-num').textContent = APP_VERSION;
+  document.getElementById('vm-phase').textContent = APP_PHASE;
+  document.getElementById('vm-build').textContent = APP_BUILD_DATE;
+  document.getElementById('vm-heroes').textContent = (S.hero && S.hero.name) ? '1' : '0';
+  document.getElementById('vm-quests-done').textContent = (S.stats && S.stats.totalDone) || 0;
+
+  var changelogHtml = CHANGELOG.map(function(rel) {
+    return '<h4>v' + rel.v + ' — ' + rel.title + '</h4>'
+      + '<ul>' + rel.items.map(function(i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
+  }).join('');
+  document.getElementById('vm-changelog').innerHTML = changelogHtml;
+  openM('m-version');
+}
+
+// =============================================
 // PHASE 3.1 — WORLD MOOD SYSTEM
 // =============================================
 // Состояние мира: bright | neutral | dark | corrupted
@@ -6420,6 +6972,12 @@ function initAll() {
     setInterval(applyWorldMood, 60 * 60 * 1000);
     // Берсерк-таймер — каждую минуту проверяем не закончился ли
     setInterval(refreshBerserkBadge, 60 * 1000);
+    // Firebase — подключаем auth listener если SDK уже загружен или дождёмся события
+    if (fbReady()) {
+      setupFirebaseAuth();
+    } else if (window.FIREBASE_CONFIG) {
+      window.addEventListener('firebase-ready', setupFirebaseAuth, { once: true });
+    }
   }, 500);
 }
 
@@ -7004,6 +7562,7 @@ function addQuest() {
     deadline: document.getElementById('q-deadline').value || null,
     done: false,
     createdAt: new Date().toISOString(),
+    updatedAt: Date.now(),
     fantasyTitle: null, lore: null, loadingLore: false
   };
 
@@ -7102,6 +7661,7 @@ function resolveOD(action) {
 function doComplete(q) {
   q.done = true;
   q.completedAt = new Date().toISOString();
+  q.updatedAt = Date.now();
   var xp   = (q.difficulty || 3) * (q.importance || 3) * 80;
   var gold = (q.difficulty || 3) * (q.importance || 3) * 60;
 
@@ -9094,6 +9654,8 @@ function doReset() {
 function openM(id) {
   document.getElementById(id).classList.add('open');
   sndModal();
+  // Хуки для специфических модалок
+  if (id === 'm-sync' && typeof refreshSyncModal === 'function') refreshSyncModal();
 }
 function closeM(id) { document.getElementById(id).classList.remove('open'); }
 
