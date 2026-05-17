@@ -3137,6 +3137,59 @@ body.berserk-mode {
   width:18px;height:18px;border-radius:50%;
   background:linear-gradient(45deg,#4285F4,#34A853 25%,#FBBC05 50%,#EA4335 75%);
 }
+
+/* ========== PHASE 5: PERSONAL SAGA ========== */
+.saga-modal{max-width:680px;padding:32px;max-height:90vh;overflow-y:auto}
+.saga-header{text-align:center;margin-bottom:20px}
+.saga-icon{font-size:48px;line-height:1;margin-bottom:10px;color:var(--gold)}
+.saga-eyebrow{font-family:var(--ff-title);font-size:10px;letter-spacing:3px;color:var(--text3);text-transform:uppercase}
+.saga-title{font-family:var(--ff-title);font-size:24px;color:var(--gold);letter-spacing:2px;margin:6px 0;text-shadow:0 0 16px rgba(200,168,80,.3)}
+.saga-week{font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:12px}
+.saga-body{
+  font-family:var(--ff-body);font-size:15px;line-height:1.85;color:var(--text);
+  padding:24px 18px;margin:18px 0;
+  background:linear-gradient(180deg,rgba(20,12,8,.5),rgba(8,6,4,.7));
+  border:1px solid var(--bdg);border-radius:var(--r);
+  position:relative;
+}
+.saga-body::before, .saga-body::after{
+  content:'❦';position:absolute;font-size:18px;color:var(--gold);opacity:.5;
+}
+.saga-body::before{top:6px;left:12px}
+.saga-body::after{bottom:6px;right:12px}
+.saga-body p{margin-bottom:14px;text-indent:1.4em}
+.saga-body p:last-child{margin-bottom:0}
+.saga-loading{text-align:center;padding:40px;color:var(--text2);font-style:italic}
+.saga-loading-spinner{display:inline-block;width:32px;height:32px;border:2px solid var(--bdg);border-top-color:var(--gold);border-radius:50%;animation:syncSpin 1s linear infinite;margin-bottom:12px}
+.saga-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.saga-archive{margin-top:24px;border-top:1px solid var(--bdg);padding-top:18px}
+.saga-archive-title{font-family:var(--ff-title);font-size:10px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.saga-archive-list{display:flex;flex-direction:column;gap:8px}
+.saga-archive-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--bg);border:1px solid var(--bdm);border-radius:var(--r);
+  cursor:pointer;transition:all .2s;
+}
+.saga-archive-item:hover{border-color:var(--gold);background:rgba(200,168,80,.05)}
+.saga-archive-week{font-family:var(--ff-title);font-size:11px;color:var(--gold);letter-spacing:1.5px}
+.saga-archive-preview{font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:12px;margin-top:3px;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.saga-locked{text-align:center;padding:30px;color:var(--text2)}
+.saga-locked-icon{font-size:42px;color:var(--text3);margin-bottom:10px}
+
+/* Character page: saga button */
+.saga-cta-block{
+  margin:18px 0;padding:18px;
+  background:linear-gradient(135deg,rgba(60,40,20,.4),rgba(20,12,8,.6));
+  border:1px solid var(--bdg);border-radius:var(--r);text-align:center;
+}
+.saga-cta-title{font-family:var(--ff-title);font-size:13px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.saga-cta-desc{font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:12px;margin-bottom:12px;line-height:1.5}
+.saga-cta-btn{padding:10px 20px;font-size:13px}
+
+/* Share image modal */
+.share-modal{max-width:520px;padding:24px;text-align:center}
+.share-preview{width:100%;max-width:480px;margin:14px auto;border:1px solid var(--bdg);border-radius:var(--r)}
+.share-tip{font-family:var(--ff-body);font-style:italic;color:var(--text2);font-size:12px;margin:12px 0;line-height:1.6}
 </style>
 </head>
 <body>
@@ -3271,7 +3324,7 @@ body.berserk-mode {
     <button class="apibtn" id="cloud-btn" onclick="openM('m-sync')" title="Облачная синхронизация (показывает инструкции по настройке)">☁</button>
     <button class="apibtn" id="api-btn" onclick="openM('m-api')">⚙ Claude API</button>
     <button class="rbtn" onclick="openM('m-reset')">⚠ Сброс</button>
-    <div class="app-version" id="app-version" title="Версия приложения" onclick="showVersionInfo()">v<span id="app-version-num">2.3.0</span></div>
+    <div class="app-version" id="app-version" title="Версия приложения" onclick="showVersionInfo()">v<span id="app-version-num">2.4.0</span></div>
   </div>
 </div>
 
@@ -3440,6 +3493,11 @@ body.berserk-mode {
           <div class="stat-row"><div class="stat-name">ВЫНОСЛ.</div><div class="stat-bar"><div class="stat-fill" id="s-stm" style="background:linear-gradient(90deg,#1a4820,var(--green));width:45%"></div></div><div class="stat-val" id="sv-stm">30</div></div>
           <div class="gold-box"><div class="gold-lbl">КАЗНА</div><div class="gold-val" id="c-gold">🪙 0</div></div>
           <div id="mentor-trust-display" style="margin-top:14px"></div>
+          <div class="saga-cta-block">
+            <div class="saga-cta-title">📜 Личная сага</div>
+            <div class="saga-cta-desc">Летописец пишет историю твоей недели. Открывается по воскресеньям.</div>
+            <button class="btn btn-g saga-cta-btn" onclick="openSaga()">Прочесть сагу</button>
+          </div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:12px">
           <div class="shdr">Достижения</div>
@@ -4033,6 +4091,39 @@ body.berserk-mode {
   </div>
 </div>
 
+<!-- PERSONAL SAGA — еженедельная история героя -->
+<div class="m-overlay" id="m-saga">
+  <div class="modal saga-modal">
+    <button class="m-close" onclick="closeM('m-saga')">✕</button>
+    <div class="saga-header">
+      <div class="saga-icon">📜</div>
+      <div class="saga-eyebrow">Личная Сага</div>
+      <div class="saga-title" id="saga-title">Хроника Седьмого Дня</div>
+      <div class="saga-week" id="saga-week">— —</div>
+    </div>
+    <div id="saga-content"></div>
+    <div class="saga-actions" id="saga-actions"></div>
+    <div class="saga-archive" id="saga-archive-block" style="display:none">
+      <div class="saga-archive-title">📚 Прошлые саги</div>
+      <div class="saga-archive-list" id="saga-archive-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE IMAGE -->
+<div class="m-overlay" id="m-share">
+  <div class="modal share-modal">
+    <button class="m-close" onclick="closeM('m-share')">✕</button>
+    <div style="font-family:var(--ff-title);font-size:14px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Поделиться</div>
+    <img id="share-preview-img" class="share-preview" alt="Превью" />
+    <div class="share-tip">Изображение сохранено в галерею (или загрузится). Можно отправить друзьям.</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+      <button class="btn btn-g" onclick="downloadShareImage()">💾 Скачать</button>
+      <button class="btn btn-o" onclick="nativeShareImage()" id="share-native-btn">📤 Поделиться</button>
+    </div>
+  </div>
+</div>
+
 <!-- CLOUD SYNC -->
 <div class="m-overlay" id="m-sync">
   <div class="modal sync-modal">
@@ -4058,8 +4149,8 @@ body.berserk-mode {
   <div class="modal version-modal">
     <div class="vm-icon">⚔</div>
     <div class="vm-title">Хроники Судьбы</div>
-    <div class="vm-version">v<span id="vm-version-num">2.3.0</span></div>
-    <div class="vm-phase" id="vm-phase">Cloud Sync</div>
+    <div class="vm-version">v<span id="vm-version-num">2.4.0</span></div>
+    <div class="vm-phase" id="vm-phase">Personal Saga</div>
     <div class="vm-meta">
       <div>Сборка<b id="vm-build">—</b></div>
       <div>Героев живёт<b id="vm-heroes">1</b></div>
@@ -4154,9 +4245,9 @@ if (window.FIREBASE_CONFIG) {
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '2.3.0';
+var APP_VERSION = '2.4.0';
 var APP_BUILD_DATE = '2026-05-17';
-var APP_PHASE = 'Cloud Sync';
+var APP_PHASE = 'Personal Saga';
 
 // Лог в консоль при старте — удобно для дебага
 console.log('%c⚔ QuestFlow v' + APP_VERSION + ' (' + APP_PHASE + ')',
@@ -4217,12 +4308,15 @@ function fresh() {
     // HP loss tracking
     lastNightCheck: '',
     // Phase 3 — Adaptive Narrative
-    worldMood: 'neutral',           // bright | neutral | dark | corrupted
-    mentorTrust: 50,                // 0-100 — доверие наставника
-    berserkUntil: 0,                // timestamp когда заканчивается Берсерк
-    lastRandomEvent: 0,             // timestamp последнего случайного события
-    randomEventActive: null,        // активное мини-событие
-    voiceEnabled: true              // включён ли TTS
+    worldMood: 'neutral',
+    mentorTrust: 50,
+    berserkUntil: 0,
+    lastRandomEvent: 0,
+    randomEventActive: null,
+    voiceEnabled: true,
+    // Phase 5 — Social / Saga / Sharing
+    sagas: [],                      // массив еженедельных саг (макс 12)
+    lastSagaWeek: ''                // ISO week ID последней сгенерированной саги (например "2026-W19")
   };
 }
 
@@ -4257,6 +4351,8 @@ function load() {
     if (d.lastRandomEvent === undefined) d.lastRandomEvent = 0;
     if (d.randomEventActive === undefined) d.randomEventActive = null;
     if (d.voiceEnabled === undefined) d.voiceEnabled = true;
+    if (!d.sagas) d.sagas = [];
+    if (d.lastSagaWeek === undefined) d.lastSagaWeek = '';
     return d;
   } catch(e) { return fresh(); }
 }
@@ -6212,6 +6308,508 @@ function pickNarrativePush(type, vars) {
 }
 
 // =============================================
+// PHASE 5.1 — PERSONAL SAGA (еженедельная история)
+// =============================================
+// Один раз в неделю (по воскресеньям после 18:00) герой может прочитать сагу о своей неделе.
+// Если есть Claude API ключ — генерируется через Sonnet, иначе из шаблонов.
+
+function getISOWeek(d) {
+  d = d || new Date();
+  var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  var dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  var weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  return date.getUTCFullYear() + '-W' + String(weekNo).padStart(2, '0');
+}
+
+function getWeekStats() {
+  var today = new Date();
+  var stats = {
+    quests: [],
+    totalXP: 0,
+    totalGold: 0,
+    categories: {},
+    streakDays: S.loginStreak || 0,
+    bestRoutine: null,
+    bestRoutineStreak: 0,
+    moodCounts: {},
+    weekId: getISOWeek(today)
+  };
+
+  for (var i = 0; i < 7; i++) {
+    var date = new Date(today.getTime() - i * ONE_DAY_MS);
+    var dStr = date.toISOString().slice(0, 10);
+    (S.quests || []).forEach(function(q) {
+      if (q.done && q.completedAt && q.completedAt.slice(0, 10) === dStr) {
+        var xp = (q.difficulty || 3) * (q.importance || 3) * 80;
+        var gold = (q.difficulty || 3) * (q.importance || 3) * 60;
+        stats.quests.push({
+          title: q.fantasyTitle || q.title,
+          rawTitle: q.title,
+          category: q.category,
+          difficulty: q.difficulty,
+          date: dStr
+        });
+        stats.totalXP += xp;
+        stats.totalGold += gold;
+        stats.categories[q.category] = (stats.categories[q.category] || 0) + 1;
+      }
+    });
+  }
+
+  (S.routines || []).forEach(function(r) {
+    if ((r.streak || 0) > stats.bestRoutineStreak) {
+      stats.bestRoutineStreak = r.streak;
+      stats.bestRoutine = r.name;
+    }
+  });
+
+  return stats;
+}
+
+function buildLocalSaga(hero, stats) {
+  var name = hero.name || 'Герой';
+  var cls = hero.clsName || 'Странник';
+  var done = stats.quests.length;
+  var topCat = '';
+  var topCatCount = 0;
+  Object.keys(stats.categories).forEach(function(c) {
+    if (stats.categories[c] > topCatCount) { topCatCount = stats.categories[c]; topCat = c; }
+  });
+  var catName = { study:'свитков и фолиантов', work:'железа и стали', health:'тропы и леса',
+                  hobby:'красок и струн', life:'путей и перекрёстков' }[topCat] || 'разных земель';
+
+  var paras = [];
+
+  // Параграф 1 — вступление
+  var intros = [
+    'И вот завершилась седмица, что войдёт в летопись под именем ' + name + '.',
+    'Снова закатилось солнце над седьмым днём, и ' + name + ' оглянулся на путь свой.',
+    'Тихо догорал последний костёр недели, когда ' + name + ', ' + cls.toLowerCase() + ', сел у очага.'
+  ];
+  paras.push(intros[Math.floor(Math.random() * intros.length)]);
+
+  // Параграф 2 — действия
+  if (done === 0) {
+    paras.push('Не было в эту седмицу подвигов, что войдут в баллады. Но и тишина — это шаг. Иногда герою нужно просто переждать бурю.');
+  } else if (done < 5) {
+    paras.push('Совершено было ' + done + (done === 1 ? ' деяние' : done < 5 ? ' деяния' : ' деяний') + ' — немного, но каждое весомое. ' + name + ' шёл путём ' + catName + ', не торопясь, но и не сворачивая.');
+  } else if (done < 12) {
+    paras.push('Свершилось ' + done + ' деяний — путь был трудным, но честным. Имя ' + name + 'а зазвучало в кругу ' + catName + '. Земля помнит каждый его шаг.');
+  } else {
+    paras.push('Двенадцать и более подвигов вместила эта неделя — невиданно для смертного. ' + name + ' прошёл через зал ' + catName + ', словно ураган. Старые враги склонили головы.');
+  }
+
+  // Параграф 3 — упоминание конкретных квестов
+  if (stats.quests.length > 0) {
+    var notable = stats.quests.slice(0, 3).map(function(q) { return '«' + q.title + '»'; });
+    if (notable.length === 1) {
+      paras.push('Среди дел — ' + notable[0] + '. Это было непросто, но герой не дрогнул.');
+    } else if (notable.length === 2) {
+      paras.push('Особо запомнились две битвы: ' + notable[0] + ' и ' + notable[1] + '. Каждая по-своему испытала ' + name + 'а.');
+    } else {
+      paras.push('Запомнятся три деяния: ' + notable.join(', ') + '. Каждое оставило свой след в сердце героя.');
+    }
+  }
+
+  // Параграф 4 — серия / награды
+  if (stats.bestRoutine && stats.bestRoutineStreak >= 3) {
+    paras.push('Не прервалась нить обряда «' + stats.bestRoutine + '» — уже ' + stats.bestRoutineStreak + ' дней подряд. Старые наставники говорят: постоянство — высшая из доблестей.');
+  } else if (stats.streakDays >= 7) {
+    paras.push('Седьмая луна без единого пропуска — ' + stats.streakDays + ' дней. Это уже не привычка, это путь.');
+  }
+
+  // Параграф 5 — заключение
+  var endings = [
+    'Так заканчивается эта глава. Следующая ждёт пера.',
+    'И ушла седмица в архивы. Что напишет следующая?',
+    'Так гаснет очередной костёр. Но пламя — оно живёт в самом ' + name + 'е.',
+    'Закрывается летопись недели. Открывается чистый лист.'
+  ];
+  paras.push(endings[Math.floor(Math.random() * endings.length)]);
+
+  return paras.map(function(p) { return '<p>' + p + '</p>'; }).join('');
+}
+
+async function generateAISaga(hero, stats) {
+  if (!S.apiKey) return null;
+  var questTitles = stats.quests.slice(0, 5).map(function(q) {
+    return '"' + q.title + '" (сложность ' + q.difficulty + ')';
+  }).join(', ');
+  var moodInfo = S.mood && S.mood.value ? 'настроение героя в конце недели: ' + ['','подавленное','усталое','спокойное','хорошее','в огне'][S.mood.value] : '';
+
+  var prompt = 'Ты — древний летописец в стиле скандинавских саг и Толкина. '
+    + 'Напиши эпическую сагу о неделе героя в 3-4 коротких абзацах. '
+    + 'Стиль: торжественный, поэтический, тёмное фэнтези. На русском.\n\n'
+    + 'Данные недели:\n'
+    + '- Герой: ' + hero.name + ' (класс: ' + hero.clsName + ', уровень ' + hero.lvl + ')\n'
+    + '- Выполнено квестов: ' + stats.quests.length + '\n'
+    + (questTitles ? '- Главные дела: ' + questTitles + '\n' : '')
+    + (stats.bestRoutine ? '- Лучшая серия обряда: ' + stats.bestRoutine + ' (' + stats.bestRoutineStreak + ' дней)\n' : '')
+    + '- Серия дней подряд: ' + stats.streakDays + '\n'
+    + (moodInfo ? '- ' + moodInfo + '\n' : '')
+    + '- Состояние мира: ' + S.worldMood + '\n\n'
+    + 'Упомяни 1-2 конкретных квеста по названию. Используй имя героя. '
+    + 'Не используй слова "задача", "todo", "продуктивность". Только метафоры из мира тёмного фэнтези. '
+    + 'Только текст саги, без заголовков и markdown.';
+
+  try {
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': S.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 700,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await r.json();
+    var text = (data.content && data.content[0] && data.content[0].text) || '';
+    if (!text) return null;
+    var paras = text.trim().split(/\n\n+/).filter(function(p) { return p.trim(); });
+    return paras.map(function(p) { return '<p>' + p.trim() + '</p>'; }).join('');
+  } catch(e) {
+    console.error('[Saga] AI error:', e);
+    return null;
+  }
+}
+
+function canReadSagaNow() {
+  // Доступна по воскресеньям после 18:00 ИЛИ если уже в архиве лежит сага этой недели
+  var now = new Date();
+  var currentWeek = getISOWeek(now);
+  var hasThisWeek = (S.sagas || []).some(function(s) { return s.week === currentWeek; });
+  if (hasThisWeek) return true;
+  var isSunday = now.getDay() === 0;
+  var isEvening = now.getHours() >= 18;
+  return isSunday && isEvening;
+}
+
+async function openSaga() {
+  openM('m-saga');
+  refreshSagaModal();
+
+  var now = new Date();
+  var currentWeek = getISOWeek(now);
+
+  // Если для этой недели саги ещё нет — генерируем
+  var existing = (S.sagas || []).find(function(s) { return s.week === currentWeek; });
+  if (existing) return;
+
+  if (!canReadSagaNow()) return; // покажется блок "пока недоступно"
+
+  // Показываем спиннер
+  document.getElementById('saga-content').innerHTML =
+    '<div class="saga-loading"><div class="saga-loading-spinner"></div><div>Летописец берёт перо...</div></div>';
+  document.getElementById('saga-actions').innerHTML = '';
+
+  var hero = S.hero;
+  var stats = getWeekStats();
+  var html = null;
+  var source = 'local';
+
+  if (S.apiKey) {
+    html = await generateAISaga(hero, stats);
+    if (html) source = 'ai';
+  }
+  if (!html) html = buildLocalSaga(hero, stats);
+
+  // Сохраняем
+  var saga = {
+    week: currentWeek,
+    title: 'Хроника седьмого дня',
+    html: html,
+    source: source,
+    createdAt: Date.now(),
+    stats: { questsDone: stats.quests.length, xp: stats.totalXP, gold: stats.totalGold }
+  };
+  S.sagas = S.sagas || [];
+  S.sagas.unshift(saga);
+  if (S.sagas.length > 12) S.sagas = S.sagas.slice(0, 12);
+  S.lastSagaWeek = currentWeek;
+  save();
+
+  refreshSagaModal();
+}
+
+function refreshSagaModal() {
+  var contentEl = document.getElementById('saga-content');
+  var actionsEl = document.getElementById('saga-actions');
+  var titleEl   = document.getElementById('saga-title');
+  var weekEl    = document.getElementById('saga-week');
+  var archBlock = document.getElementById('saga-archive-block');
+  var archList  = document.getElementById('saga-archive-list');
+
+  var now = new Date();
+  var currentWeek = getISOWeek(now);
+  var current = (S.sagas || []).find(function(s) { return s.week === currentWeek; });
+
+  if (current) {
+    titleEl.textContent = current.title;
+    weekEl.textContent = 'Неделя ' + current.week + (current.source === 'ai' ? ' · ✨ AI' : ' · из шаблонов');
+    contentEl.innerHTML = '<div class="saga-body">' + current.html + '</div>';
+    actionsEl.innerHTML =
+      '<button class="btn btn-g" onclick="shareSaga()">📤 Поделиться сагой</button>'
+      + (S.apiKey && current.source !== 'ai' ? '<button class="btn btn-o" onclick="regenerateSaga()">✨ Переписать через AI</button>' : '');
+  } else if (canReadSagaNow()) {
+    // Saga can be generated but we haven't started yet (very rare race condition)
+    titleEl.textContent = 'Готов к новой саге';
+    weekEl.textContent = 'Неделя ' + currentWeek;
+    contentEl.innerHTML = '<div class="saga-loading"><div class="saga-loading-spinner"></div><div>Готовлю перо...</div></div>';
+    actionsEl.innerHTML = '';
+  } else {
+    titleEl.textContent = 'Сага ещё не готова';
+    weekEl.textContent = 'Доступна по воскресеньям после 18:00';
+    contentEl.innerHTML =
+      '<div class="saga-locked">'
+      + '<div class="saga-locked-icon">🌙</div>'
+      + '<div>Личная сага рождается в конце недели.</div>'
+      + '<div style="margin-top:8px;font-style:italic;font-size:13px">Загляни в воскресенье вечером — летописец будет ждать.</div>'
+      + '</div>';
+    actionsEl.innerHTML = '';
+  }
+
+  // Архив
+  var others = (S.sagas || []).filter(function(s) { return s.week !== currentWeek; });
+  if (others.length) {
+    archBlock.style.display = 'block';
+    archList.innerHTML = others.map(function(s) {
+      var preview = (s.html || '').replace(/<[^>]+>/g, '').slice(0, 80);
+      return '<div class="saga-archive-item" onclick="viewArchivedSaga(\'' + s.week + '\')">'
+        + '<div><div class="saga-archive-week">' + s.week + (s.source === 'ai' ? ' · AI' : '') + '</div>'
+        + '<div class="saga-archive-preview">' + preview + '...</div></div>'
+        + '<div style="color:var(--gold)">→</div>'
+        + '</div>';
+    }).join('');
+  } else {
+    archBlock.style.display = 'none';
+  }
+}
+
+function viewArchivedSaga(week) {
+  var saga = (S.sagas || []).find(function(s) { return s.week === week; });
+  if (!saga) return;
+  document.getElementById('saga-title').textContent = saga.title;
+  document.getElementById('saga-week').textContent = 'Неделя ' + saga.week + (saga.source === 'ai' ? ' · ✨ AI' : '');
+  document.getElementById('saga-content').innerHTML = '<div class="saga-body">' + saga.html + '</div>';
+  document.getElementById('saga-actions').innerHTML =
+    '<button class="btn btn-g" onclick="shareSaga(\'' + week + '\')">📤 Поделиться</button>'
+    + '<button class="btn btn-o" onclick="refreshSagaModal()">↩ К текущей саге</button>';
+}
+
+async function regenerateSaga() {
+  if (!S.apiKey) { showToast('Нужен Claude API ключ'); return; }
+  var currentWeek = getISOWeek(new Date());
+  document.getElementById('saga-content').innerHTML =
+    '<div class="saga-loading"><div class="saga-loading-spinner"></div><div>Летописец переписывает...</div></div>';
+  var hero = S.hero;
+  var stats = getWeekStats();
+  var html = await generateAISaga(hero, stats);
+  if (!html) { showToast('Не удалось переписать'); refreshSagaModal(); return; }
+  var existing = (S.sagas || []).find(function(s) { return s.week === currentWeek; });
+  if (existing) { existing.html = html; existing.source = 'ai'; }
+  save();
+  refreshSagaModal();
+}
+
+// =============================================
+// PHASE 5.2 — SHARING (генерация PNG через Canvas)
+// =============================================
+var _shareCanvas = null;
+var _shareBlob = null;
+
+function generateShareImage(payload) {
+  // payload: { type:'saga'|'achievement'|'streak', title, subtitle, body, ... }
+  var W = 1080, H = 1080;
+  var canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  var ctx = canvas.getContext('2d');
+
+  // Фон — градиент
+  var bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0a0608');
+  bg.addColorStop(0.5, '#180c08');
+  bg.addColorStop(1, '#0a0608');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Звёзды / частицы
+  ctx.fillStyle = 'rgba(200,168,80,0.4)';
+  for (var i = 0; i < 80; i++) {
+    var sx = Math.random() * W;
+    var sy = Math.random() * H;
+    var sr = Math.random() * 1.5 + 0.3;
+    ctx.globalAlpha = Math.random() * 0.7 + 0.2;
+    ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Золотая рамка
+  ctx.strokeStyle = '#a08040';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(30, 30, W - 60, H - 60);
+  ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.4;
+  ctx.strokeRect(50, 50, W - 100, H - 100);
+  ctx.globalAlpha = 1;
+
+  // Иконка вверху
+  ctx.fillStyle = '#c8a84a';
+  ctx.font = '120px Palatino, serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(payload.icon || '✦', W / 2, 220);
+
+  // Eyebrow
+  ctx.fillStyle = '#88a6c2';
+  ctx.font = '24px Palatino, serif';
+  ctx.fillText((payload.eyebrow || 'Хроники Судьбы').toUpperCase(), W / 2, 290);
+
+  // Title
+  ctx.fillStyle = '#c8a84a';
+  ctx.font = 'bold 56px Palatino, serif';
+  ctx.shadowColor = 'rgba(200,168,80,0.4)';
+  ctx.shadowBlur = 24;
+  ctx.fillText(payload.title || '', W / 2, 380);
+  ctx.shadowBlur = 0;
+
+  // Subtitle
+  ctx.fillStyle = '#e2d9c4';
+  ctx.font = 'italic 28px Georgia, serif';
+  ctx.fillText(payload.subtitle || '', W / 2, 440);
+
+  // Тело — переносим по строкам
+  ctx.fillStyle = '#e2d9c4';
+  ctx.font = '28px Georgia, serif';
+  ctx.textAlign = 'left';
+  var body = payload.body || '';
+  var maxWidth = W - 200;
+  var lineHeight = 42;
+  var words = body.split(' ');
+  var line = '';
+  var lines = [];
+  for (var w = 0; w < words.length; w++) {
+    var testLine = line + words[w] + ' ';
+    if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+      lines.push(line.trim());
+      line = words[w] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) lines.push(line.trim());
+  if (lines.length > 14) lines = lines.slice(0, 13).concat(['...']);
+  var startY = 530;
+  lines.forEach(function(ln, idx) {
+    ctx.fillText(ln, 100, startY + idx * lineHeight);
+  });
+
+  // Watermark
+  ctx.fillStyle = '#88a6c2';
+  ctx.font = '22px Palatino, serif';
+  ctx.textAlign = 'center';
+  ctx.globalAlpha = 0.7;
+  ctx.fillText('⚔ QUESTFLOW · ХРОНИКИ СУДЬБЫ', W / 2, H - 80);
+  ctx.fillText('eloquent-pie-092094.netlify.app', W / 2, H - 50);
+  ctx.globalAlpha = 1;
+
+  return canvas;
+}
+
+function showShareImage(canvas) {
+  _shareCanvas = canvas;
+  var url = canvas.toDataURL('image/png');
+  document.getElementById('share-preview-img').src = url;
+  // Native Share button — только если поддерживается
+  var nativeBtn = document.getElementById('share-native-btn');
+  if (navigator.share && navigator.canShare) {
+    nativeBtn.style.display = 'inline-block';
+  } else {
+    nativeBtn.style.display = 'none';
+  }
+  openM('m-share');
+}
+
+function downloadShareImage() {
+  if (!_shareCanvas) return;
+  var link = document.createElement('a');
+  link.download = 'questflow-' + Date.now() + '.png';
+  link.href = _shareCanvas.toDataURL('image/png');
+  link.click();
+  showToast('💾 Изображение скачано');
+}
+
+function nativeShareImage() {
+  if (!_shareCanvas || !navigator.share) return;
+  _shareCanvas.toBlob(function(blob) {
+    var file = new File([blob], 'questflow-saga.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        files: [file],
+        title: 'Хроники Судьбы',
+        text: 'Моя личная сага из QuestFlow'
+      }).catch(function() {});
+    }
+  });
+}
+
+function shareSaga(weekId) {
+  weekId = weekId || getISOWeek(new Date());
+  var saga = (S.sagas || []).find(function(s) { return s.week === weekId; });
+  if (!saga) { showToast('Сага не найдена'); return; }
+  var bodyText = (saga.html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  var canvas = generateShareImage({
+    icon: '📜',
+    eyebrow: 'Личная Сага',
+    title: saga.title,
+    subtitle: 'Неделя ' + saga.week + ' · ' + (S.hero.name || 'Герой'),
+    body: bodyText
+  });
+  showShareImage(canvas);
+}
+
+function shareAchievement(achId) {
+  // Совместимо с системой достижений (если будем расширять)
+  var ach = (window.ACHIEVEMENTS || []).find(function(a) { return a.id === achId; });
+  if (!ach) return;
+  var canvas = generateShareImage({
+    icon: ach.icon || '🏆',
+    eyebrow: 'Достижение',
+    title: ach.name,
+    subtitle: S.hero.name + ' · ' + S.hero.clsName,
+    body: ach.desc + '. Это достижение получено в Хрониках Судьбы — приложении, где задачи становятся квестами.'
+  });
+  showShareImage(canvas);
+}
+
+function shareStreak() {
+  if ((S.loginStreak || 0) < 7) { showToast('Серия должна быть от 7 дней'); return; }
+  var canvas = generateShareImage({
+    icon: '🔥',
+    eyebrow: 'Серия Преданности',
+    title: S.loginStreak + ' ДНЕЙ ПОДРЯД',
+    subtitle: S.hero.name + ' держит огонь',
+    body: 'Каждый день — выбор. Каждый день — шаг. ' + S.loginStreak + ' дней без пропусков в Хрониках Судьбы. Лучшая серия: ' + (S.longestLoginStreak || S.loginStreak) + '.'
+  });
+  showShareImage(canvas);
+}
+
+// =============================================
+// PHASE 5.3 — GUILDS (заглушка, ждёт Firebase)
+// =============================================
+// Полноценная реализация требует Firebase с правилами для гильдий.
+// Сейчас — UI-заглушка, чтобы пользователь видел что фича скоро будет.
+
+function showGuildsComingSoon() {
+  showToast('🛡 Гильдии скоро будут — требуется настройка Firebase');
+}
+
+// =============================================
 // PHASE 4 — FIREBASE CLOUD SYNC
 // =============================================
 // Опциональная облачная синхронизация между устройствами.
@@ -6507,6 +7105,23 @@ function refreshSyncModal() {
 // VERSION INFO MODAL
 // =============================================
 var CHANGELOG = [
+  {
+    v: '2.4.0',
+    date: '2026-05-17',
+    title: 'Phase 5 — Personal Saga & Sharing',
+    items: [
+      'Личная Сага — еженедельная история героя (доступна по воскресеньям вечером)',
+      'AI-режим саги через Claude Sonnet (если есть API ключ)',
+      'Локальные шаблоны саги если нет AI — 5 параграфов с динамикой',
+      'Архив всех саг (максимум 12)',
+      'Шаринг саги, достижений, серии — генерация красивых PNG 1080×1080',
+      'Native Share API на телефонах',
+      'Грамматически выверенные названия квестов (16 на категорию)',
+      'Расширенные lore-шаблоны (8 на категорию)',
+      'Заглушка для Гильдий (ждёт Firebase)',
+      'focus.html теперь в корне — мини-окно работает на проде'
+    ]
+  },
   {
     v: '2.3.0',
     date: '2026-05-17',
@@ -7466,13 +8081,39 @@ function questArtHTML(q, w, h, isSide) {
 
 // =============================================
 // LOCAL LORE GENERATOR — мгновенно, без API ключа
+// Грамматически выверенные названия. Каждое — готовая фраза в правильном падеже.
 // =============================================
 var LOCAL_TITLES = {
-  study: ['Испытание Разума','Путь Познания','Свиток Мудрости','Тайна Фолианта','Бремя Знания','Слово Архивиста'],
-  work:  ['Клинок Карьеры','Испытание Воли','Горнило Дел','Честь Трудом','Меч и Труд','Испытание Огнём'],
-  health:['Испытание Плоти','Обряд Силы','Тропа Здоровья','Закалка Духа','Путь Друида','Воля Тела'],
-  hobby: ['Искра Творца','Тайное Ремесло','Грёзы Странника','Зов Хаоса','Путь Артиста','Свободный Дух'],
-  life:  ['Нить Судьбы','Бремя Жизни','Путь Героя','Перекрёсток','Воля и Путь','Дар Судьбы'],
+  study: [
+    'Тайны Древнего Наречия','Свиток Забытых Имён','Путь Хранителя Слов','Голоса Из Прошлого',
+    'Книга, Которая Помнит','Зов Архивных Залов','Шёпот Старых Страниц','Печать Учёного',
+    'Завет Безмолвных Знаков','Звёзды На Полях Рукописи','Песнь Каменных Букв','Память Чёрных Чернил',
+    'Семь Глав Истины','Учение Первых Слов','След Затерянной Идеи','Письмо Из Башни Знаний',
+  ],
+  work: [
+    'Удар По Своду Тьмы','Долг Перед Орденом','Клятва Стали','Битва За Северный Рубеж',
+    'Поход К Замку Дел','Молот И Свеча','Зов Кузницы','Цепь, Что Нельзя Разорвать',
+    'Час Воина','Серебряная Печать Дел','Меч Без Эха','Огни Над Башней Труда',
+    'Возвращение К Наковальне','Право Сильного','Подвиг Сорока Дней','Стена, Что Стоит',
+  ],
+  health: [
+    'Тропа Лесного Стража','Дыхание Корней','Колодец Чистой Воды','Песнь Утреннего Тумана',
+    'Зов Дикого Сердца','Под Сенью Дубов','Восход Над Перевалом','След На Влажной Земле',
+    'Травы Безмолвных Холмов','Бег По Тонкой Кромке','Тёплая Кровь Земли','Сила, Что Растёт',
+    'Час Пробуждения','Камень У Источника','Дыхание Гор','Воля Без Усталости',
+  ],
+  hobby: [
+    'Странствие К Семи Лунам','Песнь Без Слов','Цвет, Которого Нет В Палитре','Танец Со Свечой',
+    'Голос Старого Лютниста','Кисть Без Хозяина','Театр Теней На Стене','Полёт Бумажного Дракона',
+    'Игра С Хрустальным Шаром','Сад Стеклянных Цветов','Карта К Несбывшемуся','Свет, Что Поёт',
+    'Память Незаконченной Картины','Шёпот Скрипичных Струн','Зов Цветной Бури','Дар Странного Снега',
+  ],
+  life: [
+    'Колесо Судьбы','Дорога Между Двух Огней','Перекрёсток Семи Ветров','Двери В Соседний День',
+    'Хроника Малых Шагов','Сумерки Над Площадью','Чашка Чая И Старый Друг','Ключ От Своей Двери',
+    'Голос С Той Стороны Стены','Час Тихой Воды','Письмо, Что Не Пришло','Карман, Полный Мелочей',
+    'Утро После Долгой Ночи','Зеркало В Тёплом Свете','Шаги Знакомого Города','Звон Старых Часов',
+  ],
 };
 
 var LOCAL_LORE = {
@@ -7480,8 +8121,11 @@ var LOCAL_LORE = {
     'Знание — оружие острее любого клинка. Лишь тот, кто владеет им, способен изменить ход событий.',
     'В глубине старых свитков сокрыта сила, о которой забыли даже древние. Этот путь — твой.',
     'Мудрость приходит к тем, кто не боится темноты собственного невежества. Возьми факел и иди.',
-    'Не все сражения ведутся мечом. Самые важные из них — в тёмных залах знания и размышлений.',
+    'Не все сражения ведутся мечом. Самые важные — в тёмных залах знания и размышлений.',
     'Страницы этого квеста хранят ответы, которые изменят тебя навсегда. Готов ли ты?',
+    'Хранители знаний идут туда, где другие отступают. Их оружие — терпение, их щит — внимание.',
+    'То, что кажется скучным с первого взгляда, часто оказывается ключом к великому открытию.',
+    'Каждая прочитанная строка — кирпич в стене, что отделит тебя от тьмы невежества.',
   ],
   work: [
     'Великие дела не рождаются в праздности — они выкованы в поту и упорстве, как сталь в горниле.',
@@ -7489,6 +8133,9 @@ var LOCAL_LORE = {
     'Настоящий воин не ждёт удобного момента. Он создаёт его своими руками.',
     'Дороги к успеху вымощены не удачей, а решимостью тех, кто не боится чёрной работы.',
     'Это испытание проверит не только умения, но и характер. Только достойные дойдут до конца.',
+    'Кузнец не считает удары. Он бьёт, пока металл не примет нужную форму. Так и ты — иди.',
+    'Когда другие говорят «потом», ты говоришь «сейчас». В этом — вся разница.',
+    'Дело, которого боишься, обычно и есть то, что нужно сделать первым.',
   ],
   health: [
     'Тело — первый и последний бастион героя. Укрепи его, пока ещё есть время.',
@@ -7496,13 +8143,19 @@ var LOCAL_LORE = {
     'Даже самый могучий воин падёт, если пренебрежёт своим телом. Не позволь этому случиться.',
     'Обряд закалки — один из древнейших. Пройди его, и почувствуешь, как растёт твоя мощь.',
     'Тропа здоровья ведёт через боль и усилие — но на её конце стоит более сильная версия тебя.',
+    'Лес знает, кто пришёл с уважением, а кто — со спешкой. Замедли шаг и услышь его.',
+    'То, что ты делаешь для тела сегодня, услышит тебя через десять лет. Говори с ним вежливо.',
+    'Не нужно быть быстрее всех. Достаточно быть постояннее всех.',
   ],
   hobby: [
     'Среди хаоса будней лишь творчество даёт душе свободу. Это — твой путь к себе.',
     'Не все сокровища измеряются золотом. Некоторые рождаются в моменты, когда герой просто живёт.',
     'Мир теней не требует от тебя лишь крови и пота. Найди радость — и стань сильнее.',
     'В каждом герое живёт странник, который ищет не цель, а ощущение пути. Позволь ему вырваться.',
-    'Творчество — это магия, доступная смертным. Wielding it is its own kind of power.',
+    'Творчество — это магия, доступная смертным. Владеть ею — своя особая сила.',
+    'То, что делаешь только для себя, никогда не бывает пустой тратой времени.',
+    'Бесполезное дело — часто самое нужное. Серьёзность убивает то, что играет внутри тебя.',
+    'Старые мастера говорили: рука должна знать радость, иначе она не сделает ничего настоящего.',
   ],
   life: [
     'Судьба не спрашивает, готов ли ты. Она просто ставит испытание и ждёт твоего ответа.',
@@ -7510,19 +8163,32 @@ var LOCAL_LORE = {
     'Каждый выбор в повседневном — нить в гобелене твоей судьбы. Выбирай мудро.',
     'Великие приключения начинаются не у ворот дракона, а с одного правильного шага в нужный момент.',
     'Жизнь — это самый длинный квест, что был тебе выдан. Каждое дело в нём важно.',
+    'Мелкие дела — это броня для большого пути. Не пренебрегай ими.',
+    'То, что откладываешь сегодня, придёт к тебе завтра — с процентами.',
+    'Иногда самое мудрое решение — просто сделать то, что нужно. Без слов, без размышлений.',
   ],
 };
 
-var DIFFICULTY_PREFIXES = ['','Малое ','Путь — ','Великое ','Опасное ','Эпическое '];
+// Адъективы по силе квеста — добавляются ОТДЕЛЬНОЙ строкой, не клеятся с заголовком
+var DIFFICULTY_TAGLINES = [
+  '',
+  'Тихое испытание',
+  'Достойное усилие',
+  'Серьёзный вызов',
+  'Опасный путь',
+  'Эпическое деяние'
+];
 
 function genLocalLore(q) {
   var titles = LOCAL_TITLES[q.category] || LOCAL_TITLES.life;
   var lores  = LOCAL_LORE[q.category]  || LOCAL_LORE.life;
-  var seed   = parseInt(q.id.replace(/\D/g,'').slice(-4)) || 1;
-  var prefix = DIFFICULTY_PREFIXES[Math.min(q.difficulty || 3, 5)] || '';
+  var seed   = parseInt(String(q.id || '').replace(/\D/g,'').slice(-6)) || 1;
+  // Используем разные множители для title и lore — больше уникальных комбинаций
+  var titleIdx = (seed * 7) % titles.length;
+  var loreIdx  = (seed * 13 + (q.importance || 1) * 3) % lores.length;
   return {
-    title: prefix + titles[seed % titles.length],
-    lore:  lores[(seed + (q.importance || 1)) % lores.length]
+    title: titles[titleIdx],
+    lore:  lores[loreIdx]
   };
 }
 
