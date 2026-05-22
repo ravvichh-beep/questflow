@@ -808,6 +808,180 @@ button{cursor:pointer;font-family:var(--ff-title)}
   color:var(--text);letter-spacing:1px;
 }
 
+/* ===== V3 CHARACTER OVERRIDES ===== */
+#view-character .char-panel{
+  background:rgba(10,7,6,.72);
+  border:1px solid var(--bdg);
+  border-radius:var(--r2);
+  backdrop-filter:blur(8px);
+}
+#view-character .portrait-wrap{
+  border:2px solid var(--bdg);
+  border-radius:var(--r2);
+  box-shadow:0 0 28px rgba(180,130,40,.22),inset 0 0 12px rgba(0,0,0,.4);
+}
+#view-character .portrait-badge{
+  font-family:var(--ff-title);font-size:9px;letter-spacing:3px;
+  background:rgba(10,7,6,.88);
+  border:1px solid var(--bdg);
+  color:var(--gold);
+  text-shadow:0 0 8px rgba(224,178,90,.4);
+}
+#view-character .cname{
+  font-family:var(--ff-title);
+  color:var(--gold);letter-spacing:4px;
+  text-shadow:0 0 20px rgba(224,178,90,.35);
+}
+#view-character .ccls{
+  font-family:var(--ff-title);
+  color:var(--text2);letter-spacing:3px;
+  text-transform:uppercase;
+}
+#view-character .hero-title-display{
+  font-family:var(--ff-title);
+  color:var(--gold2);letter-spacing:2px;font-size:11px;
+}
+#view-character .xp-mini-bar{
+  background:rgba(10,7,6,.6);
+  border:1px solid rgba(139,100,30,.25);
+  border-radius:4px;
+}
+#view-character .xp-mini-fill{
+  background:linear-gradient(90deg,var(--bdg2),var(--gold));
+}
+#view-character .stat-row{
+  padding:5px 0;
+  border-bottom:1px solid rgba(139,100,30,.12);
+}
+#view-character .stat-name{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--text2);letter-spacing:1.5px;
+}
+#view-character .stat-bar{
+  background:rgba(10,7,6,.55);
+  border:1px solid rgba(139,100,30,.18);
+  border-radius:3px;
+}
+#view-character .stat-val{
+  font-family:var(--ff-title);font-size:11px;
+  color:var(--gold2);
+}
+#view-character .gold-box{
+  background:rgba(10,7,6,.6);
+  border:1px solid var(--bdg);
+  border-radius:var(--r2);
+  margin-top:10px;
+}
+#view-character .gold-lbl{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--text2);letter-spacing:2.5px;
+}
+#view-character .gold-val{
+  font-family:var(--ff-title);font-size:18px;
+  color:var(--gold);
+  text-shadow:0 0 12px rgba(224,178,90,.3);
+}
+#view-character .saga-cta-block{
+  background:rgba(10,7,6,.55);
+  border:1px solid var(--bdg2);
+  border-radius:var(--r2);
+  padding:12px;margin-top:12px;
+}
+#view-character .saga-cta-title{
+  font-family:var(--ff-title);font-size:11px;
+  color:var(--gold);letter-spacing:2px;
+  margin-bottom:5px;
+}
+#view-character .saga-cta-desc{
+  color:var(--text2);font-size:11px;
+  margin-bottom:10px;
+}
+/* right col panels */
+#view-character .char-layout>div:last-child>div{
+  background:rgba(10,7,6,.7) !important;
+  border:1px solid var(--bdg) !important;
+  backdrop-filter:blur(6px);
+}
+#view-character .shdr{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);letter-spacing:3px;
+  border-bottom:1px solid var(--bdg2);
+  padding-bottom:7px;margin-bottom:10px;
+}
+#view-character .ach-grid+.shdr,
+#view-character div+.shdr{margin-top:14px}
+/* achievement cards */
+#view-character .ach-grid .scard,
+#view-character .ach-card{
+  background:rgba(26,18,10,.75);
+  border:1px solid var(--bdg2);
+}
+/* equipment slots */
+#view-character .eslot{
+  background:rgba(10,7,6,.65);
+  border:1px solid var(--bdg2);
+  border-radius:var(--r);
+}
+#view-character .eslbl{
+  font-family:var(--ff-title);font-size:8px;
+  color:var(--text2);letter-spacing:2px;
+}
+#view-character .ename{
+  font-family:var(--ff-title);font-size:11px;
+  color:var(--text);letter-spacing:.5px;
+}
+#view-character .ebonus{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);
+}
+#view-character .eempty{
+  color:rgba(180,150,100,.4);font-style:italic;font-size:10px;
+}
+/* inventory */
+#view-character .inv-item{
+  border-bottom:1px solid rgba(139,100,30,.12);
+  padding:8px 6px;
+  transition:background .2s;
+  border-radius:var(--r);
+}
+#view-character .inv-item:hover{
+  background:rgba(139,100,30,.08);
+}
+#view-character .inv-name{
+  font-family:var(--ff-title);font-size:11px;
+  color:var(--text);
+}
+#view-character .inv-desc{color:var(--text2);font-size:10px}
+#view-character .inv-bonus{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);
+}
+/* shop */
+#view-character .shop-item{
+  background:rgba(10,7,6,.65);
+  border:1px solid var(--bdg2);
+  border-radius:var(--r);
+  transition:all .2s;
+}
+#view-character .shop-item:hover{
+  border-color:var(--gold);
+  background:rgba(26,18,10,.88);
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(180,130,40,.2);
+}
+#view-character .shop-name{
+  font-family:var(--ff-title);font-size:10px;
+  color:var(--text);letter-spacing:.5px;
+}
+#view-character .shop-bonus{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);
+}
+#view-character .shop-price{
+  font-family:var(--ff-title);font-size:11px;
+  color:var(--gold);
+}
+
 /* ===== QUEST VIEW ===== */
 /* === v3 PERGAMENT QUEST CARD — теперь с глубиной и атмосферой === */
 .qcard{
@@ -4032,6 +4206,7 @@ body.berserk-mode {
 <!-- CHARACTER -->
 <div class="view" id="view-character">
   <div class="pad">
+    <div class="v3-screen-title" data-chapter="CAPITULUM II">ХРОНИКИ ГЕРОЯ</div>
     <div class="char-layout">
       <div>
         <div class="char-panel" style="margin-bottom:12px">
