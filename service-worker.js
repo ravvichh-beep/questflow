@@ -1,6 +1,6 @@
 /* QuestFlow Service Worker — офлайн-кэш через cache-first стратегию */
 
-const CACHE_NAME = 'questflow-v3.2.0';
+const CACHE_NAME = 'questflow-v3.3.0';
 const ASSETS = [
   './',
   './index.html',

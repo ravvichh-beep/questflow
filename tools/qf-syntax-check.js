@@ -8,7 +8,7 @@
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '3.2.0';
+var APP_VERSION = '3.3.0';
 var APP_BUILD_DATE = '2026-05-21';
 var APP_PHASE = 'AI-Атмосфера';
 
