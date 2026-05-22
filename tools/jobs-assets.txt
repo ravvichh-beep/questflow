@@ -1,0 +1,10 @@
+assets/covers/study.png|16:9|Dark fantasy quest illustration, an ancient open spellbook with glowing arcane runes on its pages, a quill resting in an inkwell, scattered scrolls, candlelight, close-up, no characters
+assets/covers/work.png|16:9|Dark fantasy quest illustration, a blacksmith forge with a glowing red-hot iron blade on an anvil, a heavy hammer, flying sparks, ember glow, close-up, no characters
+assets/covers/health.png|16:9|Dark fantasy quest illustration, a misty enchanted forest path at dawn, ancient gnarled trees, soft golden light filtering through leaves, mossy stones, serene, no characters
+assets/covers/hobby.png|16:9|Dark fantasy quest illustration, a cozy artisan workshop, a wooden lute, paint pots and brushes, carving tools on a workbench, warm afternoon light, no characters
+assets/covers/life.png|16:9|Dark fantasy quest illustration, a cozy medieval village street at dusk, glowing lantern light, cobblestone road, warm light from cottage windows, no characters
+assets/portraits/p01-warrior.png|3:4|Dark fantasy hero portrait, a battle-hardened male warrior in worn ornate plate armor, determined gaze, a scar across his cheek, short dark hair, dramatic candlelit shadows, head and shoulders
+assets/portraits/p02-keeper.png|3:4|Dark fantasy hero portrait, a wise male scholar mage in a hooded dark robe with arcane embroidery, holding an ancient tome, calm intelligent eyes, grey beard, candlelit, head and shoulders
+assets/portraits/p03-druid.png|3:4|Dark fantasy hero portrait, a serene female druid in leather and living-leaf armor, painted nature markings on her face, flowing auburn hair, calm green eyes, soft forest light, head and shoulders
+assets/portraits/p04-rogue.png|3:4|Dark fantasy hero portrait, a cunning male rogue in a dark hood and leather attire, sly confident smirk, sharp eyes catching torchlight, daggers on his belt, head and shoulders
+assets/portraits/p05-wanderer.png|3:4|Dark fantasy hero portrait, a mysterious weathered traveler in a heavy worn cloak, hood casting shadow over the upper face, stubble, tired knowing eyes, dim moonlight, head and shoulders

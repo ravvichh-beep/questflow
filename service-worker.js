@@ -1,6 +1,6 @@
 /* QuestFlow Service Worker — офлайн-кэш через cache-first стратегию */
 
-const CACHE_NAME = 'questflow-v3.0.0';
+const CACHE_NAME = 'questflow-v3.2.0';
 const ASSETS = [
   './',
   './index.html',
@@ -10,7 +10,24 @@ const ASSETS = [
   './icon-maskable.svg',
   './icon-192.png',
   './icon-512.png',
-  './icon-maskable.png'
+  './icon-maskable.png',
+  './assets/web/bg-quests-board.jpg',
+  './assets/web/bg-library.jpg',
+  './assets/web/bg-dungeon.jpg',
+  './assets/web/bg-shop.jpg',
+  './assets/web/bg-hero-hall.jpg',
+  './assets/web/bg-projects.jpg',
+  './assets/web/bg-calendar.jpg',
+  './assets/web/cover-study.jpg',
+  './assets/web/cover-work.jpg',
+  './assets/web/cover-health.jpg',
+  './assets/web/cover-hobby.jpg',
+  './assets/web/cover-life.jpg',
+  './assets/web/p01-warrior.jpg',
+  './assets/web/p02-keeper.jpg',
+  './assets/web/p03-druid.jpg',
+  './assets/web/p04-rogue.jpg',
+  './assets/web/p05-wanderer.jpg'
 ];
 
 // Установка: складываем критичные ресурсы в кэш

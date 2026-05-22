@@ -92,17 +92,64 @@ window.FIREBASE_CONFIG = null; // <- сюда вставить config из Fireb
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:var(--ff-body);
-  background:var(--bg);
   color:var(--text);
   min-height:100vh;
   overflow-x:hidden;
+  background:
+    /* L5: Точечные источники света (свечи в углах) */
+    radial-gradient(circle at 8% 12%, rgba(244,160,92,0.10) 0%, transparent 22%),
+    radial-gradient(circle at 92% 18%, rgba(184,112,56,0.07) 0%, transparent 25%),
+    radial-gradient(circle at 12% 88%, rgba(139,40,24,0.06) 0%, transparent 30%),
+    radial-gradient(circle at 88% 92%, rgba(212,98,30,0.05) 0%, transparent 28%),
+    /* L4: Атмосферная дымка сверху */
+    radial-gradient(ellipse at 50% -10%, rgba(60,32,12,0.55) 0%, transparent 55%),
+    /* L3: Тёмная виньетка по краям */
+    radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.70) 100%),
+    /* L2: Базовый тёплый чёрный */
+    #0a0706;
+  background-attachment: fixed;
+  position:relative;
 }
-/* Глобальный шум — текстура пергамента поверх всего */
+/* L1: Каменная текстура — SVG noise */
 body::before{
   content:'';
   position:fixed;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events:none;z-index:9999;opacity:.4;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.18 0 0 0 0 0.06 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:1;opacity:.6;
+  mix-blend-mode:overlay;
+}
+/* L6: Плавающие искры (CSS animation) */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  pointer-events:none;z-index:2;
+  background-image:
+    radial-gradient(2px 2px at 12% 25%, rgba(244,160,92,0.7), transparent),
+    radial-gradient(1px 1px at 35% 65%, rgba(212,98,30,0.5), transparent),
+    radial-gradient(1.5px 1.5px at 58% 18%, rgba(244,213,114,0.6), transparent),
+    radial-gradient(1px 1px at 72% 78%, rgba(184,112,56,0.7), transparent),
+    radial-gradient(2px 2px at 85% 38%, rgba(244,160,92,0.4), transparent),
+    radial-gradient(1px 1px at 22% 88%, rgba(244,213,114,0.5), transparent),
+    radial-gradient(1.5px 1.5px at 48% 92%, rgba(212,98,30,0.4), transparent);
+  background-size: 100% 100%;
+  animation: emberFloat 22s ease-in-out infinite alternate;
+}
+@keyframes emberFloat {
+  0%   { transform: translate(0, 0) scale(1); opacity: .5; }
+  25%  { transform: translate(-8px, -12px) scale(1.05); opacity: .8; }
+  50%  { transform: translate(6px, -20px) scale(0.95); opacity: .65; }
+  75%  { transform: translate(-4px, -8px) scale(1.08); opacity: .9; }
+  100% { transform: translate(10px, -16px) scale(1); opacity: .55; }
+}
+/* Глобальный grain поверх всего — даёт киноощущение */
+html::after{
+  content:'';
+  position:fixed;inset:0;
+  pointer-events:none;z-index:9998;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='2' stitchTiles='stitch' seed='12'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  opacity:.5;
+  mix-blend-mode:overlay;
 }
 h1,h2,h3,.title{font-family:var(--ff-title)}
 button{cursor:pointer;font-family:var(--ff-title)}
@@ -194,6 +241,24 @@ button{cursor:pointer;font-family:var(--ff-title)}
 }
 .ob-cls.sel::before{opacity:1}
 .ob-cls-icon{font-size:32px;margin-bottom:10px;display:block;filter:drop-shadow(0 0 8px rgba(255,255,255,.1))}
+/* AI-портрет героя в карточке класса */
+.ob-cls-portrait{
+  width:96px;height:96px;border-radius:50%;
+  object-fit:cover;object-position:center top;
+  margin:0 auto 12px;display:block;
+  border:2px solid var(--gold-deep);
+  box-shadow:0 4px 16px rgba(0,0,0,.6), inset 0 0 12px rgba(0,0,0,.4);
+  filter:saturate(.95) contrast(1.05);
+  transition:all .25s;
+}
+.ob-cls:hover .ob-cls-portrait{
+  border-color:var(--gold);
+  box-shadow:0 6px 22px rgba(0,0,0,.7), 0 0 16px rgba(184,137,63,.35);
+}
+.ob-cls.sel .ob-cls-portrait{
+  border-color:var(--gold2);
+  box-shadow:0 0 20px rgba(224,178,90,.5);
+}
 .ob-cls-name{font-family:var(--ff-title);font-size:13px;color:var(--text);margin-bottom:5px;letter-spacing:.5px}
 .ob-cls-desc{font-size:11px;color:var(--text3);line-height:1.5;font-style:italic}
 /* Новые элементы онбординга */
@@ -279,22 +344,45 @@ button{cursor:pointer;font-family:var(--ff-title)}
 /* ===== LAYOUT ===== */
 #app{display:none}
 .topbar{
-  position:fixed;top:0;left:0;right:0;height:60px;
+  position:fixed;top:0;left:0;right:0;height:64px;
   background:
-    linear-gradient(180deg, rgba(26,18,10,.98), rgba(10,7,6,.98));
-  border-bottom:1px solid rgba(184,137,63,.3);
+    /* Лёгкое ember-свечение под топбаром */
+    linear-gradient(180deg,
+      rgba(36,20,8,0.98) 0%,
+      rgba(20,12,6,0.98) 50%,
+      rgba(10,7,6,0.98) 100%),
+    /* Горизонтальная подсветка от центра — будто факелы по бокам */
+    radial-gradient(ellipse at 20% 100%, rgba(212,98,30,0.18) 0%, transparent 35%),
+    radial-gradient(ellipse at 80% 100%, rgba(212,98,30,0.18) 0%, transparent 35%);
+  border:none;
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px 0 90px;z-index:100;
-  box-shadow:0 2px 24px rgba(0,0,0,.95);
+  padding:0 24px 0 96px;z-index:100;
+  box-shadow:
+    /* Тень от верхней балки */
+    0 6px 24px rgba(0,0,0,.95),
+    /* Внутренний верхний highlight */
+    inset 0 1px 0 rgba(244,213,114,0.1),
+    /* Нижний "тёплый" свет — как от факелов */
+    inset 0 -8px 16px rgba(212,98,30,0.06);
+  backdrop-filter:blur(4px);
 }
-/* Двойная золотая полоса под топбаром (как в Witcher UI) */
+/* Тройная золотая полоса под топбаром (как в Witcher UI) */
 .topbar::before{
-  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
-  background:linear-gradient(90deg, transparent 5%, rgba(184,137,63,.6) 50%, transparent 95%);
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(184,137,63,.3) 10%,
+    rgba(244,213,114,.7) 50%,
+    rgba(184,137,63,.3) 90%,
+    transparent 100%);
+  box-shadow:0 0 12px rgba(244,213,114,.4);
 }
 .topbar::after{
   content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;
-  background:linear-gradient(90deg, transparent 20%, rgba(184,137,63,.2) 50%, transparent 80%);
+  background:linear-gradient(90deg,
+    transparent 15%,
+    rgba(184,137,63,.35) 50%,
+    transparent 85%);
 }
 .logo-block{display:flex;flex-direction:column;gap:1px}
 .logo{
@@ -353,51 +441,88 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .apibtn.set{color:#206040;border-color:rgba(32,96,64,.3)}
 
 /* SIDENAV */
-/* === v3 SIDEBAR — ромбовидные медальоны === */
+/* === v3 SIDEBAR — каменная колонна с резными ромбами === */
 .sidenav{
-  position:fixed;top:60px;left:0;bottom:0;width:70px;
-  background:linear-gradient(180deg, #0a0706 0%, #06040a 100%);
-  border-right:1px solid rgba(184,137,63,.15);
+  position:fixed;top:64px;left:0;bottom:0;width:72px;
+  background:
+    /* Слой 3: Тёплое свечение от факела сверху */
+    radial-gradient(ellipse at 50% 5%, rgba(212,98,30,0.10) 0%, transparent 25%),
+    /* Слой 2: Текстура камня — вертикальные борозды */
+    repeating-linear-gradient(180deg,
+      rgba(28,18,10,0.4) 0px,
+      rgba(40,26,14,0.3) 1px,
+      rgba(28,18,10,0.4) 3px),
+    /* Слой 1: Базовый градиент тёмного камня */
+    linear-gradient(180deg, #1a0e08 0%, #0a0706 50%, #0a0706 100%);
+  border-right:1px solid rgba(184,137,63,.2);
   display:flex;flex-direction:column;align-items:center;
-  padding:18px 0;gap:14px;z-index:99;
-  box-shadow:2px 0 24px rgba(0,0,0,.9);
+  padding:22px 0;gap:18px;z-index:99;
+  box-shadow:
+    /* Глубокая тень — будто sidebar выступает из стены */
+    4px 0 32px rgba(0,0,0,.95),
+    /* Внутренний highlight справа — край колонны */
+    inset -1px 0 0 rgba(184,137,63,.15),
+    /* Внутренняя тень слева — отступ */
+    inset 4px 0 8px rgba(0,0,0,.4);
   overflow-y:auto;overflow-x:visible;
+}
+.sidenav::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:8px;
+  background:linear-gradient(180deg,
+    rgba(212,98,30,0.15) 0%,
+    transparent 100%);
+  pointer-events:none;
 }
 .sidenav::-webkit-scrollbar{display:none}
 .ni{
-  width:44px;height:44px;
+  width:46px;height:46px;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;
-  border:1.5px solid rgba(184,137,63,.35);
+  border:none;
   position:relative;user-select:none;
-  transition:all .25s;
-  background:linear-gradient(135deg, rgba(20,12,8,.7), rgba(10,7,6,.95));
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(60,38,18,0.7) 0%, rgba(20,12,8,0.95) 70%);
   flex-shrink:0;
   /* Ромб через clip-path */
   clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  font-size:18px;
-  color:#b8893f;
+  font-size:20px;
+  color:#8b6420;
+  filter:
+    drop-shadow(2px 2px 4px rgba(0,0,0,.85))
+    drop-shadow(0 0 1px rgba(184,137,63,.4));
 }
 .ni img{
-  width:24px;height:24px;
+  width:26px;height:26px;
   object-fit:cover;
-  filter:brightness(.6) sepia(.3);
-  transition:filter .25s;
+  filter:brightness(.55) sepia(.5) contrast(.9);
+  transition:filter .35s;
   display:block;
 }
 .ni:hover{
-  background:linear-gradient(135deg, rgba(60,40,20,.6), rgba(20,12,8,.95));
+  background:
+    radial-gradient(circle at 30% 30%, rgba(212,98,30,0.35) 0%, rgba(80,40,18,0.85) 50%, rgba(20,12,8,0.95) 100%);
   color:#e0b25a;
-  transform:scale(1.08);
+  transform:scale(1.12) rotate(0deg);
+  filter:
+    drop-shadow(2px 2px 8px rgba(212,98,30,.5))
+    drop-shadow(0 0 2px rgba(244,213,114,.4));
 }
-.ni:hover img{filter:brightness(.9) sepia(.2)}
+.ni:hover img{filter:brightness(.95) sepia(.2) contrast(1)}
 .ni.active{
-  background:linear-gradient(135deg, rgba(184,137,63,.35), rgba(60,40,20,.7));
-  border-color:#e0b25a;
-  color:#f4d572;
-  box-shadow:0 0 20px rgba(224,178,90,.45);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(244,160,92,0.45) 0%, rgba(184,137,63,0.6) 40%, rgba(80,48,20,0.9) 100%);
+  color:#fff0c0;
+  filter:
+    drop-shadow(2px 2px 12px rgba(244,160,92,.6))
+    drop-shadow(0 0 4px rgba(244,213,114,.7));
+  animation:emberPulse 3.5s ease-in-out infinite;
 }
-.ni.active img{filter:brightness(1.1) sepia(.05)}
+.ni.active img{filter:brightness(1.2) sepia(0) saturate(1.2)}
+@keyframes emberPulse {
+  0%, 100% { filter: drop-shadow(2px 2px 12px rgba(244,160,92,.5)) drop-shadow(0 0 4px rgba(244,213,114,.6)); }
+  50%      { filter: drop-shadow(2px 2px 16px rgba(244,160,92,.8)) drop-shadow(0 0 8px rgba(244,213,114,.9)); }
+}
 /* Tooltip справа от ромба */
 .ni-tip{
   position:absolute;left:55px;top:50%;
@@ -436,22 +561,63 @@ button{cursor:pointer;font-family:var(--ff-title)}
 }
 @keyframes badge-pulse{0%,100%{box-shadow:0 0 5px rgba(192,32,32,.5)}50%{box-shadow:0 0 10px rgba(192,32,32,.8)}}
 
-/* MAIN */
+/* MAIN — внутри сцены, фон не нужен (используем тело) */
 .main-wrap{
-  margin-top:60px;margin-left:70px;
-  height:calc(100vh - 60px);overflow-y:auto;
+  margin-top:64px;margin-left:72px;
+  height:calc(100vh - 64px);overflow-y:auto;
   position:relative;
-  background:
-    radial-gradient(ellipse at top, rgba(40,24,12,.4) 0%, transparent 60%),
-    radial-gradient(ellipse at center, rgba(20,12,8,.2) 0%, transparent 80%),
-    #0a0706;
+  background:transparent;
+  z-index:5;
 }
+/* Деревянная доска объявлений как контейнер для квестов */
+.quest-board-frame{
+  position:relative;
+  margin:20px 18px 28px;padding:24px 28px;
+  background:
+    /* Слой дерева — горизонтальные доски */
+    repeating-linear-gradient(90deg,
+      rgba(46,28,14,.92) 0px,
+      rgba(74,42,20,.88) 1px,
+      rgba(46,28,14,.92) 2px),
+    repeating-linear-gradient(180deg,
+      transparent 0,
+      transparent 88px,
+      rgba(0,0,0,0.4) 89px,
+      transparent 92px),
+    linear-gradient(180deg, #2e1c0e 0%, #1f1208 50%, #2e1c0e 100%);
+  border:3px solid #1a0c06;
+  border-radius:4px;
+  box-shadow:
+    /* Внутренняя тень углубления */
+    inset 0 0 80px rgba(0,0,0,0.65),
+    inset 0 2px 4px rgba(74,42,20,0.4),
+    inset 0 -4px 12px rgba(0,0,0,0.5),
+    /* Внешняя — доска "висит" на стене */
+    0 4px 8px rgba(0,0,0,0.6),
+    0 16px 48px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(244,160,92,0.08);
+}
+/* Декоративные металлические уголки */
+.quest-board-frame::before, .quest-board-frame::after{
+  content:'';position:absolute;
+  width:32px;height:32px;
+  background:
+    radial-gradient(circle at 30% 30%, #8b6420 0%, #4a3018 60%, #1a0c06 100%);
+  border:1px solid rgba(184,137,63,.4);
+  box-shadow:
+    inset 0 -1px 2px rgba(0,0,0,.6),
+    inset 0 1px 2px rgba(244,213,114,.2),
+    0 2px 4px rgba(0,0,0,.5);
+  pointer-events:none;z-index:1;
+}
+.quest-board-frame::before{top:-6px;left:-6px;clip-path:polygon(0 0, 100% 0, 100% 30%, 30% 30%, 30% 100%, 0 100%)}
+.quest-board-frame::after{bottom:-6px;right:-6px;clip-path:polygon(70% 0, 100% 0, 100% 100%, 0 100%, 0 70%, 70% 70%)}
 .view{display:none;min-height:100%;position:relative}.view.active{display:block}
 
 /* Фоновая картинка вьюхи */
 .view-bg{
   position:fixed;
-  top:60px;left:70px;right:0;bottom:0;
+  top:64px;left:72px;right:0;bottom:0;
   z-index:0;
   pointer-events:none;
   opacity:0;transition:opacity 1.2s ease;
@@ -460,14 +626,14 @@ button{cursor:pointer;font-family:var(--ff-title)}
   width:100%;height:100%;
   object-fit:cover;object-position:center;
   display:block;
-  filter:brightness(.22) saturate(.7);
+  filter:brightness(.42) saturate(.85) contrast(1.05);
 }
-/* Поверх фона — виньетка */
+/* Поверх фона — виньетка (мягче, чтобы AI-арт был виден) */
 .view-bg::after{
   content:'';position:absolute;inset:0;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(8,8,8,.3) 0%, rgba(8,8,8,.85) 60%),
-    linear-gradient(to bottom, rgba(8,8,8,.5) 0%, rgba(8,8,8,.2) 30%, rgba(8,8,8,.7) 100%);
+    radial-gradient(ellipse at 50% 35%, rgba(10,7,6,.15) 0%, rgba(10,7,6,.62) 75%),
+    linear-gradient(to bottom, rgba(10,7,6,.45) 0%, rgba(10,7,6,.15) 35%, rgba(10,7,6,.6) 100%);
 }
 .view-bg.loaded{opacity:1}
 
@@ -481,22 +647,37 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .pad{padding:22px 26px}
 
 /* ===== QUEST VIEW ===== */
-/* === v3 PERGAMENT QUEST CARD === */
+/* === v3 PERGAMENT QUEST CARD — теперь с глубиной и атмосферой === */
 .qcard{
   background:
-    radial-gradient(ellipse at top left, rgba(232,208,144,.06), transparent 60%),
-    radial-gradient(ellipse at bottom right, rgba(184,137,63,.04), transparent 70%),
-    linear-gradient(135deg, #f4e8c8 0%, #e8d8a8 50%, #e0c890 100%);
+    /* Кофейные пятна — следы времени */
+    radial-gradient(ellipse 80px 60px at 25% 30%, rgba(139,106,58,0.10), transparent 70%),
+    radial-gradient(ellipse 60px 40px at 78% 65%, rgba(139,106,58,0.08), transparent 70%),
+    radial-gradient(ellipse 40px 30px at 12% 78%, rgba(139,40,24,0.06), transparent 70%),
+    /* Постаренные углы */
+    radial-gradient(ellipse at top left, rgba(74,40,16,0.25), transparent 35%),
+    radial-gradient(ellipse at bottom right, rgba(74,40,16,0.20), transparent 35%),
+    radial-gradient(ellipse at top right, rgba(74,40,16,0.18), transparent 30%),
+    radial-gradient(ellipse at bottom left, rgba(74,40,16,0.20), transparent 30%),
+    /* Базовый градиент пергамента */
+    linear-gradient(135deg, #f4e8c8 0%, #e8d8a8 50%, #d8c498 100%);
   color:#3a2818;
   border:none;
   border-radius:0;
-  overflow:visible;margin:0 0 24px 0;
+  overflow:visible;margin:0 0 32px 0;
   box-shadow:
-    inset 0 0 60px rgba(120,80,30,.18),
-    inset 0 0 0 1px rgba(120,80,30,.25),
-    0 6px 24px rgba(0,0,0,.5),
-    0 2px 4px rgba(0,0,0,.35);
-  transition:transform .2s;
+    /* Внутренняя тень — даёт текстуру */
+    inset 0 0 80px rgba(120,80,30,.22),
+    inset 0 0 0 1px rgba(120,80,30,.3),
+    inset 0 2px 6px rgba(244,232,200,.4),
+    /* Внешняя — пергамент "висит на стене" */
+    0 1px 0 rgba(244,232,200,.15),
+    0 4px 8px rgba(0,0,0,.5),
+    0 16px 40px rgba(0,0,0,.7),
+    0 32px 64px rgba(0,0,0,.6),
+    /* Тёплое свечение по периметру (отражённый огонь) */
+    0 0 60px rgba(212,98,30,.05);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
   position:relative;
   /* Рваные края через clip-path */
   clip-path:polygon(
@@ -505,9 +686,13 @@ button{cursor:pointer;font-family:var(--ff-title)}
     88% 99%, 70% 100%, 50% 99%, 30% 100%, 15% 99%, 0% 100%,
     1% 80%, 0% 55%, 1% 30%, 0% 10%
   );
-  padding:8px;
-  margin-left:42px; /* место для сургучной печати */
+  padding:12px;
+  margin-left:42px;
+  /* Лёгкий наклон — пергамент не идеален */
+  transform:rotate(-0.3deg);
 }
+.qcard:nth-child(even){transform:rotate(0.2deg)}
+.qcard:hover{transform:rotate(0) translateY(-3px) scale(1.005)}
 /* Сургучная печать слева сверху — выпирает наружу пергамента */
 .qcard::before{
   content:attr(data-class);
@@ -560,7 +745,7 @@ button{cursor:pointer;font-family:var(--ff-title)}
     calc(-100vw + 14px - 100% + 11px) 0 0 0 transparent;
 }
 
-.qcard:hover{transform:translateY(-2px)}
+/* hover overridden above */
 .qart{height:200px;overflow:hidden;flex-shrink:0;display:block;position:relative;border:1px solid rgba(120,80,30,.4);margin:4px}
 .qart svg{display:block;width:100%;height:100%}
 .qbody{padding:18px 28px 24px;position:relative}
@@ -2967,7 +3152,7 @@ body.wx-storm  { --wx-tint: rgba(40,20,80,.2); }
 body.wx-cloudy { --wx-tint: rgba(30,40,60,.08); }
 .main-wrap::before{
   content:'';position:fixed;
-  top:60px;left:70px;right:0;bottom:0;
+  top:64px;left:72px;right:0;bottom:0;
   background:var(--wx-tint, transparent);
   pointer-events:none;z-index:0;
   transition:background 3s ease;
@@ -3439,25 +3624,25 @@ body.berserk-mode {
       <div class="ob-hint" style="margin-bottom:18px">Класс меняется автоматически по типу твоих квестов</div>
       <div class="ob-classes">
         <div class="ob-cls" onclick="obSelClass('keeper','Хранитель Знаний','study')" data-cls="keeper">
-          <div class="ob-cls-icon">📚</div>
+          <img class="ob-cls-portrait" src="assets/web/p02-keeper.jpg" alt="Хранитель Знаний">
           <div class="ob-cls-name">Хранитель Знаний</div>
           <div class="ob-cls-desc">Учёба и саморазвитие</div>
           <div class="ob-cls-tag">INT · WIS</div>
         </div>
         <div class="ob-cls" onclick="obSelClass('warrior','Воин Дел','work')" data-cls="warrior">
-          <div class="ob-cls-icon">⚔️</div>
+          <img class="ob-cls-portrait" src="assets/web/p01-warrior.jpg" alt="Воин Дел">
           <div class="ob-cls-name">Воин Дел</div>
           <div class="ob-cls-desc">Работа и карьера</div>
           <div class="ob-cls-tag">STR · END</div>
         </div>
         <div class="ob-cls" onclick="obSelClass('druid','Друид Здоровья','health')" data-cls="druid">
-          <div class="ob-cls-icon">🌿</div>
+          <img class="ob-cls-portrait" src="assets/web/p03-druid.jpg" alt="Друид Здоровья">
           <div class="ob-cls-name">Друид Здоровья</div>
           <div class="ob-cls-desc">Тело и дух</div>
           <div class="ob-cls-tag">VIT · AGI</div>
         </div>
         <div class="ob-cls" onclick="obSelClass('rogue','Вольный Странник','hobby')" data-cls="rogue">
-          <div class="ob-cls-icon">🎨</div>
+          <img class="ob-cls-portrait" src="assets/web/p04-rogue.jpg" alt="Вольный Странник">
           <div class="ob-cls-name">Вольный Странник</div>
           <div class="ob-cls-desc">Творчество и хобби</div>
           <div class="ob-cls-tag">CHA · LCK</div>
@@ -3543,7 +3728,7 @@ body.berserk-mode {
     <button class="apibtn" id="cloud-btn" onclick="openM('m-sync')" title="Облачная синхронизация (показывает инструкции по настройке)">☁</button>
     <button class="apibtn" id="api-btn" onclick="openM('m-api')">⚙ Claude API</button>
     <button class="rbtn" onclick="openM('m-reset')">⚠ Сброс</button>
-    <div class="app-version" id="app-version" title="Версия приложения" onclick="showVersionInfo()">v<span id="app-version-num">3.0.0</span></div>
+    <div class="app-version" id="app-version" title="Версия приложения" onclick="showVersionInfo()">v<span id="app-version-num">3.2.0</span></div>
   </div>
 </div>
 
@@ -4369,7 +4554,7 @@ body.berserk-mode {
     <div class="vm-icon">⚔</div>
     <div class="vm-title">Хроники Судьбы</div>
     <div class="vm-version">v<span id="vm-version-num">2.5.0</span></div>
-    <div class="vm-phase" id="vm-phase">Hunter Codex</div>
+    <div class="vm-phase" id="vm-phase">Атмосфера Таверны</div>
     <div class="vm-meta">
       <div>Сборка<b id="vm-build">—</b></div>
       <div>Героев живёт<b id="vm-heroes">1</b></div>
@@ -4464,9 +4649,9 @@ if (window.FIREBASE_CONFIG) {
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '3.0.0';
-var APP_BUILD_DATE = '2026-05-17';
-var APP_PHASE = 'Кодекс Охотника — полный редизайн';
+var APP_VERSION = '3.2.0';
+var APP_BUILD_DATE = '2026-05-21';
+var APP_PHASE = 'AI-Атмосфера';
 
 // Лог в консоль при старте — удобно для дебага
 console.log('%c⚔ QuestFlow v' + APP_VERSION + ' (' + APP_PHASE + ')',
@@ -5641,54 +5826,27 @@ function getDSIconUrl(key) {
     + '?width=128&height=128&seed=' + seed + '&nologo=true&model=flux';
 }
 
+// Локальные AI-фоны (nano-banana-2). Каждый экран → свой атмосферный фон.
+var VIEW_BG_FILES = {
+  quests:    'assets/web/bg-quests-board.jpg',
+  journal:   'assets/web/bg-library.jpg',
+  archive:   'assets/web/bg-library.jpg',
+  projects:  'assets/web/bg-projects.jpg',
+  calendar:  'assets/web/bg-calendar.jpg',
+  routines:  'assets/web/bg-hero-hall.jpg',
+  character: 'assets/web/bg-hero-hall.jpg',
+  stats:     'assets/web/bg-projects.jpg',
+  dungeon:   'assets/web/bg-dungeon.jpg',
+  shop:      'assets/web/bg-shop.jpg',
+};
+
 function getViewBgUrl(view) {
-  var prompt = VIEW_BG_PROMPTS[view] || VIEW_BG_PROMPTS.quests;
-  var seed = view.split('').reduce(function(a,c){ return a + c.charCodeAt(0); }, 0) * 251;
-  return 'https://image.pollinations.ai/prompt/'
-    + encodeURIComponent(prompt + ', dark fantasy art')
-    + '?width=800&height=512&seed=' + seed + '&nologo=true&model=flux';
+  return VIEW_BG_FILES[view] || VIEW_BG_FILES.quests;
 }
 
-// Инициализация иконок навигации
-function initDSIcons() {
-  var navMap = {
-    'ni-quests':    'quests',
-    'ni-journal':   'journal',
-    'ni-projects':  'projects',
-    'ni-calendar':  'calendar',
-    'ni-routines':  'routines',
-    'ni-archive':   'archive',
-    'ni-character': 'character',
-    'ni-stats':     'stats',
-    'ni-dungeon':   'dungeon',
-  };
-
-  // Загружаем AI иконки в фоне с задержкой — эмодзи остаётся пока грузится
-  setTimeout(function() {
-    Object.keys(navMap).forEach(function(id) {
-      var el = document.getElementById(id);
-      if (!el) return;
-      var key = navMap[id];
-      var url = getDSIconUrl(key);
-
-      var img = new Image();
-      img.onload = function() {
-        // Только когда загрузилась — убираем эмодзи и вставляем
-        var tipSpan = el.querySelector('.ni-tip');
-        el.innerHTML = tipSpan ? tipSpan.outerHTML : '';
-        img.style.cssText = 'width:36px;height:36px;object-fit:cover;border-radius:1px;filter:brightness(.35) sepia(.3);transition:filter .2s;display:block';
-        el.insertBefore(img, el.firstChild);
-        el.addEventListener('mouseenter', function() {
-          if (!el.classList.contains('active')) img.style.filter = 'brightness(.6) sepia(.2)';
-        });
-        el.addEventListener('mouseleave', function() {
-          if (!el.classList.contains('active')) img.style.filter = 'brightness(.35) sepia(.3)';
-        });
-      };
-      img.src = url;
-    });
-  }, 2000); // Ждём 2 секунды после инициализации
-}
+// Иконки навигации — используем эмодзи в ромбовидных медальонах (быстро, офлайн).
+// AI-генерация иконок отключена (Pollinations нестабилен).
+function initDSIcons() { /* no-op: эмодзи-навигация */ }
 
 // Фоновые картинки для вьюх
 var _bgCache = {};
@@ -5718,13 +5876,19 @@ function initViewBg(viewName) {
   viewEl.insertBefore(bgDiv, viewEl.firstChild);
 }
 
-// Предзагрузка фонов — только активная вьюха, с задержкой
+// Предзагрузка фонов — локальные файлы лёгкие (~200KB), грузим все сразу
 function preloadViewBgs() {
-  // Грузим только текущую вьюху через 3 секунды
-  setTimeout(function() { initViewBg('quests'); }, 3000);
-  // Остальные — по очереди с большой задержкой
-  setTimeout(function() { initViewBg('dungeon'); }, 8000);
-  setTimeout(function() { initViewBg('character'); }, 13000);
+  initViewBg('quests');
+  // Остальные экраны — через секунду, не блокируя первый кадр
+  setTimeout(function() {
+    Object.keys(VIEW_BG_FILES).forEach(function(v) {
+      if (v !== 'quests') {
+        var img = new Image();
+        img.src = getViewBgUrl(v); // прогрев кэша браузера
+      }
+      initViewBg(v);
+    });
+  }, 1000);
 }
 
 // Обновить HP/FP бары в топбаре
@@ -7380,6 +7544,49 @@ function refreshSyncModal() {
 // =============================================
 var CHANGELOG = [
   {
+    v: '3.2.0',
+    date: '2026-05-21',
+    title: 'AI-Атмосфера — настоящие иллюстрации',
+    items: [
+      '7 AI-фонов экранов (nano-banana-2): таверна, библиотека, каземат, лавка, зал героя, карта, обсерватория',
+      'Масляная живопись в стиле Ведьмак 3 / Dark Souls',
+      '5 AI-обложек категорий квестов (study/work/health/hobby/life)',
+      '5 AI-портретов героев в онбординге (круглые медальоны)',
+      'Фоны экранов стали ярче и виднее (brightness .42, мягче виньетка)',
+      'Убраны нестабильные Pollinations-запросы — всё локально',
+      'Все ассеты оптимизированы: 2.3MB на 17 картинок',
+    ]
+  },
+  {
+    v: '3.1.0',
+    date: '2026-05-18',
+    title: 'Атмосфера Таверны — кинематографичность',
+    items: [
+      'Сцена: 6-слойный фон (камень + виньетка + дымка + свечи + искры + grain)',
+      'Плавающие искры через CSS-анимацию (emberFloat)',
+      'Кинематографический grain поверх всего (mix-blend-mode: overlay)',
+      'Топбар: ember-glow по бокам + тройная золотая полоса с подсветкой',
+      'Sidebar: каменная колонна с вертикальными бороздами + тёплое свечение сверху',
+      'Ромбы навигации: радиальные градиенты, ember-pulse при active',
+      'Пергамент: лёгкий наклон ±0.3°, hover выравнивает',
+      'Глубокие тени пергамента (0 32px 64px) — будто висит на стене',
+      'Кофейные пятна + потёртые углы на пергаменте',
+      'Деревянная доска CSS-класс готов (для будущих экранов)'
+    ]
+  },
+  {
+    v: '3.0.0',
+    date: '2026-05-17',
+    title: 'Кодекс Охотника — полный визуальный редизайн',
+    items: [
+      'Главный экран в пергаментном стиле (Witcher Hunter Codex)',
+      'Сургучная печать слева снаружи пергамента (-26px, -6°)',
+      'Sidebar ромбовидные медальоны (clip-path)',
+      'Боковые квесты как обрывки пергамента',
+      'Рубрика CAPITULUM N + ЗАДАЧА ОХОТНИКА subhead'
+    ]
+  },
+  {
     v: '2.5.0',
     date: '2026-05-17',
     title: 'Hunter Codex — дизайн от Claude Design',
@@ -8360,16 +8567,36 @@ var CAT_GRADIENTS = {
 };
 
 // Build the art HTML — Canvas рисует мгновенно, без сети
+// AI-обложки категорий (nano-banana-2). Fallback — процедурный Canvas-арт.
+var CATEGORY_COVERS = {
+  study:  'assets/web/cover-study.jpg',
+  work:   'assets/web/cover-work.jpg',
+  health: 'assets/web/cover-health.jpg',
+  hobby:  'assets/web/cover-hobby.jpg',
+  life:   'assets/web/cover-life.jpg',
+};
+
 function questArtHTML(q, w, h, isSide) {
   var W    = isSide ? 400 : 800;
   var H    = isSide ? 120 : 300;
   var cls  = isSide ? 'sq-art-img' : 'qart-img';
   var ovl  = isSide ? 'sq-art-overlay' : 'qart-overlay';
-  var uid  = 'canvas-' + (q.id || 'x') + (isSide ? '-s' : '');
-  var dataUrl = generateQuestArt(q, W, H);
+  var uid  = 'art-' + (q.id || 'x') + (isSide ? '-s' : '');
+  var cover = CATEGORY_COVERS[q.category];
+  var imgStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
 
+  if (cover) {
+    // AI-обложка; при ошибке загрузки — подменяем на Canvas-арт
+    var fallback = generateQuestArt(q, W, H);
+    return '<img class="' + cls + '" id="' + uid + '" src="' + cover + '" alt="" '
+      + 'onerror="this.onerror=null;this.src=\'' + fallback + '\';" '
+      + 'style="' + imgStyle + '">'
+      + '<div class="' + ovl + '"></div>';
+  }
+  // Неизвестная категория — Canvas-арт
+  var dataUrl = generateQuestArt(q, W, H);
   return '<img class="' + cls + '" id="' + uid + '" src="' + dataUrl + '" alt="" '
-    + 'style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">'
+    + 'style="' + imgStyle + '">'
     + '<div class="' + ovl + '"></div>';
 }
 
