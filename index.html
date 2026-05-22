@@ -982,6 +982,238 @@ button{cursor:pointer;font-family:var(--ff-title)}
   color:var(--gold);
 }
 
+/* ===== V3 ROUTINES OVERRIDES ===== */
+#view-routines .rtn-sum-card{
+  background:rgba(10,7,6,.72);
+  border:1px solid var(--bdg);
+  backdrop-filter:blur(8px);
+}
+#view-routines .rtn-sum-card::before{background:linear-gradient(90deg,var(--gold),transparent)}
+#view-routines .rtn-sum-val{
+  font-family:var(--ff-title);
+  color:var(--gold);
+  text-shadow:0 0 12px rgba(224,178,90,.3);
+}
+#view-routines .rtn-sum-lbl{color:var(--text2);letter-spacing:2px}
+#view-routines .rtn-card{
+  background:rgba(10,7,6,.72);
+  border:1px solid var(--bdg2);
+  backdrop-filter:blur(6px);
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+#view-routines .rtn-card::before{
+  background:linear-gradient(180deg,rgba(180,130,40,.3),transparent);
+}
+#view-routines .rtn-title{
+  font-family:var(--ff-title);font-size:15px;
+  color:var(--text);letter-spacing:.5px;
+}
+#view-routines .rtn-del-btn{border-color:rgba(139,26,26,.25);color:var(--text2)}
+#view-routines .rtn-pause-btn{border-color:var(--bdg2);color:var(--text2)}
+#view-routines .rtn-day-pip{
+  border-color:var(--bdg2);color:var(--text2);
+  background:rgba(10,7,6,.4);
+}
+#view-routines .rtn-day-pip.active{
+  color:var(--gold);background:rgba(180,130,40,.1);
+  border-color:rgba(180,130,40,.4);
+}
+#view-routines .rtn-day-pip.today{
+  background:var(--gold);color:#0a0706;border-color:var(--gold);
+}
+#view-routines .rtn-streak-val{text-shadow:0 0 10px rgba(255,100,0,.4)}
+#view-routines .rtn-progress-bar{
+  background:rgba(10,7,6,.5);
+  border:1px solid rgba(139,100,30,.2);
+}
+#view-routines .rtn-heatmap-cell{border-radius:2px}
+#view-routines .shdr{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);letter-spacing:3px;
+  border-bottom:1px solid var(--bdg2);padding-bottom:7px;
+}
+#view-routines .add-q{
+  background:rgba(10,7,6,.7);
+  border:1px solid var(--bdg);
+  color:var(--gold);font-family:var(--ff-title);
+  letter-spacing:1px;
+}
+#view-routines .add-q:hover{
+  background:rgba(26,18,10,.9);
+  box-shadow:0 4px 16px rgba(180,130,40,.2);
+}
+
+/* ===== V3 JOURNAL OVERRIDES ===== */
+#view-journal .j-item{
+  background:rgba(10,7,6,.7);
+  border:1px solid var(--bdg2);
+  backdrop-filter:blur(6px);
+  transition:all .2s;
+}
+#view-journal .j-item::before{
+  background:linear-gradient(180deg,var(--green),rgba(40,176,96,.1));
+}
+#view-journal .j-item:hover{
+  background:rgba(26,18,10,.85);
+  border-color:var(--bdg);
+  transform:translateX(4px);
+}
+#view-journal .j-chk{
+  background:rgba(40,176,96,.1);
+  border-color:rgba(40,176,96,.3);
+}
+#view-journal .j-tit{
+  font-family:var(--ff-body);font-style:italic;
+  color:var(--text2);
+}
+#view-journal .j-xp{color:var(--sap)}
+#view-journal .j-gold{color:var(--gold)}
+#view-journal .j-date{color:var(--text3);font-family:var(--ff-title);font-size:8px;letter-spacing:.5px}
+#view-journal .shdr{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);letter-spacing:3px;
+  border-bottom:1px solid var(--bdg2);padding-bottom:7px;
+}
+
+/* ===== V3 ARCHIVE OVERRIDES ===== */
+#view-archive .arc-filters{gap:6px;flex-wrap:wrap}
+#view-archive .arc-filter{
+  background:rgba(10,7,6,.65);
+  border:1px solid var(--bdg2);
+  color:var(--text2);
+  font-family:var(--ff-title);font-size:9px;letter-spacing:1.5px;
+  border-radius:var(--r);padding:5px 12px;
+  transition:all .2s;cursor:pointer;
+}
+#view-archive .arc-filter:hover{border-color:var(--bdg);color:var(--text)}
+#view-archive .arc-filter.active{
+  background:rgba(180,130,40,.15);
+  border-color:var(--gold);color:var(--gold);
+  text-shadow:0 0 8px rgba(224,178,90,.3);
+}
+#view-archive .fi{
+  background:rgba(10,7,6,.7);
+  border:1px solid var(--bdg2);
+  color:var(--text);
+  backdrop-filter:blur(6px);
+}
+#view-archive .fi:focus{border-color:var(--gold)}
+#view-archive .arc-count{
+  font-family:var(--ff-title);font-size:8px;
+  color:var(--text2);letter-spacing:2px;
+  margin-bottom:12px;
+}
+#view-archive .qcard{
+  background:rgba(10,7,6,.7) !important;
+  border:1px solid var(--bdg2) !important;
+}
+#view-archive .shdr{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);letter-spacing:3px;
+  border-bottom:1px solid var(--bdg2);padding-bottom:7px;
+}
+
+/* ===== V3 PROJECTS OVERRIDES ===== */
+#view-projects .p-card{
+  background:rgba(10,7,6,.72);
+  border:1px solid var(--bdg);
+  backdrop-filter:blur(8px);
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+#view-projects .p-card:hover{
+  border-color:var(--gold);
+  box-shadow:0 6px 24px rgba(180,130,40,.18);
+}
+#view-projects .p-name{
+  font-family:var(--ff-title);
+  color:var(--gold);letter-spacing:1px;
+  text-shadow:0 0 14px rgba(224,178,90,.25);
+}
+#view-projects .p-desc{color:var(--text2);font-style:italic}
+#view-projects .p-bar{
+  background:rgba(10,7,6,.5);
+  border:1px solid rgba(139,100,30,.2);
+}
+#view-projects .p-fill{
+  background:linear-gradient(90deg,var(--bdg2),var(--gold));
+  box-shadow:0 0 6px rgba(180,130,40,.3);
+}
+#view-projects .p-lbl{
+  font-family:var(--ff-title);color:var(--text2);letter-spacing:.5px;
+}
+#view-projects .shdr{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);letter-spacing:3px;
+  border-bottom:1px solid var(--bdg2);padding-bottom:7px;
+}
+#view-projects .btn-o{
+  background:rgba(10,7,6,.7);
+  border:1px solid var(--bdg);
+  color:var(--gold);font-family:var(--ff-title);letter-spacing:1px;
+}
+#view-projects .btn-o:hover{
+  background:rgba(26,18,10,.9);
+  box-shadow:0 4px 16px rgba(180,130,40,.2);
+}
+
+/* ===== V3 STATS OVERRIDES ===== */
+#view-stats .scard{
+  background:rgba(10,7,6,.72);
+  border:1px solid var(--bdg);
+  backdrop-filter:blur(8px);
+}
+#view-stats .scard::before{
+  background:linear-gradient(90deg,var(--gold),transparent);
+}
+#view-stats .scard-val{
+  font-family:var(--ff-title);
+  color:var(--gold);
+  text-shadow:0 0 16px rgba(224,178,90,.35);
+}
+#view-stats .scard-lbl{
+  font-family:var(--ff-title);font-size:7px;
+  color:var(--text2);letter-spacing:2.5px;
+}
+#view-stats .scard-sub{color:var(--text3);font-size:10px}
+#view-stats .chart-wrap{
+  background:rgba(10,7,6,.72);
+  border:1px solid var(--bdg);
+  backdrop-filter:blur(8px);
+  border-radius:var(--r2);
+}
+#view-stats .chart-title{
+  font-family:var(--ff-title);font-size:10px;
+  color:var(--gold2);letter-spacing:3px;
+  text-transform:uppercase;
+}
+#view-stats .ctab{
+  background:rgba(10,7,6,.5);
+  border:1px solid var(--bdg2);
+  color:var(--text2);
+  font-family:var(--ff-title);font-size:8px;letter-spacing:1px;
+  border-radius:var(--r);padding:4px 10px;cursor:pointer;transition:all .2s;
+}
+#view-stats .ctab.active{
+  background:rgba(180,130,40,.15);
+  border-color:var(--gold);color:var(--gold);
+}
+#view-stats .ctab:hover:not(.active){border-color:var(--bdg);color:var(--text)}
+#view-stats .streak-wrap{
+  background:rgba(10,7,6,.72);
+  border:1px solid var(--bdg);
+  backdrop-filter:blur(6px);
+}
+#view-stats .streak-val{
+  font-family:var(--ff-title);color:#ff8040;
+  text-shadow:0 0 12px rgba(255,100,0,.4);
+}
+#view-stats .streak-lbl{font-family:var(--ff-title);color:var(--text2);letter-spacing:1.5px}
+#view-stats .shdr{
+  font-family:var(--ff-title);font-size:9px;
+  color:var(--gold2);letter-spacing:3px;
+  border-bottom:1px solid var(--bdg2);padding-bottom:7px;
+}
+
 /* ===== QUEST VIEW ===== */
 /* === v3 PERGAMENT QUEST CARD — теперь с глубиной и атмосферой === */
 .qcard{
@@ -4097,6 +4329,7 @@ body.berserk-mode {
 <!-- ARCHIVE -->
 <div class="view" id="view-archive">
   <div class="pad">
+    <div class="v3-screen-title" data-chapter="CAPITULUM V">АРХИВ СВЕРШЕНИЙ</div>
     <div class="shdr">Архив квестов</div>
 
     <!-- Фильтры -->
@@ -4128,6 +4361,7 @@ body.berserk-mode {
 <!-- JOURNAL -->
 <div class="view" id="view-journal">
   <div class="pad">
+    <div class="v3-screen-title" data-chapter="CAPITULUM IV">ХРОНИКИ ПОБЕД</div>
     <div class="shdr">Хроники побед</div>
     <div id="j-list"></div>
   </div>
@@ -4136,6 +4370,7 @@ body.berserk-mode {
 <!-- PROJECTS -->
 <div class="view" id="view-projects">
   <div class="pad">
+    <div class="v3-screen-title" data-chapter="CAPITULUM VI">ЦЕПОЧКИ КВЕСТОВ</div>
     <div class="shdr">Цепочки квестов</div>
     <div id="p-list"></div>
     <button class="btn btn-o" onclick="openM('m-proj')" style="margin-top:8px">➕ Новый проект</button>
@@ -4145,7 +4380,7 @@ body.berserk-mode {
 <!-- ROUTINES -->
 <div class="view" id="view-routines">
   <div class="pad">
-
+    <div class="v3-screen-title" data-chapter="CAPITULUM III">ОБРЯДЫ СИЛЫ</div>
     <div class="shdr">Обряды Силы</div>
 
     <!-- Статистика рутин -->
@@ -4280,6 +4515,7 @@ body.berserk-mode {
 <!-- STATS -->
 <div class="view" id="view-stats">
   <div class="pad">
+    <div class="v3-screen-title" data-chapter="CAPITULUM VII">ЛЕТОПИСЬ ПОДВИГОВ</div>
     <div class="shdr">Хроники героя</div>
 
     <!-- Карточки-счётчики -->
