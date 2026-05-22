@@ -620,22 +620,40 @@ button{cursor:pointer;font-family:var(--ff-title)}
   top:64px;left:72px;right:0;bottom:0;
   z-index:0;
   pointer-events:none;
-  opacity:0;transition:opacity 1.2s ease;
+  opacity:0;transition:opacity 1.4s ease;
+  overflow:hidden;
 }
 .view-bg img{
-  width:100%;height:100%;
-  object-fit:cover;object-position:center;
+  width:100%;
+  /* Чуть выше контейнера — для параллакс-сдвига */
+  height:115%;
+  object-fit:cover;object-position:center top;
   display:block;
-  filter:brightness(.42) saturate(.85) contrast(1.05);
+  /* Мягкий blur + балансированное затемнение — AI-арт виден */
+  filter:brightness(.52) saturate(.9) contrast(1.05) blur(1.5px);
+  transform:translateY(0);
+  transition:transform .05s linear;
+  will-change:transform;
 }
-/* Поверх фона — виньетка (мягче, чтобы AI-арт был виден) */
+/* Поверх фона — зональная виньетка: верх/низ темнее, середина светлее */
 .view-bg::after{
   content:'';position:absolute;inset:0;
   background:
-    radial-gradient(ellipse at 50% 35%, rgba(10,7,6,.15) 0%, rgba(10,7,6,.62) 75%),
-    linear-gradient(to bottom, rgba(10,7,6,.45) 0%, rgba(10,7,6,.15) 35%, rgba(10,7,6,.6) 100%);
+    linear-gradient(to bottom,
+      rgba(10,7,6,.68) 0%,
+      rgba(10,7,6,.18) 28%,
+      rgba(10,7,6,.22) 62%,
+      rgba(10,7,6,.80) 100%);
 }
 .view-bg.loaded{opacity:1}
+/* Мобайл: отключаем blur и параллакс */
+@media(max-width:640px){
+  .view-bg img{
+    filter:brightness(.48) saturate(.9) contrast(1.05);
+    height:100%;
+    transform:none !important;
+  }
+}
 
 /* Контент поверх фона */
 .view .pad{position:relative;z-index:1}
@@ -5891,6 +5909,40 @@ function preloadViewBgs() {
     });
   }, 1000);
 }
+
+// Параллакс-скролл для фонов вьюх (только десктоп)
+(function initParallax() {
+  if (window.innerWidth <= 640) return;
+  var _ticking = false;
+  var _mainWrap = null;
+  function getScroll() {
+    if (!_mainWrap) _mainWrap = document.querySelector('.main-wrap');
+    return _mainWrap ? _mainWrap.scrollTop : (window.scrollY || 0);
+  }
+  function onScroll() {
+    if (_ticking) return;
+    _ticking = true;
+    requestAnimationFrame(function() {
+      var scrollY = getScroll();
+      var activeView = document.querySelector('.view.active');
+      if (activeView) {
+        var bg = activeView.querySelector('.view-bg img');
+        if (bg) {
+          // Сдвиг 28% от скролла, макс 80px
+          var shift = Math.min(scrollY * 0.28, 80);
+          bg.style.transform = 'translateY(' + shift + 'px)';
+        }
+      }
+      _ticking = false;
+    });
+  }
+  // Вешаем после загрузки DOM
+  window.addEventListener('load', function() {
+    var wrap = document.querySelector('.main-wrap');
+    if (wrap) wrap.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('scroll', onScroll, {passive: true});
+  });
+})();
 
 // Обновить HP/FP бары в топбаре
 function refreshDSVitals() {
