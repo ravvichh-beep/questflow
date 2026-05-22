@@ -4947,8 +4947,8 @@ body.berserk-mode {
   <div class="modal">
     <button class="m-close" onclick="closeM('m-api')">✕</button>
     <div class="m-title">⚙ Claude API</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:13px;font-style:italic">Введи API-ключ Anthropic — Claude будет генерировать фэнтезийные названия и описания квестов.</p>
-    <div class="fg"><label class="flbl">API Key</label><input class="fi" id="api-key-input" type="password" placeholder="sk-ant-api03-..."></div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:10px;font-style:italic">AI-генерация квестов работает автоматически через сервер охотников. Свой ключ — только если хочешь приоритет или сервер недоступен.</p>
+    <div class="fg"><label class="flbl">Личный API-ключ (необязательно)</label><input class="fi" id="api-key-input" type="password" placeholder="sk-ant-api03-..."></div>
     <p style="font-size:11px;color:var(--text3);margin-bottom:12px">Ключ хранится только в localStorage браузера.</p>
     <div class="m-actions">
       <button class="btn btn-g" onclick="saveApiKey()">Сохранить</button>
@@ -5435,8 +5435,72 @@ if (window.FIREBASE_CONFIG) {
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
 var APP_VERSION = '3.3.0';
-var APP_BUILD_DATE = '2026-05-21';
+var APP_BUILD_DATE = '2026-05-22';
 var APP_PHASE = 'AI-Атмосфера';
+
+// ─── Cloudflare Worker (Блок 3) ──────────────────────────────────────────────
+var WORKER_URL = 'https://questflow-api.ravvichh.workers.dev';
+
+// Универсальный вызов worker /api/text
+// Возвращает строку текста или null при ошибке
+async function callWorkerText(prompt, maxTokens) {
+  try {
+    var r = await fetch(WORKER_URL + '/api/text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt, maxTokens: maxTokens || 400 })
+    });
+    if (!r.ok) return null;
+    var d = await r.json();
+    return (d.ok && d.text) ? d.text : null;
+  } catch(e) { return null; }
+}
+
+// Вызов worker /api/quest — возвращает {title, lore} или null
+async function callWorkerQuest(questData) {
+  try {
+    var r = await fetch(WORKER_URL + '/api/quest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(questData)
+    });
+    if (!r.ok) return null;
+    var d = await r.json();
+    if (!d.ok || !d.text) return null;
+    var txt = d.text.replace(/```json|```/g, '').trim();
+    return JSON.parse(txt);
+  } catch(e) { return null; }
+}
+
+// Прямой вызов Anthropic API (fallback, если у пользователя есть свой ключ)
+async function callDirectAnthropic(prompt, maxTokens) {
+  if (!S.apiKey) return null;
+  try {
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': S.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: maxTokens || 400,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var d = await r.json();
+    return (d.content && d.content[0] && d.content[0].text) || null;
+  } catch(e) { return null; }
+}
+
+// Главный AI-хелпер: worker → fallback на прямой API
+async function callAI(prompt, maxTokens) {
+  var text = await callWorkerText(prompt, maxTokens);
+  if (text) return text;
+  return callDirectAnthropic(prompt, maxTokens);
+}
 
 // Лог в консоль при старте — удобно для дебага
 console.log('%c⚔ QuestFlow v' + APP_VERSION + ' (' + APP_PHASE + ')',
@@ -5879,7 +5943,6 @@ function saveQuestNotes() {
 // =============================================
 
 function checkMentorLetter() {
-  if (!S.apiKey) return; // без ключа не работает
 
   var now  = new Date();
   var dow  = now.getDay(); // 0=вс, 1=пн
@@ -5948,57 +6011,23 @@ function showMentorLetter() {
     + '4) Загадочный намёк на то, что ждёт впереди. '
     + 'Стиль: мрачное фэнтези, мудрость, тепло, без пафоса. Только текст письма, без заголовков.';
 
-  if (!S.apiKey) {
-    document.getElementById('mentor-loading').style.display = 'none';
-    var fallbackText = 'Дороги, ' + h.name + '.\n\nЯ следил за тобой из тени. Неделя была непростой, но ты продолжаешь идти — и это главное.\n\nПомни: величие не в скорости, а в постоянстве. Каждый завершённый квест — камень в фундаменте легенды.\n\nТьма впереди гуще, чем кажется. Но и свет — ярче.';
-    var paras = fallbackText.split(/\n\n+/).map(function(p){ return '<p>' + p.trim() + '</p>'; }).join('');
-    var letterEl = document.getElementById('mentor-letter');
-    letterEl.innerHTML = paras;
-    letterEl.style.display = 'block';
-    showMentorVoiceBtn(fallbackText);
-    return;
-  }
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': S.apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 600,
-      messages: [{ role: 'user', content: prompt }]
-    })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    var text = (data.content && data.content[0] && data.content[0].text) || '';
-    if (!text) throw new Error('empty');
-
-    // Разбиваем на абзацы
-    var paras = text.split(/\n\n+/).filter(function(p){ return p.trim(); });
-    var html  = paras.map(function(p){ return '<p>' + p.trim() + '</p>'; }).join('');
-
-    document.getElementById('mentor-loading').style.display = 'none';
-    var letterEl = document.getElementById('mentor-letter');
-    letterEl.innerHTML  = html;
-    letterEl.style.display = 'block';
-    showMentorVoiceBtn(text);
-
-    // Отмечаем что письмо показано
-    S.lastMentorLetter = new Date().toISOString().slice(0, 10);
-    save();
-  })
-  .catch(function() {
-    // Fallback если нет ключа или ошибка
-    document.getElementById('mentor-loading').style.display = 'none';
-    var letterEl = document.getElementById('mentor-letter');
+  // Пробуем worker → fallback на прямой API → статичный текст
+  callAI(prompt, 600).then(function(text) {
     var fbText = 'Дороги, ' + h.name + '.\n\nЯ следил за тобой из тени. Неделя была непростой, но ты продолжаешь идти — и это главное.\n\nПомни: величие не в скорости, а в постоянстве. Каждый завершённый квест — камень в фундаменте легенды.\n\nТьма впереди гуще, чем кажется. Но и свет — ярче.';
-    letterEl.innerHTML = fbText.split(/\n\n+/).map(function(p){ return '<p>' + p.trim() + '</p>'; }).join('');
+    var finalText = text || fbText;
+    var paras = finalText.split(/\n\n+/).filter(function(p){ return p.trim(); });
+    var html = paras.map(function(p){ return '<p>' + p.trim() + '</p>'; }).join('');
+
+    document.getElementById('mentor-loading').style.display = 'none';
+    var letterEl = document.getElementById('mentor-letter');
+    letterEl.innerHTML = html;
     letterEl.style.display = 'block';
-    showMentorVoiceBtn(fbText);
+    showMentorVoiceBtn(finalText);
+
+    if (text) {
+      S.lastMentorLetter = new Date().toISOString().slice(0, 10);
+      save();
+    }
   });
 }
 
@@ -7691,7 +7720,6 @@ function buildLocalSaga(hero, stats) {
 }
 
 async function generateAISaga(hero, stats) {
-  if (!S.apiKey) return null;
   var questTitles = stats.quests.slice(0, 5).map(function(q) {
     return '"' + q.title + '" (сложность ' + q.difficulty + ')';
   }).join(', ');
@@ -7713,22 +7741,7 @@ async function generateAISaga(hero, stats) {
     + 'Только текст саги, без заголовков и markdown.';
 
   try {
-    var r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': S.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 700,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    var data = await r.json();
-    var text = (data.content && data.content[0] && data.content[0].text) || '';
+    var text = await callAI(prompt, 700);
     if (!text) return null;
     var paras = text.trim().split(/\n\n+/).filter(function(p) { return p.trim(); });
     return paras.map(function(p) { return '<p>' + p.trim() + '</p>'; }).join('');
@@ -7772,10 +7785,8 @@ async function openSaga() {
   var html = null;
   var source = 'local';
 
-  if (S.apiKey) {
-    html = await generateAISaga(hero, stats);
-    if (html) source = 'ai';
-  }
+  html = await generateAISaga(hero, stats);
+  if (html) source = 'ai';
   if (!html) html = buildLocalSaga(hero, stats);
 
   // Сохраняем
@@ -7814,7 +7825,7 @@ function refreshSagaModal() {
     contentEl.innerHTML = '<div class="saga-body">' + current.html + '</div>';
     actionsEl.innerHTML =
       '<button class="btn btn-g" onclick="shareSaga()">📤 Поделиться сагой</button>'
-      + (S.apiKey && current.source !== 'ai' ? '<button class="btn btn-o" onclick="regenerateSaga()">✨ Переписать через AI</button>' : '');
+      + (current.source !== 'ai' ? '<button class="btn btn-o" onclick="regenerateSaga()">✨ Переписать через AI</button>' : '');
   } else if (canReadSagaNow()) {
     // Saga can be generated but we haven't started yet (very rare race condition)
     titleEl.textContent = 'Готов к новой саге';
@@ -7862,7 +7873,6 @@ function viewArchivedSaga(week) {
 }
 
 async function regenerateSaga() {
-  if (!S.apiKey) { showToast('Нужен Claude API ключ'); return; }
   var currentWeek = getISOWeek(new Date());
   document.getElementById('saga-content').innerHTML =
     '<div class="saga-loading"><div class="saga-loading-spinner"></div><div>Летописец переписывает...</div></div>';
@@ -9591,42 +9601,48 @@ function addQuest() {
   renderQuests();
   showToast('⚔ Квест «' + title + '» принят!');
 
-  // Если есть ключ Claude — перезаписывает более качественным текстом
-  if (S.apiKey) { genLore(q); }
+  // Worker генерирует фэнтезийное название и lore для квеста
+  genLore(q);
 }
 
 async function genLore(q) {
   q.loadingLore = true;
   renderQuests();
-  var prompt = 'Ты — нарратор тёмного фэнтези в стиле Ведьмака и Dragon Age.\n'
-    + 'Задача: "' + q.title + '"\n'
-    + 'Описание: "' + (q.description || 'нет') + '"\n'
-    + 'Категория: ' + (CAT_LABELS[q.category] || q.category) + '\n'
-    + 'Сложность: ' + q.difficulty + '/5\n\n'
-    + 'Ответь ТОЛЬКО валидным JSON без markdown:\n'
-    + '{"title":"Фэнтезийное название 2-5 слов на русском","lore":"Описание 1-3 предложения в стиле тёмного фэнтези на русском'
-    + (q.difficulty >= 4 ? ', очень эпично и драматично' : q.difficulty <= 2 ? ', коротко' : '')
-    + '"}\n'
-    + 'Не используй слова: задача, задание, цель. Используй: квест, миссия, путь, испытание.';
 
   try {
-    var r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': S.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 250, messages: [{ role: 'user', content: prompt }] })
+    // Попытка 1: worker /api/quest
+    var parsed = await callWorkerQuest({
+      title: q.title,
+      category: q.category,
+      difficulty: q.difficulty,
+      description: q.description || ''
     });
-    var data = await r.json();
-    var txt = ((data.content && data.content[0] && data.content[0].text) || '').replace(/```json|```/g, '').trim();
-    if (!txt) throw new Error('Empty response from Claude API');
-    var parsed = JSON.parse(txt);
-    q.fantasyTitle = parsed.title;
-    q.lore = parsed.lore;
-  } catch(e) { console.error(e); }
+
+    // Попытка 2: прямой Anthropic API (если у пользователя есть свой ключ)
+    if (!parsed && S.apiKey) {
+      var prompt = 'Ты — нарратор тёмного фэнтези в стиле Ведьмака и Dragon Age.\n'
+        + 'Задача: "' + q.title + '"\n'
+        + 'Описание: "' + (q.description || 'нет') + '"\n'
+        + 'Категория: ' + (CAT_LABELS[q.category] || q.category) + '\n'
+        + 'Сложность: ' + q.difficulty + '/5\n\n'
+        + 'Ответь ТОЛЬКО валидным JSON без markdown:\n'
+        + '{"title":"Фэнтезийное название 2-5 слов на русском","lore":"Описание 1-3 предложения в стиле тёмного фэнтези на русском'
+        + (q.difficulty >= 4 ? ', очень эпично и драматично' : q.difficulty <= 2 ? ', коротко' : '')
+        + '"}\n'
+        + 'Не используй слова: задача, задание, цель. Используй: квест, миссия, путь, испытание.';
+      var txt = await callDirectAnthropic(prompt, 250);
+      if (txt) {
+        txt = txt.replace(/```json|```/g, '').trim();
+        parsed = JSON.parse(txt);
+      }
+    }
+
+    if (parsed) {
+      q.fantasyTitle = parsed.title;
+      q.lore = parsed.lore;
+    }
+  } catch(e) { console.error('[genLore]', e); }
+
   q.loadingLore = false;
   save();
   renderQuests();
@@ -11503,19 +11519,16 @@ function sendPush(title, body) {
 // AI CONGRATS
 // =============================================
 async function maybeAICongrats() {
-  if (!S.apiKey || S.stats.totalDone % 5 !== 0 || S.stats.totalDone === 0) return;
+  if (S.stats.totalDone % 5 !== 0 || S.stats.totalDone === 0) return;
   var now = Date.now();
   if (now - (S.lastCongrats || 0) < 3 * ONE_DAY_MS) return;
   S.lastCongrats = now; save();
   try {
-    var r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:100, messages:[{ role:'user', content:'Ты — старый ведьмак-наставник. Герой ' + S.hero.name + ' выполнил ' + S.stats.totalDone + ' квестов. Поздравь его в 1-2 предложения, тёмное фэнтези, с мрачным юмором. Только текст.' }] })
-    });
-    var data = await r.json();
-    var congratsText = data.content && data.content[0] && data.content[0].text;
-    if (congratsText) showToast('🗡 ' + congratsText.trim());
+    var text = await callAI(
+      'Ты — старый ведьмак-наставник. Герой ' + S.hero.name + ' выполнил ' + S.stats.totalDone + ' квестов. Поздравь его в 1-2 предложения, тёмное фэнтези, с мрачным юмором. Только текст.',
+      100
+    );
+    if (text) showToast('🗡 ' + text.trim());
   } catch(e) { console.error(e); }
 }
 
