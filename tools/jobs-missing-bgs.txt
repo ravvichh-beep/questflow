@@ -1,0 +1,4 @@
+assets/bg/bg-routines.png|16:9|medieval monastery courtyard at dusk, stone arches, rows of candles on wooden tables, monks robes hanging, misty courtyard, ritual atmosphere
+assets/bg/bg-archive.png|16:9|ancient underground vault with dusty grimoires and scrolls, stone shelves carved into walls, flickering torches, parchment and wax seals, forgotten knowledge
+assets/bg/bg-stats.png|16:9|wizard tower interior with brass astrolabes and star charts on walls, glowing crystal orbs, maps pinned with daggers, hourglass and quill, magical observatory at night
+assets/bg/bg-bestiary.png|16:9|medieval scriptorium with illuminated manuscripts open on wooden desks, inkwells and quills, shelves of leather-bound monster tomes, candlelight and shadows
