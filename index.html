@@ -1643,8 +1643,8 @@ button{cursor:pointer;font-family:var(--ff-title)}
 /* === v3 SIDE QUEST — потёртые пергаментные записки с AI-фоном === */
 .sq-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
 .sq{
-  /* Фон — AI-сгенерированная потёртая записка (note-side.png) */
-  background-image:url('assets/web/note-side.png');
+  /* Фон — AI-сгенерированная потёртая записка (note-side.jpg) */
+  background-image:url('assets/web/note-side.jpg');
   background-size:cover;
   background-position:center;
   /* Поверх — лёгкий пергаментный тинт для текста */
@@ -9297,7 +9297,7 @@ function buildMainQuestHTML(q, nextQ) {
   var letter = questClassLetter(q.difficulty);
   // Свиток: AI-изображение как рамка + контент поверх
   return '<div class="scroll-quest" data-quest-id="' + q.id + '">'
-    + '<img class="scroll-quest-img" src="assets/web/scroll-main.png" alt="" aria-hidden="true">'
+    + '<img class="scroll-quest-img" src="assets/web/scroll-main.jpg" alt="" aria-hidden="true" loading="lazy">'
     + '<div class="scroll-body">'
     + '<div class="qrubric" style="color:#8b6a3a;margin-bottom:8px">· CAPITULUM ' + toRoman(S.stats.totalDone + 1) + ' ·</div>'
     + '<div class="qart" style="margin:0 -36px 16px;border-left:none;border-right:none">' + questArtHTML(q) + '</div>'
@@ -11211,13 +11211,8 @@ function showDayPanel(dateStr) {
 
 // Главный рендер календаря
 function renderCalendar() {
-  var nameEl = document.getElementById('cal-month-name');
-  var subEl  = document.getElementById('cal-month-sub');
-  var grid   = document.getElementById('cal-grid');
-  if (!nameEl || !grid) return;
-
-  nameEl.textContent = CAL_MONTH_NAMES[calMonth] + ' ' + calYear;
-  subEl.textContent  = CAL_MONTH_RPG[calMonth];
+  var grid = document.getElementById('cal-grid');
+  if (!grid) return;
 
   var today    = new Date().toISOString().slice(0,10);
   var events   = S.events || [];
