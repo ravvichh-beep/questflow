@@ -1031,6 +1031,7 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .cal-week-day{
   background:rgba(10,7,6,.65);
   border:1px solid var(--bdg2);
+  min-height:80px;
   border-radius:var(--r2);
   padding:10px 4px 8px;
   text-align:center;cursor:pointer;
@@ -1074,6 +1075,32 @@ button{cursor:pointer;font-family:var(--ff-title)}
 }
 .cal-wday-dot.quest-dot{background:var(--gold2)}
 .cal-wday-dot.deadline-dot{background:var(--red2)}
+
+/* Квест/событие как мини-чип в ячейке недели */
+.cal-wday-chips{
+  display:flex;flex-direction:column;gap:2px;
+  width:100%;margin-top:5px;
+}
+.cal-wday-chip{
+  font-family:var(--ff-body);font-size:9px;
+  line-height:1.2;padding:2px 5px;
+  border-radius:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:100%;cursor:pointer;
+  border-left:2px solid currentColor;
+  background:rgba(10,7,4,.55);
+}
+.cal-wday-chip.chip-quest{color:var(--gold2);}
+.cal-wday-chip.chip-work{color:#d96060;}
+.cal-wday-chip.chip-study{color:var(--sap);}
+.cal-wday-chip.chip-health{color:var(--green);}
+.cal-wday-chip.chip-hobby{color:#c8883d;}
+.cal-wday-chip.chip-life{color:#a880d0;}
+.cal-wday-chip.chip-evt{color:var(--text2);}
+.cal-wday-chip.chip-more{
+  color:var(--text3);font-style:italic;
+  border-left-color:var(--text3);
+}
 
 /* Панель дня (вид Седмица) */
 .cal-v3-day-panel{
@@ -4688,8 +4715,8 @@ body.berserk-mode {
       </div>
       <button class="cal-v3-nav" onclick="calNavNew(1)">&#8250;</button>
       <div class="cal-v3-mode-toggle">
-        <button class="cal-mode-btn" id="cal-mode-week" onclick="calSetMode('week')">Неделя</button>
-        <button class="cal-mode-btn active" id="cal-mode-month" onclick="calSetMode('month')">Месяц</button>
+        <button class="cal-mode-btn" id="cal-mode-week" onclick="calSetMode('week')">Седмица</button>
+        <button class="cal-mode-btn active" id="cal-mode-month" onclick="calSetMode('month')">Луна</button>
       </div>
     </div>
 
@@ -11445,8 +11472,8 @@ function renderCalendarV3() {
   if(calMode==='week') {
     var monday = getWeekMonday(calWeekOffset);
     var wn = getISOWeekNum(monday);
-    if(dateEl) dateEl.textContent = CAL_MONTH_NAMES[monday.getMonth()] + ' · Неделя ' + wn;
-    if(yearEl) yearEl.textContent = monday.getFullYear();
+    if(dateEl) dateEl.textContent = CAL_MONTH_SLAVIC[monday.getMonth()] + ' · СЕДМИЦА ' + toRoman(wn);
+    if(yearEl) yearEl.textContent = toRomanYear(monday.getFullYear());
     renderCalWeek(monday);
   } else {
     if(dateEl) dateEl.textContent = CAL_MONTH_NAMES[calMonth];
@@ -11477,20 +11504,30 @@ function renderCalWeek(monday) {
     var dayEvts = events.filter(function(e){return e.date===dStr;});
     var dayQsts = quests.filter(function(q){return (q.deadline||'').slice(0,10)===dStr;});
 
-    var dots = '';
-    dayQsts.slice(0,3).forEach(function(q){
-      var c = CAL_CAT_COLORS[q.cat]||'var(--gold2)';
-      dots += '<div class="cal-wday-dot quest-dot" style="background:'+c+'" title="'+escHtml(q.title||'')+'"></div>';
+    var chipsHtml = '';
+    var total = dayQsts.length + dayEvts.length;
+    var shown = 0;
+    dayQsts.slice(0, 3).forEach(function(q) {
+      var cat = q.cat || 'quest';
+      var cls2 = 'cal-wday-chip chip-' + (CAL_CAT_COLORS[cat] ? cat : 'quest');
+      var label = q.fantasyTitle || q.title || '⚔';
+      chipsHtml += '<div class="' + cls2 + '" title="' + escHtml(label) + '">' + escHtml(label) + '</div>';
+      shown++;
     });
-    dayEvts.slice(0,3).forEach(function(e){
-      dots += '<div class="cal-wday-dot" title="'+escHtml(e.title||'')+'"></div>';
+    dayEvts.slice(0, Math.max(0, 3 - shown)).forEach(function(e) {
+      chipsHtml += '<div class="cal-wday-chip chip-evt" title="' + escHtml(e.title) + '">'
+        + (e.time ? e.time.slice(0,5) + ' ' : '') + escHtml(e.title) + '</div>';
+      shown++;
     });
+    if (total > 3) {
+      chipsHtml += '<div class="cal-wday-chip chip-more">+' + (total - 3) + ' ещё</div>';
+    }
 
     var cls = 'cal-week-day'+(isToday?' today':'')+(isWeekend?' weekend':'');
     html += '<div class="'+cls+'" data-date="'+dStr+'" onclick="calWeekShowDay(\''+dStr+'\')">'+
       '<div class="cal-wday-name">'+WD[i]+'</div>'+
       '<div class="cal-wday-num">'+d.getDate()+'</div>'+
-      (dots ? '<div class="cal-wday-dots">'+dots+'</div>' : '')+
+      (chipsHtml ? '<div class="cal-wday-chips">'+chipsHtml+'</div>' : '')+
       '</div>';
   }
   strip.innerHTML = html;
