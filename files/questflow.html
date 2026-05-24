@@ -115,14 +115,14 @@ body::before{
   position:fixed;inset:0;
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.18 0 0 0 0 0.06 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  pointer-events:none;z-index:1;opacity:.6;
+  pointer-events:none;z-index:2;opacity:.6;  /* 2 — поверх view-bg(1), overlay на AI-фоне */
   mix-blend-mode:overlay;
 }
 /* L6: Плавающие искры (CSS animation) */
 body::after{
   content:'';
   position:fixed;inset:0;
-  pointer-events:none;z-index:2;
+  pointer-events:none;z-index:3;  /* 3 — поверх stone-texture(2) */
   background-image:
     radial-gradient(2px 2px at 12% 25%, rgba(244,160,92,0.7), transparent),
     radial-gradient(1px 1px at 35% 65%, rgba(212,98,30,0.5), transparent),
@@ -399,11 +399,11 @@ button{cursor:pointer;font-family:var(--ff-title)}
 
 .tmid{display:flex;align-items:center;gap:16px}
 .lvlbadge{
-  font-family:var(--ff-title);font-size:9px;
-  color:var(--text2);
+  font-family:var(--ff-title);font-size:12px;
+  color:var(--gold2);
   background:transparent;
   border:none;
-  letter-spacing:3px;
+  letter-spacing:2px;
   padding:0;
   text-transform:uppercase;
 }
@@ -412,20 +412,20 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .ds-vitals{display:flex;flex-direction:column;gap:3px}
 .ds-vital-row{display:flex;align-items:center;gap:6px}
 .ds-vital-lbl{
-  font-family:var(--ff-title);font-size:7px;
-  letter-spacing:2px;color:var(--text3);
+  font-family:var(--ff-title);font-size:9px;
+  letter-spacing:1.5px;color:var(--text2);
   width:18px;text-align:right;text-transform:uppercase;
 }
 .ds-vital-bar{width:90px;height:5px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.06);border-radius:1px;overflow:hidden}
 .ds-hp-fill{height:100%;background:linear-gradient(90deg,#5a0000,#b01818,#c82020);border-radius:1px;transition:width .4s;box-shadow:0 0 4px rgba(192,32,32,.4)}
 .ds-fp-fill{height:100%;background:linear-gradient(90deg,#001030,#102060,#1a3090);border-radius:1px;transition:width .4s;box-shadow:0 0 4px rgba(26,48,144,.4)}
-.ds-vital-val{font-family:var(--ff-title);font-size:8px;color:var(--text3);letter-spacing:.5px;min-width:36px}
+.ds-vital-val{font-family:var(--ff-title);font-size:10px;color:var(--text2);letter-spacing:.5px;min-width:36px}
 
 .xprow{display:flex;align-items:center;gap:6px}
-.xplbl{font-family:var(--ff-title);font-size:7px;letter-spacing:2px;color:var(--text3)}
+.xplbl{font-family:var(--ff-title);font-size:9px;letter-spacing:1.5px;color:var(--text2)}
 .xpbar{width:80px;height:2px;background:rgba(255,255,255,.05);border-radius:1px;overflow:hidden}
 .xpf{height:100%;background:linear-gradient(90deg,var(--blue2),var(--sap));border-radius:1px;transition:width .5s}
-.xpn{font-size:9px;color:var(--text3)}
+.xpn{font-size:11px;color:var(--text2)}
 .goldrow{font-family:var(--ff-title);font-size:11px;color:var(--gold);letter-spacing:1px}
 .tright{display:flex;gap:8px;align-items:center}
 .rbtn,.apibtn{
@@ -613,11 +613,13 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .quest-board-frame::after{bottom:-6px;right:-6px;clip-path:polygon(70% 0, 100% 0, 100% 100%, 0 100%, 0 70%, 70% 70%)}
 .view{display:none;min-height:100%;position:relative}.view.active{display:block}
 
-/* Фоновая картинка вьюхи — на всю страницу */
+/* Фоновая картинка вьюхи — на всю страницу.
+   Элементы вставляются прямо в body (не в main-wrap),
+   чтобы position:fixed гарантированно покрывал весь вьюпорт. */
 .view-bg{
   position:fixed;
   top:0;left:0;right:0;bottom:0;
-  z-index:0;
+  z-index:1;           /* над body::before(stone-texture) и body::after(sparks) */
   pointer-events:none;
   opacity:0;transition:opacity 1.4s ease;
   overflow:hidden;
@@ -628,13 +630,12 @@ button{cursor:pointer;font-family:var(--ff-title)}
   height:115%;
   object-fit:cover;object-position:center top;
   display:block;
-  /* Чуть ярче — AI-арт виден сквозь весь интерфейс */
   filter:brightness(.58) saturate(.92) contrast(1.04) blur(1px);
   transform:translateY(0);
   transition:transform .05s linear;
   will-change:transform;
 }
-/* Поверх фона — зональная виньетка: верх/низ темнее, середина светлее */
+/* Поверх фона — зональная виньетка */
 .view-bg::after{
   content:'';position:absolute;inset:0;
   background:
@@ -644,7 +645,8 @@ button{cursor:pointer;font-family:var(--ff-title)}
       rgba(10,7,6,.22) 62%,
       rgba(10,7,6,.80) 100%);
 }
-.view-bg.loaded{opacity:1}
+/* Видим только если изображение загружено И это активная вьюха */
+.view-bg.loaded.active-bg{opacity:1}
 /* Мобайл: отключаем blur и параллакс */
 @media(max-width:640px){
   .view-bg img{
@@ -1567,11 +1569,11 @@ button{cursor:pointer;font-family:var(--ff-title)}
 
 .qtags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
 .qt{
-  font-family:var(--ff-title);font-size:10px;letter-spacing:2px;
+  font-family:var(--ff-title);font-size:10px;letter-spacing:1.5px;
   display:flex;align-items:center;gap:5px;
-  color:#6a4818;
-  background:transparent;
-  border:1px solid rgba(120,80,30,.4);
+  color:#2a1806;         /* тёмнее для читаемости на пергаменте */
+  background:rgba(252,240,200,.35);
+  border:1px solid rgba(120,80,30,.55);
   padding:4px 10px;border-radius:2px;
   transition:all .15s;
   text-transform:uppercase;font-weight:bold;
@@ -1586,13 +1588,10 @@ button{cursor:pointer;font-family:var(--ff-title)}
   background:rgba(232,184,90,.2);
   animation:overdue-pulse 2s ease infinite;
 }
-/* Переопределяем буквенный класс для пергамента */
-.qt-class{
-  background:transparent !important;
+/* Буквенный класс на пергаменте — прозрачный фон, цвет наследуется */
+.scroll-body .qt-class{
+  background:rgba(252,240,200,.25) !important;
   border:1px solid currentColor !important;
-}
-.qt-class b{
-  color:#f4e8c8 !important;
 }
 
 /* Кнопки внутри пергамента — тёмные на светлом */
@@ -1641,19 +1640,23 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .nhint b{color:var(--text2);font-style:italic;font-weight:normal}
 
 /* Побочные квесты */
-/* === v3 SIDE QUEST STRIPS — обрывки пергамента === */
+/* === v3 SIDE QUEST — потёртые пергаментные записки с AI-фоном === */
 .sq-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
 .sq{
-  background:linear-gradient(135deg, #f0e2b8 0%, #e0c890 50%, #d8bc78 100%);
-  color:#3a2818;
+  /* Фон — AI-сгенерированная потёртая записка (note-side.png) */
+  background-image:url('assets/web/note-side.png');
+  background-size:cover;
+  background-position:center;
+  /* Поверх — лёгкий пергаментный тинт для текста */
+  background-color:rgba(220,190,130,.15);
+  color:#3a2010;
   border:none;
   overflow:hidden;
   cursor:pointer;
   transition:all .22s cubic-bezier(.4,0,.2,1);
   box-shadow:
-    inset 0 0 30px rgba(120,80,30,.15),
-    inset 0 0 0 1px rgba(120,80,30,.25),
-    0 3px 12px rgba(0,0,0,.5);
+    0 3px 12px rgba(0,0,0,.55),
+    inset 0 0 0 1px rgba(120,80,30,.15);
   position:relative;
   /* Рваный нижний край */
   clip-path:polygon(
@@ -1713,63 +1716,40 @@ button{cursor:pointer;font-family:var(--ff-title)}
   pointer-events:none;z-index:6;
 }
 
-/* === ГЛАВНЫЙ КВЕСТ — СВИТОК === */
-.scroll-quest{position:relative;margin:0 0 48px;padding:0 4px}
-/* Рукоятка (цилиндрическая) */
-.scroll-handle{
-  position:relative;height:42px;margin:0 -2px;
-  border-radius:21px;
-  background:linear-gradient(180deg,
-    #8a5020 0%, #6a3810 15%,
-    #3e2008 42%, #2e1606 55%,
-    #4a2a0c 70%, #6a3c12 88%,
-    #8c5222 100%
-  );
-  box-shadow:
-    0 6px 22px rgba(0,0,0,.88),
-    inset 0 2px 5px rgba(255,220,130,.16),
-    inset 0 -3px 5px rgba(0,0,0,.55);
-  z-index:5;
-}
-/* Золотые набалдашники по краям рукоятки */
-.scroll-handle::before,.scroll-handle::after{
-  content:'';position:absolute;top:50%;transform:translateY(-50%);
-  width:52px;height:52px;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,
-    #d4a840 0%, #a87030 40%, #7a4e1a 65%, #4e2e0a 100%);
-  box-shadow:
-    0 5px 14px rgba(0,0,0,.75),
-    inset 0 2px 5px rgba(255,225,110,.22),
-    inset 0 -2px 4px rgba(0,0,0,.45);
-}
-.scroll-handle::before{left:-22px}
-.scroll-handle::after{right:-22px}
-/* Тело свитка — пергамент */
-.scroll-body{
-  background:
-    radial-gradient(ellipse 110px 70px at 18% 20%, rgba(160,110,50,.14), transparent 68%),
-    radial-gradient(ellipse 80px 55px at 82% 72%, rgba(130,85,35,.11), transparent 68%),
-    radial-gradient(ellipse 55px 38px at 8% 82%, rgba(139,40,24,.08), transparent 68%),
-    radial-gradient(ellipse 60px 40px at 90% 15%, rgba(80,50,20,.10), transparent 60%),
-    radial-gradient(ellipse at top left, rgba(110,65,22,.28), transparent 35%),
-    radial-gradient(ellipse at bottom right, rgba(110,65,22,.24), transparent 35%),
-    linear-gradient(160deg, #f7edd2 0%, #ecd8a8 32%, #e2ca90 62%, #d6bc78 100%);
-  color:#2a1808;
-  padding:20px 36px 24px;
-  margin:0 18px;
+/* === ГЛАВНЫЙ КВЕСТ — СВИТОК с AI-изображением === */
+.scroll-quest{
   position:relative;
-  box-shadow:
-    inset 0 0 70px rgba(130,85,30,.20),
-    inset 0 0 0 1px rgba(140,90,30,.22);
+  margin:0 0 48px;
+  padding:0;
 }
-/* Полутень у верхнего/нижнего края — имитация намотки */
+/* AI-изображение свитка — растягивается по высоте контента */
+.scroll-quest-img{
+  position:absolute;
+  top:0;left:0;width:100%;height:100%;
+  object-fit:fill;         /* fill — сохраняем ручки видимыми, растягиваем вертикально */
+  pointer-events:none;
+  border-radius:4px;
+  z-index:0;
+  user-select:none;
+}
+/* Тело свитка — контент поверх изображения */
+.scroll-body{
+  position:relative;
+  z-index:1;
+  /* Отступы: верх/низ = зона деревянных ручек (~12% от высоты изображения каждая) */
+  padding:68px 64px 80px;
+  color:#2a1808;
+  /* Лёгкий полупрозрачный фон для читаемости текста поверх пергамента */
+  background:rgba(240,220,180,.08);
+}
+/* Полутень намотки для глубины */
 .scroll-body::before,.scroll-body::after{
-  content:'';position:absolute;left:0;right:0;height:22px;
-  background:linear-gradient(180deg,rgba(90,50,14,.22) 0%,transparent 100%);
-  pointer-events:none;z-index:1;
+  content:'';position:absolute;left:60px;right:60px;height:18px;
+  background:linear-gradient(180deg,rgba(90,50,14,.18) 0%,transparent 100%);
+  pointer-events:none;z-index:0;
 }
-.scroll-body::before{top:0}
-.scroll-body::after{bottom:0;transform:scaleY(-1)}
+.scroll-body::before{top:68px}
+.scroll-body::after{bottom:80px;transform:scaleY(-1)}
 /* Класс-значок внутри свитка */
 .scroll-rank{
   display:inline-flex;align-items:center;justify-content:center;
@@ -1825,9 +1805,9 @@ button{cursor:pointer;font-family:var(--ff-title)}
 
 /* Пустое состояние */
 .empty-state{text-align:center;padding:60px 20px}
-.empty-icon{font-size:48px;margin-bottom:16px;opacity:.3;display:block;filter:grayscale(.3)}
-.empty-title{font-family:var(--ff-title);font-size:15px;color:var(--text2);margin-bottom:8px;letter-spacing:1px}
-.empty-desc{font-size:13px;color:var(--text3);font-style:italic;line-height:1.6}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.55;display:block;filter:grayscale(.2)}
+.empty-title{font-family:var(--ff-title);font-size:16px;color:var(--text);margin-bottom:8px;letter-spacing:1px;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.empty-desc{font-size:13px;color:var(--text2);font-style:italic;line-height:1.6;text-shadow:0 1px 3px rgba(0,0,0,.4)}
 
 /* Просрочен баннер */
 .overdue-banner{
@@ -3809,21 +3789,29 @@ textarea.fi{resize:vertical;min-height:64px;line-height:1.6}
   border-color:rgba(64,136,216,.5);
   background:rgba(64,136,216,.1);
 }
-.cal-day.has-events::after{
-  content:'';
-  position:absolute;bottom:3px;
-  width:5px;height:5px;border-radius:50%;
+.cal-day.has-deadline{
+  background:rgba(180,100,30,.08);
+  border-color:rgba(180,100,30,.25);
+}
+.cal-day-num{
+  font-size:13px;color:var(--text2);line-height:1;font-weight:600;
+}
+.cal-day.weekend .cal-day-num{color:var(--gold2);opacity:.8}
+/* Строка точек под числом */
+.cal-day-dots{
+  display:flex;gap:3px;align-items:center;margin-top:3px;
+}
+.cal-dot{
+  display:inline-block;width:5px;height:5px;border-radius:50%;
+}
+.cal-dot-quest{
+  background:var(--gold2);
+  box-shadow:0 0 4px rgba(224,178,90,.6);
+}
+.cal-dot-event{
   background:var(--sap);
   box-shadow:0 0 4px rgba(64,136,216,.5);
 }
-.cal-day.has-deadline::after{
-  background:var(--red2);
-  box-shadow:0 0 4px rgba(240,64,64,.5);
-}
-.cal-day-num{
-  font-size:12px;color:var(--text2);line-height:1;
-}
-.cal-day.weekend .cal-day-num{color:var(--gold2);opacity:.7}
 
 /* Панель дня */
 .cal-day-panel{
@@ -4697,13 +4685,13 @@ body.berserk-mode {
       </div>
       <button class="cal-v3-nav" onclick="calNavNew(1)">&#8250;</button>
       <div class="cal-v3-mode-toggle">
-        <button class="cal-mode-btn active" id="cal-mode-week" onclick="calSetMode('week')">Седмица</button>
-        <button class="cal-mode-btn" id="cal-mode-month" onclick="calSetMode('month')">Луна</button>
+        <button class="cal-mode-btn" id="cal-mode-week" onclick="calSetMode('week')">Неделя</button>
+        <button class="cal-mode-btn active" id="cal-mode-month" onclick="calSetMode('month')">Месяц</button>
       </div>
     </div>
 
-    <!-- Вид: Седмица (неделя) -->
-    <div id="cal-week-view">
+    <!-- Вид: Неделя -->
+    <div id="cal-week-view" style="display:none">
       <div class="cal-week-strip" id="cal-week-strip"></div>
       <!-- Панель дня + быстрое добавление -->
       <div class="cal-v3-day-panel" id="cal-v3-day-panel" style="display:none">
@@ -4718,8 +4706,8 @@ body.berserk-mode {
       </div>
     </div>
 
-    <!-- Вид: Луна (месяц) -->
-    <div id="cal-month-view" style="display:none">
+    <!-- Вид: Месяц (по умолчанию) -->
+    <div id="cal-month-view">
       <div class="cal-weekdays">
         <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div>
         <div style="color:var(--gold)">Сб</div><div style="color:var(--gold)">Вс</div>
@@ -6761,11 +6749,8 @@ function initDSIcons() { /* no-op: эмодзи-навигация */ }
 var _bgCache = {};
 
 function initViewBg(viewName) {
-  var viewEl = document.getElementById('view-' + viewName);
-  if (!viewEl) return;
-
-  // Уже есть фон — не создаём повторно
-  if (viewEl.querySelector('.view-bg')) return;
+  // Уже есть — не создаём повторно
+  if (document.getElementById('bg-' + viewName)) return;
 
   var bgDiv = document.createElement('div');
   bgDiv.className = 'view-bg';
@@ -6777,12 +6762,22 @@ function initViewBg(viewName) {
 
   img.onload = function() {
     bgDiv.classList.add('loaded');
+    // Если эта вьюха сейчас активна — сразу показываем фон
+    var viewEl = document.getElementById('view-' + viewName);
+    if (viewEl && viewEl.classList.contains('active')) {
+      bgDiv.classList.add('active-bg');
+    }
   };
   img.src = url;
   bgDiv.appendChild(img);
 
-  // Вставляем первым дочерним элементом
-  viewEl.insertBefore(bgDiv, viewEl.firstChild);
+  // Вставляем прямо в body (перед #app) — position:fixed не зависит от main-wrap
+  var appEl = document.getElementById('app');
+  if (appEl) {
+    document.body.insertBefore(bgDiv, appEl);
+  } else {
+    document.body.appendChild(bgDiv);
+  }
 }
 
 // Предзагрузка фонов — локальные файлы лёгкие (~200KB), грузим все сразу
@@ -9043,8 +9038,14 @@ function sw(name, el) {
     if (name === 'calendar')  renderCalendarV3();
     if (name === 'routines')  renderRoutines();
     if (name === 'archive')   renderArchive();
-    // Инициализируем фон новой вьюхи
+    // Инициализируем фон новой вьюхи (вставляется прямо в body)
     initViewBg(name);
+    // Переключаем активный фон — скрываем все, показываем нужный
+    document.querySelectorAll('.view-bg').forEach(function(bg) {
+      bg.classList.remove('active-bg');
+    });
+    var activeBg = document.getElementById('bg-' + name);
+    if (activeBg) activeBg.classList.add('active-bg');
   }, current ? 140 : 0);
 }
 
@@ -9294,9 +9295,9 @@ function buildMainQuestHTML(q, nextQ) {
   var loreText = q.lore || q.description || 'Этот квест ждёт твоего внимания, герой.';
 
   var letter = questClassLetter(q.difficulty);
-  // Свиток: верхняя рукоятка + тело + нижняя рукоятка
+  // Свиток: AI-изображение как рамка + контент поверх
   return '<div class="scroll-quest" data-quest-id="' + q.id + '">'
-    + '<div class="scroll-handle"></div>'
+    + '<img class="scroll-quest-img" src="assets/web/scroll-main.png" alt="" aria-hidden="true">'
     + '<div class="scroll-body">'
     + '<div class="qrubric" style="color:#8b6a3a;margin-bottom:8px">· CAPITULUM ' + toRoman(S.stats.totalDone + 1) + ' ·</div>'
     + '<div class="qart" style="margin:0 -36px 16px;border-left:none;border-right:none">' + questArtHTML(q) + '</div>'
@@ -9337,7 +9338,6 @@ function buildMainQuestHTML(q, nextQ) {
     + '<div class="bc-panel" id="bc-panel-' + q.id + '" style="display:none"></div>'
     + (nextQ ? '<div class="nhint" style="color:#6a4818;border-color:rgba(120,80,30,.2);background:rgba(120,80,30,.06)">→ Следующий: <b>«' + esc(nextQ.fantasyTitle || nextQ.title) + '»</b></div>' : '')
     + '</div>'
-    + '<div class="scroll-handle"></div>'
     + '</div>';
 }
 
@@ -11221,6 +11221,12 @@ function renderCalendar() {
 
   var today    = new Date().toISOString().slice(0,10);
   var events   = S.events || [];
+  // Активные квесты с дедлайнами для подсветки дат
+  var activeQuestDates = {};
+  (S.quests || []).filter(function(q){ return !q.done && q.deadline; }).forEach(function(q){
+    var d = q.deadline.slice(0,10);
+    activeQuestDates[d] = (activeQuestDates[d] || 0) + 1;
+  });
 
   // Первый день месяца (0=вс, 1=пн...)
   var firstDay = new Date(calYear, calMonth, 1).getDay();
@@ -11254,24 +11260,31 @@ function renderCalendar() {
     var dd    = String(c.day).padStart(2, '0');
     var dStr  = calYear + '-' + mm + '-' + dd;
 
-    var dayEvents   = events.filter(function(e){ return e.date === dStr; });
-    var hasDeadline = dayEvents.some(function(e){ return e.cat === 'deadline'; });
-    var hasEvents   = dayEvents.length > 0;
+    var dayEvents    = events.filter(function(e){ return e.date === dStr; });
+    var hasDeadline  = dayEvents.some(function(e){ return e.cat === 'deadline'; });
+    var hasEvents    = dayEvents.length > 0;
+    var questCount   = activeQuestDates[dStr] || 0;
+    var hasQuest     = questCount > 0;
 
     var isToday    = dStr === today;
     var isSelected = dStr === calSelectedDay;
     var isWeekend  = (idx % 7 === 5 || idx % 7 === 6);
 
     var cls = 'cal-day';
-    if (isToday)    cls += ' today';
-    if (isSelected) cls += ' selected';
-    if (isWeekend)  cls += ' weekend';
-    if (hasDeadline) cls += ' has-deadline';
-    else if (hasEvents) cls += ' has-events';
+    if (isToday)                        cls += ' today';
+    if (isSelected)                     cls += ' selected';
+    if (isWeekend)                      cls += ' weekend';
+    if (hasQuest || hasDeadline)        cls += ' has-deadline';
+    else if (hasEvents)                 cls += ' has-events';
+
+    // Точки под датой: золотая = квест, белая = событие
+    var dots = '';
+    if (hasQuest)  dots += '<span class="cal-dot cal-dot-quest" title="' + questCount + ' квест(а)"></span>';
+    if (hasEvents) dots += '<span class="cal-dot cal-dot-event"></span>';
 
     return '<div class="' + cls + '" data-date="' + dStr + '" onclick="showDayPanel(\'' + dStr + '\')">'
       + '<span class="cal-day-num">' + c.day + '</span>'
-      + (hasEvents ? '<span style="font-size:8px;color:var(--text3);margin-top:1px">' + dayEvents.length + '</span>' : '')
+      + (dots ? '<span class="cal-day-dots">' + dots + '</span>' : '')
       + '</div>';
   }).join('');
 
@@ -11350,7 +11363,7 @@ function renderUpcoming() {
 // CALENDAR V3 — СЕДМИЦА / ЛУНА
 // =============================================
 
-var calMode = 'week';      // 'week' | 'month'
+var calMode = 'month';     // 'week' | 'month'
 var calWeekOffset = 0;     // смещение от текущей недели
 
 var CAL_MONTH_SLAVIC = [
@@ -11419,12 +11432,12 @@ function renderCalendarV3() {
   if(calMode==='week') {
     var monday = getWeekMonday(calWeekOffset);
     var wn = getISOWeekNum(monday);
-    if(dateEl) dateEl.textContent = CAL_MONTH_SLAVIC[monday.getMonth()] + ' · СЕДМИЦА ' + toRoman(wn);
-    if(yearEl) yearEl.textContent = toRomanYear(monday.getFullYear());
+    if(dateEl) dateEl.textContent = CAL_MONTH_NAMES[monday.getMonth()] + ' · Неделя ' + wn;
+    if(yearEl) yearEl.textContent = monday.getFullYear();
     renderCalWeek(monday);
   } else {
-    if(dateEl) dateEl.textContent = CAL_MONTH_SLAVIC[calMonth];
-    if(yearEl) yearEl.textContent = toRomanYear(calYear);
+    if(dateEl) dateEl.textContent = CAL_MONTH_NAMES[calMonth];
+    if(yearEl) yearEl.textContent = calYear;
     renderCalendar();
   }
   renderUpcoming();
