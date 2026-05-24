@@ -1718,28 +1718,31 @@ button{cursor:pointer;font-family:var(--ff-title)}
 
 /* === ГЛАВНЫЙ КВЕСТ — СВИТОК с AI-изображением === */
 .scroll-quest{
-  position:relative;
+  /* CSS Grid: оба дочерних элемента занимают одну ячейку —
+     .scroll-body определяет высоту, .scroll-quest-img растягивается под неё */
+  display:grid;
+  grid-template-columns:1fr;
   margin:0 0 48px;
-  padding:0;
 }
-/* AI-изображение свитка — растягивается по высоте контента */
+/* AI-изображение свитка — занимает ту же ячейку что и .scroll-body */
 .scroll-quest-img{
-  position:absolute;
-  top:0;left:0;width:100%;height:100%;
+  grid-area:1/1;
+  width:100%;
+  height:100%;
   object-fit:fill;         /* fill — сохраняем ручки видимыми, растягиваем вертикально */
   pointer-events:none;
   border-radius:4px;
-  z-index:0;
   user-select:none;
+  display:block;
 }
-/* Тело свитка — контент поверх изображения */
+/* Тело свитка — на той же ячейке, поверх изображения */
 .scroll-body{
+  grid-area:1/1;
   position:relative;
   z-index:1;
   /* Отступы: верх/низ = зона деревянных ручек (~12% от высоты изображения каждая) */
   padding:68px 64px 80px;
   color:#2a1808;
-  /* Лёгкий полупрозрачный фон для читаемости текста поверх пергамента */
   background:rgba(240,220,180,.08);
 }
 /* Полутень намотки для глубины */
@@ -5688,6 +5691,13 @@ function load() {
     if (d.voiceEnabled === undefined) d.voiceEnabled = true;
     if (!d.sagas) d.sagas = [];
     if (d.lastSagaWeek === undefined) d.lastSagaWeek = '';
+    // Критическая защита: hero всегда должен существовать
+    if (!d.hero) d.hero = fresh().hero;
+    // Обновляем недостающие поля hero (новые поля добавились позже)
+    var fh = fresh().hero;
+    Object.keys(fh).forEach(function(k) {
+      if (d.hero[k] === undefined) d.hero[k] = fh[k];
+    });
     return d;
   } catch(e) { return fresh(); }
 }
