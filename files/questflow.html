@@ -613,10 +613,10 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .quest-board-frame::after{bottom:-6px;right:-6px;clip-path:polygon(70% 0, 100% 0, 100% 100%, 0 100%, 0 70%, 70% 70%)}
 .view{display:none;min-height:100%;position:relative}.view.active{display:block}
 
-/* Фоновая картинка вьюхи */
+/* Фоновая картинка вьюхи — на всю страницу */
 .view-bg{
   position:fixed;
-  top:64px;left:72px;right:0;bottom:0;
+  top:0;left:0;right:0;bottom:0;
   z-index:0;
   pointer-events:none;
   opacity:0;transition:opacity 1.4s ease;
@@ -628,8 +628,8 @@ button{cursor:pointer;font-family:var(--ff-title)}
   height:115%;
   object-fit:cover;object-position:center top;
   display:block;
-  /* Мягкий blur + балансированное затемнение — AI-арт виден */
-  filter:brightness(.52) saturate(.9) contrast(1.05) blur(1.5px);
+  /* Чуть ярче — AI-арт виден сквозь весь интерфейс */
+  filter:brightness(.58) saturate(.92) contrast(1.04) blur(1px);
   transform:translateY(0);
   transition:transform .05s linear;
   will-change:transform;
@@ -1702,6 +1702,102 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .sq-desc{font-size:11px;color:#a04020;font-style:italic;line-height:1.3}
 .sq-meta{display:flex;gap:14px;font-family:var(--ff-title);font-size:10px;color:#6a4818;align-items:center;margin-top:2px}
 .sq-meta > span:last-child{margin-left:auto;color:#a04020;font-weight:bold}
+
+/* Загнутый угол у заметки-записки */
+.sq::after{
+  content:'';position:absolute;top:0;right:0;
+  width:0;height:0;
+  border-style:solid;
+  border-width:0 20px 20px 0;
+  border-color:transparent rgba(80,45,12,.55) transparent transparent;
+  pointer-events:none;z-index:6;
+}
+
+/* === ГЛАВНЫЙ КВЕСТ — СВИТОК === */
+.scroll-quest{position:relative;margin:0 0 48px;padding:0 4px}
+/* Рукоятка (цилиндрическая) */
+.scroll-handle{
+  position:relative;height:42px;margin:0 -2px;
+  border-radius:21px;
+  background:linear-gradient(180deg,
+    #8a5020 0%, #6a3810 15%,
+    #3e2008 42%, #2e1606 55%,
+    #4a2a0c 70%, #6a3c12 88%,
+    #8c5222 100%
+  );
+  box-shadow:
+    0 6px 22px rgba(0,0,0,.88),
+    inset 0 2px 5px rgba(255,220,130,.16),
+    inset 0 -3px 5px rgba(0,0,0,.55);
+  z-index:5;
+}
+/* Золотые набалдашники по краям рукоятки */
+.scroll-handle::before,.scroll-handle::after{
+  content:'';position:absolute;top:50%;transform:translateY(-50%);
+  width:52px;height:52px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,
+    #d4a840 0%, #a87030 40%, #7a4e1a 65%, #4e2e0a 100%);
+  box-shadow:
+    0 5px 14px rgba(0,0,0,.75),
+    inset 0 2px 5px rgba(255,225,110,.22),
+    inset 0 -2px 4px rgba(0,0,0,.45);
+}
+.scroll-handle::before{left:-22px}
+.scroll-handle::after{right:-22px}
+/* Тело свитка — пергамент */
+.scroll-body{
+  background:
+    radial-gradient(ellipse 110px 70px at 18% 20%, rgba(160,110,50,.14), transparent 68%),
+    radial-gradient(ellipse 80px 55px at 82% 72%, rgba(130,85,35,.11), transparent 68%),
+    radial-gradient(ellipse 55px 38px at 8% 82%, rgba(139,40,24,.08), transparent 68%),
+    radial-gradient(ellipse 60px 40px at 90% 15%, rgba(80,50,20,.10), transparent 60%),
+    radial-gradient(ellipse at top left, rgba(110,65,22,.28), transparent 35%),
+    radial-gradient(ellipse at bottom right, rgba(110,65,22,.24), transparent 35%),
+    linear-gradient(160deg, #f7edd2 0%, #ecd8a8 32%, #e2ca90 62%, #d6bc78 100%);
+  color:#2a1808;
+  padding:20px 36px 24px;
+  margin:0 18px;
+  position:relative;
+  box-shadow:
+    inset 0 0 70px rgba(130,85,30,.20),
+    inset 0 0 0 1px rgba(140,90,30,.22);
+}
+/* Полутень у верхнего/нижнего края — имитация намотки */
+.scroll-body::before,.scroll-body::after{
+  content:'';position:absolute;left:0;right:0;height:22px;
+  background:linear-gradient(180deg,rgba(90,50,14,.22) 0%,transparent 100%);
+  pointer-events:none;z-index:1;
+}
+.scroll-body::before{top:0}
+.scroll-body::after{bottom:0;transform:scaleY(-1)}
+/* Класс-значок внутри свитка */
+.scroll-rank{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:50%;
+  background:radial-gradient(circle at 32% 30%, #ee5050 0%, #c83030 50%, #8b0000 90%);
+  color:#f4e8c8;font-family:var(--ff-title);font-weight:bold;font-size:17px;
+  box-shadow:inset 0 -2px 4px rgba(0,0,0,.4),2px 3px 7px rgba(0,0,0,.55);
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+  flex-shrink:0;
+}
+.scroll-rank.rank-A{background:radial-gradient(circle at 32% 30%, #f0c060 0%, #b8893f 50%, #6a4a18 90%);color:#1a0e05}
+.scroll-rank.rank-B{background:radial-gradient(circle at 32% 30%, #7090d0 0%, #4060a0 50%, #1a2848 90%);color:#fff}
+.scroll-rank.rank-C{background:radial-gradient(circle at 32% 30%, #6ab080 0%, #4a8060 50%, #1a3820 90%);color:#fff}
+.scroll-rank.rank-D{background:radial-gradient(circle at 32% 30%, #b0b0b0 0%, #707070 50%, #303030 90%);color:#fff}
+/* Строка с рангом + подзаголовком */
+.scroll-header-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+/* Кнопки в свитке — под цвет пергамента */
+.scroll-body .btn{
+  background:rgba(60,30,8,.1);border-color:rgba(120,80,30,.45);
+  color:#3a2010;
+}
+.scroll-body .btn:hover{background:rgba(60,30,8,.18)}
+.scroll-body .btn-g{
+  background:rgba(40,120,60,.18);border-color:rgba(40,120,60,.4);color:#1a4a1a
+}
+.scroll-body .btn-g:hover{background:rgba(40,120,60,.28)}
+.scroll-body .btn-o{background:rgba(200,140,60,.12);border-color:rgba(180,120,40,.4);color:#4a2a08}
+.scroll-body .btn-b{background:rgba(40,80,160,.1);border-color:rgba(40,80,160,.3);color:#1a2848}
 
 /* Добавить квест */
 .add-q{
@@ -4490,8 +4586,7 @@ body.berserk-mode {
 <!-- sidenav -->
 <div class="sidenav">
   <div class="ni active" id="ni-quests" onclick="sw('quests',this)">⚔<span class="ni-tip">Квесты</span></div>
-  <div class="ni" id="ni-journal" onclick="sw('journal',this)">📖<span class="ni-tip">Журнал</span></div>
-  <div class="ni" id="ni-archive" onclick="sw('archive',this)">🏛<span class="ni-tip">Архив</span></div>
+  <div class="ni" id="ni-journal" onclick="sw('journal',this)">📖<span class="ni-tip">Хроники</span></div>
   <div class="ni" id="ni-projects" onclick="sw('projects',this)">🗺<span class="ni-tip">Проекты</span></div>
   <div class="ni" id="ni-calendar" onclick="sw('calendar',this)">📅<span class="ni-tip">Летопись</span></div>
   <div class="ni" id="ni-routines" onclick="sw('routines',this)">🔄<span class="ni-tip">Обряды</span></div>
@@ -9199,42 +9294,51 @@ function buildMainQuestHTML(q, nextQ) {
   var loreText = q.lore || q.description || 'Этот квест ждёт твоего внимания, герой.';
 
   var letter = questClassLetter(q.difficulty);
-  return '<div class="qcard" data-quest-id="' + q.id + '" data-class="' + letter + '">'
-    + '<div class="qrubric">· CAPITULUM ' + toRoman(S.stats.totalDone + 1) + ' ·</div>'
-    + '<div class="qart">' + questArtHTML(q) + '</div>'
-    + '<div class="qbody">'
-    + (q.project ? '<div class="ctag">⛓ ' + esc(getProjName(q.project)) + '</div>' : '')
-    + '<div class="qsubhead">Задача охотника</div>'
-    + '<div class="qtit">' + esc(q.fantasyTitle || q.title)
-      + (q.fantasyTitle ? '<span class="ai-badge">✨ AI</span>' : '')
-      + moodTag + '</div>'
-    + (q.fantasyTitle ? '<div class="qsub">в легендах зовётся <b>«' + esc(q.title) + '»</b></div>' : '')
-    + '<div class="orn">— ✦ —</div>'
-    + '<div class="' + loreClass + '">' + esc(loreText) + '</div>'
-    + '<div class="qtags">'
-    + '<div class="qt-class qt-class-' + questClassLetter(q.difficulty) + '"><b>' + questClassLetter(q.difficulty) + '</b> · класс ' + questClassName(q.difficulty) + '</div>'
-    + '<div class="qt g">★ Важность ' + (q.importance || 3) + '</div>'
-    + (dl ? '<div class="qt ' + (od ? 'd' : '') + '">' + dl + '</div>' : '')
-    + '<div class="qt">' + (CAT_ICONS[q.category] || '🌍') + ' ' + (CAT_LABELS[q.category] || 'Жизнь') + '</div>'
-    + (q.isRoutine ? '<div class="qt" style="color:#ff8040;background:rgba(255,100,0,.1);border:1px solid rgba(255,100,0,.25)">🔄 ОБРЯД</div>' : '')
-    + '<div class="qt g">🪙 +' + gold + '</div>'
-    + '<div class="qt" style="color:var(--sap)">✨ +' + xp + ' ОП</div>'
+  // Свиток: верхняя рукоятка + тело + нижняя рукоятка
+  return '<div class="scroll-quest" data-quest-id="' + q.id + '">'
+    + '<div class="scroll-handle"></div>'
+    + '<div class="scroll-body">'
+    + '<div class="qrubric" style="color:#8b6a3a;margin-bottom:8px">· CAPITULUM ' + toRoman(S.stats.totalDone + 1) + ' ·</div>'
+    + '<div class="qart" style="margin:0 -36px 16px;border-left:none;border-right:none">' + questArtHTML(q) + '</div>'
+    + '<div class="scroll-header-row">'
+    + '<div class="scroll-rank rank-' + letter + '">' + letter + '</div>'
+    + '<div>'
+    + (q.project ? '<div class="ctag" style="margin-bottom:4px">⛓ ' + esc(getProjName(q.project)) + '</div>' : '')
+    + '<div class="qsubhead" style="color:#8b6a3a;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px">Задача охотника</div>'
     + '</div>'
-    + '<div class="qact">'
+    + '</div>'
+    + '<div class="qtit" style="color:#1a0e06;margin-bottom:4px">' + esc(q.fantasyTitle || q.title)
+      + (q.fantasyTitle ? '<span class="ai-badge" style="color:#4a6a20;border-color:rgba(80,120,30,.3);background:rgba(80,120,30,.08)">✨ AI</span>' : '')
+      + moodTag + '</div>'
+    + (q.fantasyTitle ? '<div class="qsub" style="color:#a04020">в легендах зовётся <b>«' + esc(q.title) + '»</b></div>' : '')
+    + '<div class="orn" style="color:#8b6a3a;opacity:.6">— ✦ —</div>'
+    + '<div class="' + loreClass + '" style="color:#3a2010;border-left-color:rgba(140,100,40,.4)">' + esc(loreText) + '</div>'
+    + '<div class="qtags" style="margin-top:12px">'
+    + '<div class="qt-class qt-class-' + letter + '"><b>' + letter + '</b> · ' + questClassName(q.difficulty) + '</div>'
+    + '<div class="qt" style="color:#3a2010;border-color:rgba(120,80,30,.35);background:rgba(120,80,30,.08)">★ ' + (q.importance || 3) + '</div>'
+    + (dl ? '<div class="qt ' + (od ? 'd' : '') + '">' + dl + '</div>' : '')
+    + '<div class="qt" style="color:#3a2010;border-color:rgba(120,80,30,.35);background:rgba(120,80,30,.08)">' + (CAT_ICONS[q.category] || '🌍') + ' ' + (CAT_LABELS[q.category] || 'Жизнь') + '</div>'
+    + (q.isRoutine ? '<div class="qt" style="color:#8a3000;background:rgba(180,80,0,.1);border:1px solid rgba(180,80,0,.3)">🔄 ОБРЯД</div>' : '')
+    + '<div class="qt" style="color:#6a4010;border-color:rgba(120,80,30,.35);background:rgba(120,80,30,.08)">🪙 +' + gold + '</div>'
+    + '<div class="qt" style="color:#2a4a80;border-color:rgba(40,80,160,.25);background:rgba(40,80,160,.07)">✨ +' + xp + ' ОП</div>'
+    + '</div>'
+    + '<div class="qact" style="margin-top:14px">'
     + (od
       ? '<button class="btn btn-g" onclick="showOD(\'' + q.id + '\')">⚠ Просрочен</button>'
       : '<button class="btn btn-g" onclick="completeMain(\'' + q.id + '\')">✓ Выполнено</button>')
     + '<button class="btn btn-o" onclick="postpone(\'' + q.id + '\')">⏸ Отложить</button>'
     + '<button class="btn btn-o" onclick="openQuestNotes(\'' + q.id + '\')">'
-    + '📜 Свиток'
+    + '📜 Заметки'
     + (q.notes ? '<span class="notes-indicator"></span>' : '')
     + '</button>'
     + '<button class="btn btn-b" onclick="rollDice()">🎲 Кости</button>'
     + '<button class="btn btn-o" id="bc-start-btn-' + q.id + '" onclick="bcStart(\'' + q.id + '\')" title="Боевая Концентрация — 25 минут фокуса">⚔ Концентрация</button>'
     + '</div>'
     + '<div class="bc-panel" id="bc-panel-' + q.id + '" style="display:none"></div>'
-    + (nextQ ? '<div class="nhint">→ Следующий: <b>«' + esc(nextQ.fantasyTitle || nextQ.title) + '»</b></div>' : '')
-    + '</div></div>';
+    + (nextQ ? '<div class="nhint" style="color:#6a4818;border-color:rgba(120,80,30,.2);background:rgba(120,80,30,.06)">→ Следующий: <b>«' + esc(nextQ.fantasyTitle || nextQ.title) + '»</b></div>' : '')
+    + '</div>'
+    + '<div class="scroll-handle"></div>'
+    + '</div>';
 }
 
 function buildSideQuestHTML(q) {

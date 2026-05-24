@@ -3510,7 +3510,7 @@ function sw(name, el) {
     if (el) el.classList.add('active');
     if (name === 'stats')     renderStats();
     if (name === 'character') renderChar();
-    if (name === 'calendar')  renderCalendar();
+    if (name === 'calendar')  renderCalendarV3();
     if (name === 'routines')  renderRoutines();
     if (name === 'archive')   renderArchive();
     // Инициализируем фон новой вьюхи
@@ -5518,7 +5518,29 @@ function calNav(dir) {
   calMonth += dir;
   if (calMonth > 11) { calMonth = 0;  calYear++; }
   if (calMonth < 0)  { calMonth = 11; calYear--; }
-  renderCalendar();
+  renderCalendarV3();
+}
+
+// Перейти к конкретной дате — умная навигация для обоих режимов
+function calGoToDay(dateStr) {
+  var target = new Date(dateStr + 'T00:00:00');
+  calSelectedDay = dateStr;
+  if (calMode === 'week') {
+    var today = new Date(); today.setHours(0,0,0,0);
+    var tdow  = (today.getDay()+6)%7;
+    var todayMon = new Date(today); todayMon.setDate(today.getDate() - tdow);
+    var targDow  = (target.getDay()+6)%7;
+    var targMon  = new Date(target); targMon.setDate(target.getDate() - targDow);
+    calWeekOffset = Math.round((targMon - todayMon) / 604800000);
+    renderCalendarV3();
+    calWeekShowDay(dateStr);
+  } else {
+    calYear  = target.getFullYear();
+    calMonth = target.getMonth();
+    renderCalendarV3();
+    showDayPanel(dateStr);
+  }
+  sw('calendar');
 }
 
 // Открыть форму добавления события
@@ -5586,7 +5608,7 @@ function addCalEvent() {
   calMonth = parseInt(date.slice(5,7)) - 1;
   calSelectedDay = date;
 
-  renderCalendar();
+  renderCalendarV3();
   showToast('✦ Событие записано в летопись!');
   if (typeof sndQuestComplete === 'function') sndQuestComplete();
 }
@@ -5596,7 +5618,7 @@ function delCalEvent(id) {
   if (!S.events) return;
   S.events = S.events.filter(function(e){ return e.id !== id; });
   save();
-  renderCalendar();
+  renderCalendarV3();
   if (calSelectedDay) showDayPanel(calSelectedDay);
 }
 
@@ -5761,7 +5783,7 @@ function renderUpcoming() {
                    'Через ' + diff + ' дн.';
 
     return '<div class="cal-upcoming-item cat-' + e.cat + '" style="animation-delay:' + (i * 0.06) + 's"'
-      + ' onclick="calNav(0);calYear=' + d.getFullYear() + ';calMonth=' + d.getMonth() + ';renderCalendar();showDayPanel(\'' + e.date + '\')">'
+      + ' onclick="calGoToDay(\'' + e.date + '\')">'
       + '<div class="cal-upcoming-date">'
       +   '<div class="cal-upcoming-day">' + d.getDate() + '</div>'
       +   '<div class="cal-upcoming-weekday">' + weekdays[d.getDay()] + '</div>'
@@ -5777,6 +5799,249 @@ function renderUpcoming() {
       + '</div>'
       + '</div>';
   }).join('');
+}
+
+// =============================================
+// CALENDAR V3 — СЕДМИЦА / ЛУНА
+// =============================================
+
+var calMode = 'week';      // 'week' | 'month'
+var calWeekOffset = 0;     // смещение от текущей недели
+
+var CAL_MONTH_SLAVIC = [
+  'СЕЧЕНЬ','ЛЮТЕНЬ','БЕРЕЗЕНЬ','ЦВЕТЕНЬ','ТРАВЕНЬ','ЧЕРВЕНЬ',
+  'СЕРПЕНЬ','ЖНИВЕНЬ','ВЕРЕСЕНЬ','ЛИСТОПАД','ГРУДЕН','СТУДЕНЬ'
+];
+
+var CAL_CAT_COLORS = {
+  work:'var(--red2)', study:'var(--sap)', health:'var(--green)',
+  hobby:'#c8883d', life:'var(--purple)'
+};
+
+function toRomanYear(n) {
+  var vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];
+  var syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+  var r='';
+  for(var i=0;i<vals.length;i++) while(n>=vals[i]){r+=syms[i];n-=vals[i];}
+  return r;
+}
+
+function getWeekMonday(weekOffset) {
+  var today = new Date();
+  var dow = today.getDay();
+  var daysToMon = (dow===0) ? 6 : dow-1;
+  var monday = new Date(today);
+  monday.setDate(today.getDate() - daysToMon + (weekOffset*7));
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+function getISOWeekNum(date) {
+  var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  var day = d.getUTCDay()||7;
+  d.setUTCDate(d.getUTCDate()+4-day);
+  var y = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d-y)/86400000)+1)/7);
+}
+
+function calSetMode(mode) {
+  calMode = mode;
+  var wBtn = document.getElementById('cal-mode-week');
+  var mBtn = document.getElementById('cal-mode-month');
+  if(wBtn) wBtn.classList.toggle('active', mode==='week');
+  if(mBtn) mBtn.classList.toggle('active', mode==='month');
+  var wv = document.getElementById('cal-week-view');
+  var mv = document.getElementById('cal-month-view');
+  if(wv) wv.style.display = mode==='week' ? '' : 'none';
+  if(mv) mv.style.display = mode==='month' ? '' : 'none';
+  renderCalendarV3();
+}
+
+function calNavNew(dir) {
+  if(calMode==='week') {
+    calWeekOffset += dir;
+  } else {
+    calMonth += dir;
+    if(calMonth>11){calMonth=0;calYear++;}
+    if(calMonth<0){calMonth=11;calYear--;}
+  }
+  renderCalendarV3();
+}
+
+function renderCalendarV3() {
+  var dateEl = document.getElementById('cal-v3-date');
+  var yearEl = document.getElementById('cal-v3-year');
+  if(calMode==='week') {
+    var monday = getWeekMonday(calWeekOffset);
+    var wn = getISOWeekNum(monday);
+    if(dateEl) dateEl.textContent = CAL_MONTH_SLAVIC[monday.getMonth()] + ' · СЕДМИЦА ' + toRoman(wn);
+    if(yearEl) yearEl.textContent = toRomanYear(monday.getFullYear());
+    renderCalWeek(monday);
+  } else {
+    if(dateEl) dateEl.textContent = CAL_MONTH_SLAVIC[calMonth];
+    if(yearEl) yearEl.textContent = toRomanYear(calYear);
+    renderCalendar();
+  }
+  renderUpcoming();
+}
+
+function renderCalWeek(monday) {
+  var strip = document.getElementById('cal-week-strip');
+  if(!strip) return;
+  var todayStr = new Date().toISOString().slice(0,10);
+  var events = S.events||[];
+  var quests = (S.quests||[]).filter(function(q){return !q.done && q.deadline;});
+  var WD = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'];
+
+  var html = '';
+  for(var i=0;i<7;i++) {
+    var d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    var mm = String(d.getMonth()+1).padStart(2,'0');
+    var dd = String(d.getDate()).padStart(2,'0');
+    var dStr = d.getFullYear()+'-'+mm+'-'+dd;
+    var isToday = dStr===todayStr;
+    var isWeekend = i>=5;
+
+    var dayEvts = events.filter(function(e){return e.date===dStr;});
+    var dayQsts = quests.filter(function(q){return (q.deadline||'').slice(0,10)===dStr;});
+
+    var dots = '';
+    dayQsts.slice(0,3).forEach(function(q){
+      var c = CAL_CAT_COLORS[q.cat]||'var(--gold2)';
+      dots += '<div class="cal-wday-dot quest-dot" style="background:'+c+'" title="'+escHtml(q.title||'')+'"></div>';
+    });
+    dayEvts.slice(0,3).forEach(function(e){
+      dots += '<div class="cal-wday-dot" title="'+escHtml(e.title||'')+'"></div>';
+    });
+
+    var cls = 'cal-week-day'+(isToday?' today':'')+(isWeekend?' weekend':'');
+    html += '<div class="'+cls+'" data-date="'+dStr+'" onclick="calWeekShowDay(\''+dStr+'\')">'+
+      '<div class="cal-wday-name">'+WD[i]+'</div>'+
+      '<div class="cal-wday-num">'+d.getDate()+'</div>'+
+      (dots ? '<div class="cal-wday-dots">'+dots+'</div>' : '')+
+      '</div>';
+  }
+  strip.innerHTML = html;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function calWeekShowDay(dateStr) {
+  var panel = document.getElementById('cal-v3-day-panel');
+  var titleEl = document.getElementById('cal-v3-day-title');
+  var listEl = document.getElementById('cal-v3-events-list');
+  if(!panel) return;
+
+  // Тогл: повторный клик по тому же дню — закрывает
+  if(calSelectedDay===dateStr && panel.style.display!=='none') {
+    panel.style.display='none';
+    calSelectedDay=null;
+    document.querySelectorAll('.cal-week-day').forEach(function(el){el.classList.remove('selected');});
+    return;
+  }
+
+  calSelectedDay = dateStr;
+  document.querySelectorAll('.cal-week-day').forEach(function(el){
+    el.classList.toggle('selected', el.dataset.date===dateStr);
+  });
+
+  var d = new Date(dateStr+'T00:00:00');
+  var WD_FULL=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+  var isToday = dateStr===new Date().toISOString().slice(0,10);
+  titleEl.textContent = WD_FULL[d.getDay()]+' · '+d.getDate()+' '+
+    CAL_MONTH_NAMES[d.getMonth()].toLowerCase()+(isToday?' — Сегодня':'');
+
+  var events = (S.events||[]).filter(function(e){return e.date===dateStr;});
+  var quests = (S.quests||[]).filter(function(q){
+    return !q.done && q.deadline && q.deadline.slice(0,10)===dateStr;
+  });
+
+  var html = '';
+  quests.forEach(function(q){
+    html += '<div class="cal-event-item cat-deadline">'+
+      '<div class="cal-event-time">Дедлайн</div>'+
+      '<div class="cal-event-body">'+
+        '<div class="cal-event-title">'+escHtml(q.fantasyTitle||q.title||'')+'</div>'+
+        '<div class="cal-event-cat">⚔ Квест</div>'+
+      '</div></div>';
+  });
+  events.forEach(function(e){
+    html += '<div class="cal-event-item cat-'+e.cat+'">'+
+      '<div class="cal-event-time">'+e.time+'</div>'+
+      '<div class="cal-event-body">'+
+        '<div class="cal-event-title">'+escHtml(e.title)+'</div>'+
+        (e.desc?'<div class="cal-event-desc">'+escHtml(e.desc)+'</div>':'')+
+        '<div class="cal-event-cat">'+(CAL_CAT_LABELS[e.cat]||e.cat)+'</div>'+
+      '</div>'+
+      '<button class="cal-event-del" onclick="delCalEventWeek('+e.id+',\''+dateStr+'\')" title="Удалить">✕</button>'+
+    '</div>';
+  });
+
+  if(!html) {
+    html = '<div style="font-family:var(--ff-body);font-style:italic;font-size:12px;color:var(--text3);'+
+      'text-align:center;padding:8px 0">Нет событий — добавь ниже</div>';
+  }
+  listEl.innerHTML = html;
+  panel.style.display = 'block';
+  setTimeout(function(){
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }, 50);
+}
+
+function delCalEventWeek(id, dateStr) {
+  if(!S.events) return;
+  S.events = S.events.filter(function(e){return e.id!==id;});
+  save();
+  var monday = getWeekMonday(calWeekOffset);
+  renderCalWeek(monday);
+  if(calSelectedDay===dateStr) calWeekShowDay(dateStr);
+  renderUpcoming();
+}
+
+function calQuickAdd() {
+  if(!calSelectedDay) return;
+  var title = (document.getElementById('cal-v3-qa-title').value||'').trim();
+  var time  = document.getElementById('cal-v3-qa-time').value||'09:00';
+  if(!title){ showToast('Введи название события'); return; }
+  if(!S.events) S.events=[];
+  S.events.push({
+    id:Date.now(), title:title, date:calSelectedDay, time:time,
+    cat:'personal', desc:'', remind:0, questId:'',
+    created:new Date().toISOString()
+  });
+  S.events.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
+  save();
+  document.getElementById('cal-v3-qa-title').value='';
+  var monday = getWeekMonday(calWeekOffset);
+  renderCalWeek(monday);
+  calWeekShowDay(calSelectedDay);
+  renderUpcoming();
+  showToast('✦ Событие записано в летопись!');
+  if(typeof sndQuestComplete==='function') sndQuestComplete();
+}
+
+function calMonthQuickAdd() {
+  if(!calSelectedDay) return;
+  var title = (document.getElementById('cal-month-qa-title').value||'').trim();
+  var time  = document.getElementById('cal-month-qa-time').value||'09:00';
+  if(!title){ showToast('Введи название события'); return; }
+  if(!S.events) S.events=[];
+  S.events.push({
+    id:Date.now(), title:title, date:calSelectedDay, time:time,
+    cat:'personal', desc:'', remind:0, questId:'',
+    created:new Date().toISOString()
+  });
+  S.events.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
+  save();
+  document.getElementById('cal-month-qa-title').value='';
+  renderCalendarV3();
+  showDayPanel(calSelectedDay);
+  renderUpcoming();
+  showToast('✦ Событие записано в летопись!');
+  if(typeof sndQuestComplete==='function') sndQuestComplete();
 }
 
 // =============================================
