@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Политика конфиденциальности — QuestFlow «Хроники Судьбы»</title>
+<style>
+  :root {
+    --bg: #0a0706;
+    --bg2: #11100e;
+    --gold: #c8a84a;
+    --text: #e2d9c4;
+    --text2: #9a8c7a;
+    --parchment: #f0e8d0;
+    --ink: #3a2010;
+    --ff-title: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    --ff-body: Georgia, 'Times New Roman', serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); color: var(--text); font-family: var(--ff-body); }
+  body { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  header { text-align: center; padding: 48px 0 40px; border-bottom: 1px solid rgba(200,168,74,.25); margin-bottom: 40px; }
+  header .app-name { font-family: var(--ff-title); font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  header h1 { font-family: var(--ff-title); font-size: clamp(22px, 5vw, 32px); color: var(--parchment); margin-bottom: 8px; }
+  header .updated { font-size: 13px; color: var(--text2); }
+
+  section { margin-bottom: 36px; }
+  h2 { font-family: var(--ff-title); font-size: 18px; color: var(--gold); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(200,168,74,.15); }
+  p { font-size: 15px; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+  ul { padding-left: 20px; margin-bottom: 10px; }
+  li { font-size: 15px; line-height: 1.7; color: var(--text); margin-bottom: 4px; }
+  a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--parchment); }
+
+  .highlight-box { background: rgba(200,168,74,.06); border: 1px solid rgba(200,168,74,.2); border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+  .highlight-box p { margin-bottom: 0; }
+
+  footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid rgba(200,168,74,.15); text-align: center; font-size: 13px; color: var(--text2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="app-name">QuestFlow</div>
+  <h1>Политика конфиденциальности</h1>
+  <div class="updated">Последнее обновление: 24 мая 2026 г.</div>
+</header>
+
+<div class="highlight-box">
+  <p><strong>Коротко:</strong> QuestFlow не собирает и не продаёт ваши данные. Все задачи хранятся на вашем устройстве. Если вы входите через Google — данные синхронизируются в вашем личном облаке Firebase, к которому только вы имеете доступ.</p>
+</div>
+
+<section>
+  <h2>1. О приложении</h2>
+  <p>QuestFlow «Хроники Судьбы» — это персональный планировщик задач в стиле тёмного фэнтези. Разработчик: частное лицо (Даниил). Приложение доступно как PWA на сайте <a href="https://questflow-app.netlify.app">questflow-app.netlify.app</a>.</p>
+</section>
+
+<section>
+  <h2>2. Какие данные мы собираем</h2>
+  <p>По умолчанию (без входа) <strong>мы не собираем никаких данных</strong>. Все квесты, настройки и прогресс хранятся исключительно в localStorage вашего браузера на вашем устройстве.</p>
+  <p>Если вы решаете войти через Google (опционально), мы получаем:</p>
+  <ul>
+    <li>Email-адрес и имя из вашего Google-аккаунта — только для идентификации</li>
+    <li>Ваши квесты и настройки — сохраняются в Firebase Firestore только в вашем личном документе</li>
+  </ul>
+</section>
+
+<section>
+  <h2>3. Как используются данные</h2>
+  <ul>
+    <li><strong>Синхронизация:</strong> если вы авторизованы, данные синхронизируются между вашими устройствами через Firebase Firestore. Доступ к вашим данным есть только у вас.</li>
+    <li><strong>AI-генерация:</strong> когда вы добавляете квест, его название и категория отправляются на наш Cloudflare Worker, который запрашивает у Anthropic Claude краткое фэнтезийное описание. Эти данные не хранятся на сервере.</li>
+    <li><strong>Погода:</strong> для отображения погоды используется Open-Meteo API. Запрос не содержит персональных данных — только координаты (если разрешены) или название города.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4. Передача данных третьим лицам</h2>
+  <p>Мы <strong>не продаём и не передаём</strong> ваши данные третьим лицам. Единственные внешние сервисы:</p>
+  <ul>
+    <li><strong>Firebase / Google Cloud</strong> — хранение данных при авторизации (<a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">политика Firebase</a>)</li>
+    <li><strong>Anthropic Claude</strong> — генерация текста квестов (название задачи + категория, без личных данных)</li>
+    <li><strong>Pollinations AI</strong> — генерация иллюстраций к квестам (бесплатный публичный API)</li>
+    <li><strong>Open-Meteo</strong> — прогноз погоды (без авторизации, без персональных данных)</li>
+    <li><strong>Netlify</strong> — хостинг PWA (<a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">политика Netlify</a>)</li>
+  </ul>
+</section>
+
+<section>
+  <h2>5. Push-уведомления</h2>
+  <p>Приложение может запросить разрешение на отправку уведомлений о просроченных квестах. Уведомления генерируются локально на вашем устройстве — никакие данные не отправляются на наши серверы. Вы можете отключить уведомления в настройках браузера или системы в любой момент.</p>
+</section>
+
+<section>
+  <h2>6. Хранение и удаление данных</h2>
+  <ul>
+    <li><strong>Локальные данные:</strong> удаляются через «Сброс прогресса» в настройках приложения или через очистку данных браузера.</li>
+    <li><strong>Данные Firebase:</strong> автоматически удаляются при удалении аккаунта через настройки приложения. Вы также можете запросить удаление, написав на контактный email ниже.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>7. Дети</h2>
+  <p>Приложение не предназначено для детей до 13 лет. Мы не собираем осознанно данные несовершеннолетних.</p>
+</section>
+
+<section>
+  <h2>8. Изменения политики</h2>
+  <p>При значительных изменениях мы обновим дату вверху страницы. Продолжение использования приложения означает согласие с обновлённой политикой.</p>
+</section>
+
+<section>
+  <h2>9. Контакты</h2>
+  <p>Вопросы о конфиденциальности: <a href="mailto:questflow.app@gmail.com">questflow.app@gmail.com</a></p>
+</section>
+
+<footer>
+  © 2026 QuestFlow «Хроники Судьбы» &nbsp;·&nbsp; <a href="/">Вернуться в приложение</a>
+</footer>
+
+</body>
+</html>

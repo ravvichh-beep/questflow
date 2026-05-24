@@ -1,9 +1,10 @@
 /* QuestFlow Service Worker — офлайн-кэш через cache-first стратегию */
 
-const CACHE_NAME = 'questflow-v3.3.0';
+const CACHE_NAME = 'questflow-v3.4.0';
 const ASSETS = [
   './',
   './index.html',
+  './privacy.html',
   './focus.html',
   './manifest.json',
   './icon.svg',
@@ -11,6 +12,7 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-maskable.png',
+  // Фоны
   './assets/web/bg-quests-board.jpg',
   './assets/web/bg-library.jpg',
   './assets/web/bg-dungeon.jpg',
@@ -18,11 +20,20 @@ const ASSETS = [
   './assets/web/bg-hero-hall.jpg',
   './assets/web/bg-projects.jpg',
   './assets/web/bg-calendar.jpg',
+  './assets/web/bg-routines.jpg',
+  './assets/web/bg-archive.jpg',
+  './assets/web/bg-stats.jpg',
+  './assets/web/bg-bestiary.jpg',
+  // Свиток и боковые заметки
+  './assets/web/scroll-main.jpg',
+  './assets/web/note-side.jpg',
+  // Обложки квестов по категориям
   './assets/web/cover-study.jpg',
   './assets/web/cover-work.jpg',
   './assets/web/cover-health.jpg',
   './assets/web/cover-hobby.jpg',
   './assets/web/cover-life.jpg',
+  // Портреты героя
   './assets/web/p01-warrior.jpg',
   './assets/web/p02-keeper.jpg',
   './assets/web/p03-druid.jpg',
