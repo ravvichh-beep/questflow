@@ -5692,8 +5692,16 @@ function load() {
     if (!d.sagas) d.sagas = [];
     if (d.lastSagaWeek === undefined) d.lastSagaWeek = '';
     // Критическая защита: hero всегда должен существовать
-    if (!d.hero) d.hero = fresh().hero;
-    // Обновляем недостающие поля hero (новые поля добавились позже)
+    if (!d.hero) {
+      d.hero = fresh().hero;
+      // Миграция из очень старого flat-формата (heroName, heroClass, level, xp, gold)
+      if (d.heroName)  d.hero.name  = d.heroName;
+      if (d.heroClass) d.hero.cls   = d.heroClass;
+      if (d.level)     d.hero.lvl   = d.level;
+      if (d.xp)        d.hero.xp    = d.xp;
+      if (d.gold)      d.hero.gold  = d.gold;
+    }
+    // Обновляем недостающие поля hero (новые поля могли добавиться позже)
     var fh = fresh().hero;
     Object.keys(fh).forEach(function(k) {
       if (d.hero[k] === undefined) d.hero[k] = fh[k];
