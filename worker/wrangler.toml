@@ -4,12 +4,9 @@ compatibility_date = "2024-11-01"
 workers_dev     = true
 
 # ─── KV для rate limiting ────────────────────────────────────────────────────
-# После создания KV namespace через `wrangler kv namespace create RATE_KV`
-# вставь сюда полученный id.
-# Пока закомментировано — воркер работает без rate limiting.
-# [[kv_namespaces]]
-# binding = "RATE_KV"
-# id      = "PASTE_KV_ID_HERE"
+[[kv_namespaces]]
+binding = "RATE_KV"
+id      = "3e294ff8d61641b8b1abfbe6c4968e5a"
 
 # ─── Переменные окружения ─────────────────────────────────────────────────────
 # ANTHROPIC_API_KEY задаётся через `wrangler secret put ANTHROPIC_API_KEY`
