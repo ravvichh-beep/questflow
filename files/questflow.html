@@ -5724,6 +5724,11 @@ function load() {
     if (d.voiceEnabled === undefined) d.voiceEnabled = true;
     if (!d.sagas) d.sagas = [];
     if (d.lastSagaWeek === undefined) d.lastSagaWeek = '';
+    if (!d.achievements) d.achievements = {};
+    if (!d.projects)     d.projects     = [];
+    if (!d.journal)      d.journal      = [];
+    if (!d.calEvents)    d.calEvents    = [];
+    if (!d.chartMode)    d.chartMode    = 'week';
     // Критическая защита: hero всегда должен существовать
     if (!d.hero) {
       d.hero = fresh().hero;
