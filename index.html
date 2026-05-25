@@ -11525,7 +11525,7 @@ function renderCalWeek(monday) {
     var total = dayQsts.length + dayEvts.length;
     var shown = 0;
     dayQsts.slice(0, 3).forEach(function(q) {
-      var cat = q.cat || 'quest';
+      var cat = q.category || 'quest';
       var cls2 = 'cal-wday-chip chip-' + (CAL_CAT_COLORS[cat] ? cat : 'quest');
       var label = q.fantasyTitle || q.title || '⚔';
       chipsHtml += '<div class="' + cls2 + '" title="' + escHtml(label) + '">' + escHtml(label) + '</div>';
