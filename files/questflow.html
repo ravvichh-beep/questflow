@@ -5517,15 +5517,21 @@ if (window.FIREBASE_CONFIG) {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
     const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } =
       await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
-    const { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp, enableIndexedDbPersistence } =
+    const { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp,
+            initializeFirestore, persistentLocalCache, persistentMultipleTabManager } =
       await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
 
     const app = initializeApp(window.FIREBASE_CONFIG);
     const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Оффлайн-кэш Firestore (auto-sync при возвращении в онлайн)
-    try { await enableIndexedDbPersistence(db); } catch(e) { /* tab limit или другая вкладка */ }
+    // Оффлайн-кэш через новый API (persistentLocalCache вместо устаревшего enableIndexedDbPersistence)
+    let db;
+    try {
+      db = initializeFirestore(app, {
+        cache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+      });
+    } catch(e) {
+      db = getFirestore(app);
+    }
 
     window._fb = {
       auth, db,
