@@ -5450,7 +5450,7 @@ body.berserk-mode {
   <div class="modal version-modal">
     <div class="vm-icon">⚔</div>
     <div class="vm-title">Хроники Судьбы</div>
-    <div class="vm-version">v<span id="vm-version-num">3.4.0</span></div>
+    <div class="vm-version">v<span id="vm-version-num">3.4.1</span></div>
     <div class="vm-phase" id="vm-phase">Атмосфера Таверны</div>
     <div class="vm-meta">
       <div>Сборка<b id="vm-build">—</b></div>
@@ -5558,8 +5558,8 @@ if (window.FIREBASE_CONFIG) {
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '3.4.0';
-var APP_BUILD_DATE = '2026-05-24';
+var APP_VERSION = '3.4.1';
+var APP_BUILD_DATE = '2026-05-26';
 var APP_PHASE = 'AI-Атмосфера';
 
 // ─── Cloudflare Worker (Блок 3) ──────────────────────────────────────────────
@@ -5735,6 +5735,14 @@ function load() {
     if (!d.journal)      d.journal      = [];
     if (!d.calEvents)    d.calEvents    = [];
     if (!d.chartMode)    d.chartMode    = 'week';
+    // Dungeon field migrations (added in early versions, may be missing in old saves)
+    if (d.dungeonIdx    === undefined) d.dungeonIdx    = 0;
+    if (d.dungeonEHP    === undefined) d.dungeonEHP    = 0;
+    if (d.dungeonEHPMax === undefined) d.dungeonEHPMax = 0;
+    if (d.dungeonOn     === undefined) d.dungeonOn     = true;
+    if (d.dungeonKills  === undefined) d.dungeonKills  = 0;
+    if (d.killedBoss    === undefined) d.killedBoss    = false;
+    if (d._tempBoss     === undefined) d._tempBoss     = null;
     // Критическая защита: hero всегда должен существовать
     if (!d.hero) {
       d.hero = fresh().hero;
@@ -10375,6 +10383,7 @@ var ACHS = [
 ];
 
 function checkAch() {
+  if (!S.achievements) S.achievements = {};
   ACHS.forEach(function(a) {
     if (!S.achievements[a.id] && a.check()) {
       S.achievements[a.id] = true;
@@ -10386,6 +10395,7 @@ function checkAch() {
 function renderAch() {
   var el = document.getElementById('ach-grid');
   if (!el) return;
+  if (!S.achievements) S.achievements = {};
   el.innerHTML = ACHS.map(function(a) {
     var ok = S.achievements[a.id];
     return '<div class="ach ' + (ok ? '' : 'locked') + '"><span class="ach-icon">' + a.icon + '</span><div><div class="ach-name">' + a.name + '</div><div class="ach-desc">' + a.desc + '</div></div></div>';
@@ -11841,6 +11851,7 @@ function refreshDungeonHero() {
 
 function refreshDungeonEnemy() {
   var e = (S._tempBoss) ? S._tempBoss : curEnemy();
+  if (!e) return;  // guard: dungeonIdx out of range or ENEMIES empty
   var p = S.dungeonEHPMax > 0 ? Math.max(0, Math.round(S.dungeonEHP / S.dungeonEHPMax * 100)) : 100;
 
   document.getElementById('d-enemy-name').textContent = e.n;
