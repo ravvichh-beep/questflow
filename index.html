@@ -1745,41 +1745,75 @@ button{cursor:pointer;font-family:var(--ff-title)}
 
 /* === ГЛАВНЫЙ КВЕСТ — СВИТОК с AI-изображением === */
 .scroll-quest{
-  /* CSS Grid: оба дочерних элемента занимают одну ячейку —
-     .scroll-body определяет высоту, .scroll-quest-img растягивается под неё */
-  display:grid;
-  grid-template-columns:1fr;
   margin:0 0 48px;
 }
-/* AI-изображение свитка — занимает ту же ячейку что и .scroll-body */
+/* Кинематографический хедер с AI-картинкой квеста — снаружи свитка */
+.scroll-art-header{
+  position:relative;
+  height:185px;
+  overflow:hidden;
+  border-radius:6px 6px 0 0;
+}
+.scroll-art-header .qart{
+  height:185px !important;
+  margin:0 !important;
+  border:none !important;
+  border-radius:0 !important;
+}
+/* Fade снизу → цвет деревянной ручки свитка */
+.scroll-art-header::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    rgba(10,6,3,.05) 0%,
+    rgba(10,6,3,.08) 42%,
+    rgba(22,10,3,.60) 78%,
+    rgba(22,10,3,.92) 100%);
+  pointer-events:none;z-index:2;
+}
+/* CAPITULUM поверх картинки */
+.scroll-art-rubric{
+  position:absolute;
+  top:40%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:var(--ff-title);font-size:9px;letter-spacing:4px;
+  color:rgba(235,210,145,.65);
+  text-shadow:0 0 14px rgba(0,0,0,.95),0 1px 3px rgba(0,0,0,.8);
+  z-index:3;text-transform:uppercase;white-space:nowrap;
+  pointer-events:none;
+}
+/* Внутренняя обёртка: CSS Grid для текстуры свитка + тело */
+.scroll-inner{
+  display:grid;
+  grid-template-columns:1fr;
+}
+/* Текстура свитка с деревянными ручками */
 .scroll-quest-img{
   grid-area:1/1;
   width:100%;
   height:100%;
-  object-fit:fill;         /* fill — сохраняем ручки видимыми, растягиваем вертикально */
+  object-fit:fill;
   pointer-events:none;
-  border-radius:4px;
+  border-radius:0 0 4px 4px;
   user-select:none;
   display:block;
 }
-/* Тело свитка — на той же ячейке, поверх изображения */
+/* Тело свитка — поверх текстуры */
 .scroll-body{
   grid-area:1/1;
   position:relative;
   z-index:1;
-  /* Отступы: верх/низ = зона деревянных ручек (~12% от высоты изображения каждая) */
-  padding:68px 64px 80px;
+  padding:56px 56px 72px;
   color:#2a1808;
-  background:rgba(240,220,180,.08);
+  background:rgba(240,220,180,.06);
 }
 /* Полутень намотки для глубины */
 .scroll-body::before,.scroll-body::after{
-  content:'';position:absolute;left:60px;right:60px;height:18px;
+  content:'';position:absolute;left:52px;right:52px;height:18px;
   background:linear-gradient(180deg,rgba(90,50,14,.18) 0%,transparent 100%);
   pointer-events:none;z-index:0;
 }
-.scroll-body::before{top:68px}
-.scroll-body::after{bottom:80px;transform:scaleY(-1)}
+.scroll-body::before{top:56px}
+.scroll-body::after{bottom:72px;transform:scaleY(-1)}
 /* Класс-значок внутри свитка */
 .scroll-rank{
   display:inline-flex;align-items:center;justify-content:center;
@@ -5450,7 +5484,7 @@ body.berserk-mode {
   <div class="modal version-modal">
     <div class="vm-icon">⚔</div>
     <div class="vm-title">Хроники Судьбы</div>
-    <div class="vm-version">v<span id="vm-version-num">3.4.1</span></div>
+    <div class="vm-version">v<span id="vm-version-num">3.4.2</span></div>
     <div class="vm-phase" id="vm-phase">Атмосфера Таверны</div>
     <div class="vm-meta">
       <div>Сборка<b id="vm-build">—</b></div>
@@ -5558,8 +5592,8 @@ if (window.FIREBASE_CONFIG) {
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '3.4.1';
-var APP_BUILD_DATE = '2026-05-26';
+var APP_VERSION = '3.4.2';
+var APP_BUILD_DATE = '2026-05-30';
 var APP_PHASE = 'AI-Атмосфера';
 
 // ─── Cloudflare Worker (Блок 3) ──────────────────────────────────────────────
@@ -9365,12 +9399,17 @@ function buildMainQuestHTML(q, nextQ) {
   var loreText = q.lore || q.description || 'Этот квест ждёт твоего внимания, герой.';
 
   var letter = questClassLetter(q.difficulty);
-  // Свиток: AI-изображение как рамка + контент поверх
+  // Свиток: кинематографический арт-хедер сверху + деревянные ручки + контент на пергаменте
   return '<div class="scroll-quest" data-quest-id="' + q.id + '">'
+    // Арт-хедер снаружи свитка (не деформирует ручки)
+    + '<div class="scroll-art-header">'
+    + '<div class="qart">' + questArtHTML(q) + '</div>'
+    + '<div class="scroll-art-rubric">· CAPITULUM ' + toRoman(S.stats.totalDone + 1) + ' ·</div>'
+    + '</div>'
+    // Свиток с деревянными ручками — содержит только текст
+    + '<div class="scroll-inner">'
     + '<img class="scroll-quest-img" src="assets/web/scroll-main.jpg" alt="" aria-hidden="true" loading="lazy">'
     + '<div class="scroll-body">'
-    + '<div class="qrubric" style="color:#8b6a3a;margin-bottom:8px">· CAPITULUM ' + toRoman(S.stats.totalDone + 1) + ' ·</div>'
-    + '<div class="qart" style="margin:0 -36px 16px;border-left:none;border-right:none">' + questArtHTML(q) + '</div>'
     + '<div class="scroll-header-row">'
     + '<div class="scroll-rank rank-' + letter + '">' + letter + '</div>'
     + '<div>'
@@ -9407,8 +9446,9 @@ function buildMainQuestHTML(q, nextQ) {
     + '</div>'
     + '<div class="bc-panel" id="bc-panel-' + q.id + '" style="display:none"></div>'
     + (nextQ ? '<div class="nhint" style="color:#6a4818;border-color:rgba(120,80,30,.2);background:rgba(120,80,30,.06)">→ Следующий: <b>«' + esc(nextQ.fantasyTitle || nextQ.title) + '»</b></div>' : '')
-    + '</div>'
-    + '</div>';
+    + '</div>'   // .scroll-body
+    + '</div>'   // .scroll-inner
+    + '</div>'; // .scroll-quest
 }
 
 function buildSideQuestHTML(q) {
