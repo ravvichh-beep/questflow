@@ -1,6 +1,6 @@
 /* QuestFlow Service Worker — офлайн-кэш через cache-first стратегию */
 
-const CACHE_NAME = 'questflow-v3.4.4';
+const CACHE_NAME = 'questflow-v3.4.5';
 const ASSETS = [
   './',
   './index.html',
@@ -25,7 +25,7 @@ const ASSETS = [
   './assets/web/bg-stats.jpg',
   './assets/web/bg-bestiary.jpg',
   // Свиток и боковые заметки
-  './assets/web/scroll-main.jpg',
+  './assets/web/scroll-main.png',
   './assets/web/note-side.jpg',
   // Обложки квестов по категориям
   './assets/web/cover-study.jpg',

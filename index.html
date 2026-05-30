@@ -1776,14 +1776,14 @@ button{cursor:pointer;font-family:var(--ff-title)}
   border:none !important;
   border-radius:0 !important;
 }
-/* Fade снизу → цвет деревянной ручки свитка */
+/* Fade снизу → цвет пергамента (ручки теперь по бокам) */
 .scroll-art-header::after{
   content:'';position:absolute;inset:0;
   background:linear-gradient(to bottom,
     rgba(10,6,3,.05) 0%,
-    rgba(10,6,3,.08) 42%,
-    rgba(22,10,3,.60) 78%,
-    rgba(22,10,3,.92) 100%);
+    rgba(10,6,3,.08) 36%,
+    rgba(220,190,130,.55) 78%,
+    rgba(240,224,182,.92) 100%);
   pointer-events:none;z-index:2;
 }
 /* CAPITULUM поверх картинки */
@@ -1801,7 +1801,7 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .scroll-inner{
   position:relative; /* контент определяет высоту, img абсолютный */
 }
-/* Текстура свитка — абсолютно позиционирована, растягивается под контент */
+/* Текстура свитка с прозрачным фоном (PNG) — боковые деревянные ручки */
 .scroll-quest-img{
   position:absolute;
   inset:0;
@@ -1809,7 +1809,6 @@ button{cursor:pointer;font-family:var(--ff-title)}
   height:100%;
   object-fit:fill;   /* fill — ручки видны, растягиваем под высоту контента */
   pointer-events:none;
-  border-radius:0 0 4px 4px;
   user-select:none;
   display:block;
 }
@@ -1817,18 +1816,24 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .scroll-body{
   position:relative;
   z-index:1;
-  padding:56px 52px 72px;
+  /* Большие отступы по бокам — под деревянные ручки-колонны (~130px каждая) */
+  padding:20px 134px 28px;
   color:#2a1808;
-  background:transparent; /* фон теперь у img */
+  background:transparent;
 }
-/* Полутень намотки для глубины */
-.scroll-body::before,.scroll-body::after{
-  content:'';position:absolute;left:52px;right:52px;height:18px;
-  background:linear-gradient(180deg,rgba(90,50,14,.18) 0%,transparent 100%);
+/* Горизонтальная тень сверху пергамента для глубины */
+.scroll-body::before{
+  content:'';position:absolute;
+  top:0;left:130px;right:130px;height:20px;
+  background:linear-gradient(180deg,rgba(90,50,14,.12) 0%,transparent 100%);
   pointer-events:none;z-index:0;
 }
-.scroll-body::before{top:56px}
-.scroll-body::after{bottom:72px;transform:scaleY(-1)}
+.scroll-body::after{
+  content:'';position:absolute;
+  bottom:0;left:130px;right:130px;height:20px;
+  background:linear-gradient(0deg,rgba(90,50,14,.12) 0%,transparent 100%);
+  pointer-events:none;z-index:0;
+}
 /* Класс-значок внутри свитка */
 .scroll-rank{
   display:inline-flex;align-items:center;justify-content:center;
@@ -5513,7 +5518,7 @@ body.berserk-mode {
   <div class="modal version-modal">
     <div class="vm-icon">⚔</div>
     <div class="vm-title">Хроники Судьбы</div>
-    <div class="vm-version">v<span id="vm-version-num">3.4.4</span></div>
+    <div class="vm-version">v<span id="vm-version-num">3.4.5</span></div>
     <div class="vm-phase" id="vm-phase">Атмосфера Таверны</div>
     <div class="vm-meta">
       <div>Сборка<b id="vm-build">—</b></div>
@@ -5621,7 +5626,7 @@ if (window.FIREBASE_CONFIG) {
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '3.4.4';
+var APP_VERSION = '3.4.5';
 var APP_BUILD_DATE = '2026-05-30';
 var APP_PHASE = 'AI-Атмосфера';
 
@@ -9437,7 +9442,7 @@ function buildMainQuestHTML(q, nextQ) {
     + '</div>'
     // Свиток с деревянными ручками — содержит только текст
     + '<div class="scroll-inner">'
-    + '<img class="scroll-quest-img" src="assets/web/scroll-main.jpg" alt="" aria-hidden="true" loading="lazy">'
+    + '<img class="scroll-quest-img" src="assets/web/scroll-main.png" alt="" aria-hidden="true" loading="lazy">'
     + '<div class="scroll-body">'
     + '<div class="scroll-header-row">'
     + '<div class="scroll-rank rank-' + letter + '">' + letter + '</div>'
