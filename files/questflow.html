@@ -1845,18 +1845,36 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .scroll-rank.rank-D{background:radial-gradient(circle at 32% 30%, #b0b0b0 0%, #707070 50%, #303030 90%);color:#fff}
 /* Строка с рангом + подзаголовком */
 .scroll-header-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-/* Кнопки в свитке — под цвет пергамента */
+/* Кнопки в свитке — пергамент-стиль */
 .scroll-body .btn{
-  background:rgba(60,30,8,.1);border-color:rgba(120,80,30,.45);
+  font-family:var(--ff-title);font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;
+  background:rgba(60,30,8,.08);
+  border-color:rgba(120,80,30,.5);
   color:#3a2010;
+  padding:8px 14px;
+  border-radius:3px;
 }
-.scroll-body .btn:hover{background:rgba(60,30,8,.18)}
+.scroll-body .btn:hover{
+  background:rgba(60,30,8,.16);
+  border-color:rgba(120,80,30,.75);
+}
 .scroll-body .btn-g{
-  background:rgba(40,120,60,.18);border-color:rgba(40,120,60,.4);color:#1a4a1a
+  background:rgba(30,90,45,.15);
+  border-color:rgba(40,110,55,.55);
+  color:#1a4020;
 }
-.scroll-body .btn-g:hover{background:rgba(40,120,60,.28)}
-.scroll-body .btn-o{background:rgba(200,140,60,.12);border-color:rgba(180,120,40,.4);color:#4a2a08}
-.scroll-body .btn-b{background:rgba(40,80,160,.1);border-color:rgba(40,80,160,.3);color:#1a2848}
+.scroll-body .btn-g:hover{background:rgba(30,90,45,.25)}
+.scroll-body .btn-o{
+  background:rgba(160,100,30,.12);
+  border-color:rgba(160,100,30,.45);
+  color:#5a3010;
+}
+.scroll-body .btn-b{
+  background:rgba(30,60,130,.1);
+  border-color:rgba(30,60,130,.35);
+  color:#1a2848;
+}
 
 /* Добавить квест — v3 стиль (пергамент + золото) */
 .add-q{
@@ -5495,7 +5513,7 @@ body.berserk-mode {
   <div class="modal version-modal">
     <div class="vm-icon">⚔</div>
     <div class="vm-title">Хроники Судьбы</div>
-    <div class="vm-version">v<span id="vm-version-num">3.4.3</span></div>
+    <div class="vm-version">v<span id="vm-version-num">3.4.4</span></div>
     <div class="vm-phase" id="vm-phase">Атмосфера Таверны</div>
     <div class="vm-meta">
       <div>Сборка<b id="vm-build">—</b></div>
@@ -5603,7 +5621,7 @@ if (window.FIREBASE_CONFIG) {
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '3.4.3';
+var APP_VERSION = '3.4.4';
 var APP_BUILD_DATE = '2026-05-30';
 var APP_PHASE = 'AI-Атмосфера';
 
