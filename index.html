@@ -754,6 +754,19 @@ button{cursor:pointer;font-family:var(--ff-title)}
   box-shadow:0 0 20px rgba(184,137,63,.3);
 }
 .pad{padding:22px 26px}
+/* Главный экран квестов — центрируем контент на широких экранах */
+#view-quests .pad{max-width:820px;margin:0 auto;padding:28px 24px}
+/* v3 стиль заголовков секций на квестовом экране */
+#view-quests .shdr{
+  font-family:var(--ff-title);font-size:10px;letter-spacing:4px;
+  color:var(--gold2);text-transform:uppercase;
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;
+}
+#view-quests .shdr::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,var(--bdg),transparent);
+}
 
 /* ===== V3 DUNGEON OVERRIDES ===== */
 #view-dungeon .dung-top{
@@ -1745,7 +1758,10 @@ button{cursor:pointer;font-family:var(--ff-title)}
 
 /* === ГЛАВНЫЙ КВЕСТ — СВИТОК с AI-изображением === */
 .scroll-quest{
-  margin:0 0 48px;
+  max-width:740px;
+  margin:0 auto 48px;
+  /* Лёгкая тень снаружи — свиток отделяется от фона */
+  filter:drop-shadow(0 8px 32px rgba(0,0,0,.7));
 }
 /* Кинематографический хедер с AI-картинкой квеста — снаружи свитка */
 .scroll-art-header{
@@ -1783,28 +1799,27 @@ button{cursor:pointer;font-family:var(--ff-title)}
 }
 /* Внутренняя обёртка: CSS Grid для текстуры свитка + тело */
 .scroll-inner{
-  display:grid;
-  grid-template-columns:1fr;
+  position:relative; /* контент определяет высоту, img абсолютный */
 }
-/* Текстура свитка с деревянными ручками */
+/* Текстура свитка — абсолютно позиционирована, растягивается под контент */
 .scroll-quest-img{
-  grid-area:1/1;
+  position:absolute;
+  inset:0;
   width:100%;
   height:100%;
-  object-fit:fill;
+  object-fit:fill;   /* fill — ручки видны, растягиваем под высоту контента */
   pointer-events:none;
   border-radius:0 0 4px 4px;
   user-select:none;
   display:block;
 }
-/* Тело свитка — поверх текстуры */
+/* Тело свитка — определяет высоту всего .scroll-inner */
 .scroll-body{
-  grid-area:1/1;
   position:relative;
   z-index:1;
-  padding:56px 56px 72px;
+  padding:56px 52px 72px;
   color:#2a1808;
-  background:rgba(240,220,180,.06);
+  background:transparent; /* фон теперь у img */
 }
 /* Полутень намотки для глубины */
 .scroll-body::before,.scroll-body::after{
@@ -1843,29 +1858,25 @@ button{cursor:pointer;font-family:var(--ff-title)}
 .scroll-body .btn-o{background:rgba(200,140,60,.12);border-color:rgba(180,120,40,.4);color:#4a2a08}
 .scroll-body .btn-b{background:rgba(40,80,160,.1);border-color:rgba(40,80,160,.3);color:#1a2848}
 
-/* Добавить квест */
+/* Добавить квест — v3 стиль (пергамент + золото) */
 .add-q{
-  width:100%;background:transparent;
-  border:1px dashed rgba(40,90,160,.3);
+  width:100%;
+  background:rgba(30,18,8,.35);
+  border:1px solid var(--bdg);
   border-radius:var(--r2);
-  padding:14px;color:var(--text3);
-  font-family:var(--ff-title);font-size:10px;letter-spacing:2.5px;
-  cursor:pointer;transition:all .22s;
-  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:16px 20px;
+  color:var(--gold2);
+  font-family:var(--ff-title);font-size:11px;letter-spacing:3px;
+  cursor:pointer;transition:all .25s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
   margin-bottom:24px;text-transform:uppercase;
-  position:relative;overflow:hidden;
-}
-.add-q::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(64,136,216,.05),transparent);
-  opacity:0;transition:opacity .22s;
 }
 .add-q:hover{
-  border-color:rgba(64,136,216,.4);
-  color:var(--sky);
-  background:rgba(64,136,216,.05);
+  background:rgba(184,137,63,.12);
+  border-color:var(--gold2);
+  box-shadow:0 0 16px rgba(184,137,63,.12);
+  color:var(--gold3, #e8c870);
 }
-.add-q:hover::before{opacity:1}
 
 /* Пустое состояние */
 .empty-state{text-align:center;padding:60px 20px}
@@ -5484,7 +5495,7 @@ body.berserk-mode {
   <div class="modal version-modal">
     <div class="vm-icon">⚔</div>
     <div class="vm-title">Хроники Судьбы</div>
-    <div class="vm-version">v<span id="vm-version-num">3.4.2</span></div>
+    <div class="vm-version">v<span id="vm-version-num">3.4.3</span></div>
     <div class="vm-phase" id="vm-phase">Атмосфера Таверны</div>
     <div class="vm-meta">
       <div>Сборка<b id="vm-build">—</b></div>
@@ -5592,7 +5603,7 @@ if (window.FIREBASE_CONFIG) {
 //   MAJOR — крупное изменение архитектуры (например React, Firebase sync, App Store)
 //   MINOR — новая фаза фич (Phase 2 = 2.1, Phase 3 = 2.2 и т.д.)
 //   PATCH — багфиксы и косметика
-var APP_VERSION = '3.4.2';
+var APP_VERSION = '3.4.3';
 var APP_BUILD_DATE = '2026-05-30';
 var APP_PHASE = 'AI-Атмосфера';
 
